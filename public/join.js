@@ -1,6 +1,6 @@
 // Participant (phone) view. mountJoin(rootElement, transport).
 (function (root) {
-  const LANES = ['#ff5a5f', '#38bdf8', '#22c997', '#a78bfa', '#ff9f1c', '#ff7ac6'];
+  const LANES = ['#5fb8ff', '#3b6fff', '#8fd3ff', '#8f7bff', '#2fc6e0', '#a9b8ff'];
   const moodOf = (o, i) => (typeof o.score === 'number' ? Math.max(3, o.score) : [5, 4, 5, 4, 5, 4][i % 6]);
 
   const SHELL = `

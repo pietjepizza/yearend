@@ -71,7 +71,7 @@
 
   // Blob characters: a round body in the lane colour with an expression for the mood (1 tired … 5 ecstatic).
   // Classes .lid (blink), .eyes (look around) and .bodyshape (squash) are animated in CSS.
-  const INK = '#1d1b3a';
+  const INK = '#0b0b3b';
   function blob(color, mood = 4, variant = 0) {
     const bodies = [
       'M32 5 C49 5 59 17 59 34 C59 51 48 60 32 60 C16 60 5 51 5 34 C5 17 15 5 32 5 Z',
@@ -80,14 +80,14 @@
     ];
     const m = Math.max(1, Math.min(5, Math.round(mood)));
     const mouths = {
-      5: `<path d="M21 39 Q32 56 43 39 Z" fill="${INK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M27 47 Q32 51 37 47 Q35 44 32 45 Q29 44 27 47 Z" fill="#ff8fa3"/>`,
+      5: `<path d="M22 40 Q32 52 42 40 Z" fill="${INK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`,
       4: `<path d="M23 41 Q32 50 41 41" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
       3: `<path d="M25 45 H39" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
       2: `<path d="M23 46 Q27.5 42 32 46 Q36.5 50 41 46" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M51 17 Q54 23 51 25 Q48 23 51 17 Z" fill="#7fd6ff" stroke="${INK}" stroke-width="1.5"/>`,
       1: `<path d="M24 48 Q32 41 40 48" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><text x="46" y="16" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="9" fill="${INK}">z</text><text x="51" y="10" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="7" fill="${INK}">z</text>`,
     };
     const lid = m === 1 ? 'tired' : '';
-    const cheeks = m >= 4 ? `<ellipse cx="16" cy="40" rx="4" ry="2.6" fill="#ff8fa3" opacity=".75"/><ellipse cx="48" cy="40" rx="4" ry="2.6" fill="#ff8fa3" opacity=".75"/>` : '';
+    const cheeks = '';
     return `<svg class="blob mood-${m}" viewBox="0 0 64 68" aria-hidden="true">
       <ellipse cx="22" cy="62" rx="7" ry="4" fill="${INK}"/><ellipse cx="42" cy="62" rx="7" ry="4" fill="${INK}"/>
       <path class="bodyshape" d="${bodies[variant % bodies.length]}" fill="${color}" stroke="${INK}" stroke-width="3"/>

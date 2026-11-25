@@ -1,6 +1,6 @@
 # Peak Season Pulse: Finance Operations year-end game show
 
-A live, **fully anonymous** poll for the year-end all-hands, styled as a playful game show. People scan a QR code, become a secret player (for example "Captain VLOOKUP"), and vote. Their answers race across the big screen. The show ends on a motivating "YES WE CAN!".
+A live, **fully anonymous** poll for the year-end all-hands, styled as a game show in ASML blues. People scan a QR code, become a secret player (for example "Captain VLOOKUP"), and vote. Their answers race across the big screen. The show ends on a motivating "YES WE CAN!".
 
 ## The show
 

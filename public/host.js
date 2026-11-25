@@ -3,7 +3,8 @@
 (function (root) {
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const emphasise = s => esc(s).replace(/(\d+%|“[^”]+”)/g, '<span class="hl">$1</span>');
-  const LANES = ['#ff5a5f', '#38bdf8', '#22c997', '#a78bfa', '#ff9f1c', '#ff7ac6'];
+  const LANES = ['#5fb8ff', '#3b6fff', '#8fd3ff', '#8f7bff', '#2fc6e0', '#a9b8ff'];
+  const LIGHTS = ['#ffffff', '#8fd3ff', '#ffc400', '#5fb8ff'];
   const DAY = 864e5;
   const day = s => new Date(s + 'T00:00:00').getTime();
   const hash = w => [...String(w)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
@@ -58,7 +59,7 @@
     const U = () => Math.min(innerWidth / 100, innerHeight * 1.7778 / 100);
 
     const snow = new FX.Snow($('snow'), { rgb: '255,255,255', intensity: .9 });
-    const pulse = new FX.PulseLine($('pulse'), { color: '#1d1b3a' });
+    const pulse = new FX.PulseLine($('pulse'), { color: '#8fd3ff' });
     const confetti = new FX.Confetti($('confetti'));
     const fireworks = new FX.Fireworks($('fireworks'));
     buildLights();
@@ -75,7 +76,7 @@
       let html = '<svg class="wire" viewBox="0 0 1000 60" preserveAspectRatio="none"><path d="M-5 6 Q 125 52 250 8 Q 375 52 500 8 Q 625 52 750 8 Q 875 52 1005 6"/></svg>';
       for (let i = 0; i < n; i++) {
         const x = (i + .5) / n, seg = (x * 4) % 1, y = 8 + 4 * seg * (1 - seg) * 21;
-        html += `<i style="left:${(x * 100).toFixed(2)}%;top:${(y / 60 * 100).toFixed(1)}%;--c:${LANES[i % LANES.length]};--d:${(Math.random() * 2.4).toFixed(2)}s"></i>`;
+        html += `<i style="left:${(x * 100).toFixed(2)}%;top:${(y / 60 * 100).toFixed(1)}%;--c:${LIGHTS[i % LIGHTS.length]};--d:${(Math.random() * 2.4).toFixed(2)}s"></i>`;
       }
       $('lights').innerHTML = html;
     }
@@ -239,11 +240,11 @@
               <div class="card mini meter st" style="--i:2" id="meterCard">
                 ${scored ? `<div class="mini-k">Team energy</div>
                   <svg class="gauge" viewBox="0 0 120 70" aria-hidden="true">
-                    <path d="M12 62 A48 48 0 0 1 26.1 28.1" class="seg" stroke="#ff9f1c"/>
-                    <path d="M26.1 28.1 A48 48 0 0 1 60 14" class="seg" stroke="#ffd23f"/>
-                    <path d="M60 14 A48 48 0 0 1 93.9 28.1" class="seg" stroke="#38bdf8"/>
-                    <path d="M93.9 28.1 A48 48 0 0 1 108 62" class="seg" stroke="#22c997"/>
-                    <g class="needle" id="needle"><path d="M60 62 L60 22" stroke="#1d1b3a" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="62" r="7" fill="#1d1b3a"/></g>
+                    <path d="M12 62 A48 48 0 0 1 26.1 28.1" class="seg" stroke="#2a1fd1"/>
+                    <path d="M26.1 28.1 A48 48 0 0 1 60 14" class="seg" stroke="#3b6fff"/>
+                    <path d="M60 14 A48 48 0 0 1 93.9 28.1" class="seg" stroke="#5fb8ff"/>
+                    <path d="M93.9 28.1 A48 48 0 0 1 108 62" class="seg" stroke="#8fd3ff"/>
+                    <g class="needle" id="needle"><path d="M60 62 L60 22" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="62" r="7" fill="#ffffff"/></g>
                   </svg>
                   <div class="mini-v"><span id="k-avg" data-v="0">?</span><small>/ 5</small></div>`
                 : `<div class="mini-k">In the lead</div><div class="leader" id="leader"><span class="q">?</span></div>`}
@@ -450,7 +451,7 @@
         <div class="stat"><span class="v" id="sb-p" data-v="0">0</span><span class="k">players</span></div>
         <div class="stat"><span class="v"><span id="sb-a" data-v="0">–</span><small>/5</small></span><span class="k">team energy</span></div>
         <div class="stat"><span class="v" id="sb-w" data-v="0">0</span><span class="k">words shared</span></div>
-        <div class="thanks">Honesty makes us stronger. Thank you! <span class="clap">👏</span></div>`;
+        <div class="thanks">Honesty makes us stronger. Thank you.</div>`;
       FX.tween($('sb-p'), s.participants, undefined, 1400);
       if (avgAll != null) FX.tween($('sb-a'), avgAll, v => v.toFixed(1), 1400);
       FX.tween($('sb-w'), wordsAll, undefined, 1400);

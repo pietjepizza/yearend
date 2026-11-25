@@ -45,7 +45,7 @@
   }
 
   // ---------- confetti ----------
-  const COLORS = ['#ff5a5f', '#38bdf8', '#22c997', '#a78bfa', '#ff9f1c', '#ff7ac6', '#ffd23f', '#1d1b3a'];
+  const COLORS = ['#5fb8ff', '#ffffff', '#3b6fff', '#8fd3ff', '#ffc400', '#10069f', '#a9b8ff'];
   function Confetti(canvas) {
     let parts = [], running = false, ctx, W, H;
     this.burst = (kind = 'top', origin) => {
@@ -107,7 +107,7 @@
   }
 
   // ---------- live pulse line (heartbeat that spikes on activity) ----------
-  function PulseLine(canvas, { color = '#1d1b3a', samples = 150, idle = 2600 } = {}) {
+  function PulseLine(canvas, { color = '#8fd3ff', samples = 150, idle = 2600 } = {}) {
     let ctx, W, H, buf = new Array(samples).fill(0), queue = [], lastBeat = 0;
     const resize = () => { ({ ctx, w: W, h: H } = fitCanvas(canvas)); };
     resize(); addEventListener('resize', resize);
