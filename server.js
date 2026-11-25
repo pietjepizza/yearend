@@ -92,7 +92,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && p === '/style.css') return sendFile(res, 'style.css', 'text/css');
 
   if (req.method === 'GET' && p === '/qr.svg') {
-    const svg = await QRCode.toString(PUBLIC_URL, { type: 'svg', margin: 1, color: { dark: '#1b1035', light: '#ffffff' } });
+    const svg = await QRCode.toString(PUBLIC_URL, { type: 'svg', margin: 1, color: { dark: '#0a0a3c', light: '#ffffff' } });
     res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
     return res.end(svg);
   }

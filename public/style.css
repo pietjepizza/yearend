@@ -1,20 +1,23 @@
 :root {
-  --bg: #1b1035;
-  --bg2: #2a1656;
-  --card: rgba(255, 255, 255, 0.08);
-  --line: rgba(255, 255, 255, 0.16);
+  /* House-style palette (provisional, ASML-inspired; swap in exact brand values here) */
+  --brand: #10069f;      /* deep logo blue */
+  --bg: #0a0a3c;         /* dark navy, projector friendly */
+  --bg2: #141070;
+  --card: rgba(255, 255, 255, 0.07);
+  --line: rgba(255, 255, 255, 0.18);
   --text: #ffffff;
-  --muted: rgba(255, 255, 255, 0.65);
-  --accent: #ffcc33;
-  --accent2: #ff5d8f;
+  --muted: rgba(255, 255, 255, 0.68);
+  --accent: #5fb8ff;     /* light blue accent */
+  --accent2: #2f5cff;    /* mid blue for gradients */
+  --on-accent: #0a0a3c;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
-  background: radial-gradient(1200px 800px at 80% -10%, #4b1f8f 0%, transparent 60%),
-              radial-gradient(900px 700px at -10% 110%, #6a1d5c 0%, transparent 55%),
+  background: radial-gradient(1200px 800px at 85% -10%, var(--brand) 0%, transparent 60%),
+              radial-gradient(900px 700px at -10% 110%, var(--bg2) 0%, transparent 55%),
               var(--bg);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -39,7 +42,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .opt .e { font-size: 44px; line-height: 1; }
 .opt .l { font-size: 12px; color: var(--muted); text-align: center; }
 .opt:active { transform: scale(.94); }
-.opt.sel { border-color: var(--accent); background: rgba(255, 204, 51, .15); transform: scale(1.04); }
+.opt.sel { border-color: var(--accent); background: rgba(95, 184, 255, .16); transform: scale(1.04); }
 .opt.sel .l { color: var(--text); }
 
 .field { margin-top: 18px; }
@@ -52,7 +55,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .primary {
   margin-top: 20px; width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border: 0; border-radius: 14px;
-  background: linear-gradient(90deg, var(--accent), #ff9f43); color: #2a1656;
+  background: var(--accent); color: var(--on-accent);
 }
 .primary:disabled { opacity: .4; }
 .done { text-align: center; padding-top: 30px; }
@@ -72,12 +75,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
 .bar .n { font-size: 30px; font-weight: 800; margin-bottom: 8px; transition: opacity .3s; }
 .bar .col {
-  width: 100%; max-width: 140px; border-radius: 18px 18px 6px 6px; min-height: 8px;
+  width: 100%; max-width: 140px; border-radius: 10px 10px 2px 2px; min-height: 8px;
   background: linear-gradient(180deg, var(--accent), var(--accent2));
+  opacity: .9;
   transition: height .6s cubic-bezier(.2, .9, .3, 1.1);
 }
 .bar .e { font-size: clamp(44px, 5vw, 80px); margin-top: 12px; line-height: 1; }
 .bar .l { font-size: 16px; color: var(--muted); margin-top: 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.bar.top .col { opacity: 1; background: linear-gradient(180deg, #ffffff, var(--accent)); }
 .bar.top .e { animation: wiggle 1.4s ease-in-out infinite; }
 @keyframes wiggle { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(-8deg) scale(1.12); } }
 .hidden-results .col { height: 8px !important; }

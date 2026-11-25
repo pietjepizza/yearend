@@ -1,38 +1,86 @@
 {
-  "event": "Year-End All-Hands 2026",
+  "event": "Finance Operations · Year-End 2026",
   "questions": [
     {
       "title": "How are you feeling right now?",
       "subtitle": "Be honest — it's anonymous on the big screen",
       "options": [
-        { "emoji": "🤩", "label": "Fantastic" },
-        { "emoji": "😄", "label": "Great" },
-        { "emoji": "🙂", "label": "Good" },
-        { "emoji": "😐", "label": "Meh" },
-        { "emoji": "😕", "label": "Not great" },
-        { "emoji": "😩", "label": "Exhausted" }
+        {
+          "emoji": "🤩",
+          "label": "Fantastic"
+        },
+        {
+          "emoji": "😄",
+          "label": "Great"
+        },
+        {
+          "emoji": "🙂",
+          "label": "Good"
+        },
+        {
+          "emoji": "😐",
+          "label": "Meh"
+        },
+        {
+          "emoji": "😕",
+          "label": "Not great"
+        },
+        {
+          "emoji": "😩",
+          "label": "Exhausted"
+        }
       ]
     },
     {
       "title": "2026 in one emoji?",
       "subtitle": "What did this year feel like for you?",
       "options": [
-        { "emoji": "🚀", "label": "Rocket ride" },
-        { "emoji": "🎢", "label": "Rollercoaster" },
-        { "emoji": "🏗️", "label": "Building" },
-        { "emoji": "📚", "label": "Learning" },
-        { "emoji": "🔥", "label": "On fire" },
-        { "emoji": "🌊", "label": "Treading water" }
+        {
+          "emoji": "🚀",
+          "label": "Rocket ride"
+        },
+        {
+          "emoji": "🎢",
+          "label": "Rollercoaster"
+        },
+        {
+          "emoji": "🏗️",
+          "label": "Building"
+        },
+        {
+          "emoji": "📚",
+          "label": "Learning"
+        },
+        {
+          "emoji": "🔥",
+          "label": "On fire"
+        },
+        {
+          "emoji": "🌊",
+          "label": "Treading water"
+        }
       ]
     },
     {
       "title": "Your energy heading into 2027?",
       "subtitle": "Charge level check",
       "options": [
-        { "emoji": "⚡", "label": "Fully charged" },
-        { "emoji": "💪", "label": "Ready" },
-        { "emoji": "🔋", "label": "Need a recharge" },
-        { "emoji": "🏖️", "label": "Holiday first" }
+        {
+          "emoji": "⚡",
+          "label": "Fully charged"
+        },
+        {
+          "emoji": "💪",
+          "label": "Ready"
+        },
+        {
+          "emoji": "🔋",
+          "label": "Need a recharge"
+        },
+        {
+          "emoji": "🏖️",
+          "label": "Holiday first"
+        }
       ]
     }
   ]
