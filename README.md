@@ -1,51 +1,32 @@
-# Mood Pulse: Finance Operations peak-season check-in
+# Peak Season Pulse: Finance Operations year-end game show
 
-A live, **fully anonymous** pulse survey for the year-end all-hands, before the busiest stretch of the year: the year-end close of a record sales year, the annual report and the ERP migration. Attendees scan a QR code, tap an answer and can add one word. The big screen updates live in a consulting-deck style.
+A live, **fully anonymous** poll for the year-end all-hands, styled as a playful game show. People scan a QR code, become a secret player (for example "Captain VLOOKUP"), and vote. Their answers race across the big screen. The show ends on a motivating "YES WE CAN!".
 
-## The flow
+## The show
 
-| Screen | What the room sees |
-| --- | --- |
-| **Welcome** | A lobby with the QR code and a live "connected" counter. An animated roadmap (Exhibit 0) shows the year-end close, the annual report, the ERP migration, the holiday break and a workload curve that peaks in Jan–Feb. |
-| **Q1: How are you feeling right now?** | Signal-strength scale with a pulse index and positive share |
-| **Q2: If 2026 were a share price…** | Sparkline answers, from "Exponential growth" to "Trading sideways" |
-| **Q3: Battery level going into peak season?** | Battery scale. People can say they're running on reserve, and that gets acknowledged. |
-| **Q4: What would help you most through the peak?** | Clear priorities, focus time, backup, celebrating wins, a real break. Gives leadership something to act on. |
-| **Summary** | "We hear you": the takeaway from every question, the top words, participation numbers and a holiday sign-off |
+| # | Screen | What happens |
+| --- | --- | --- |
+| 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
+| 1–4 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a little character racing in its own lane, and the winner gets a crown and a speech bubble. Words float in as bubbles. |
+| 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
+| 6 | **The road ahead** | An animated timeline. The team character walks from today through the year-end close, the holiday break and the annual report to the ERP "boss level", ending with "Peak conquered!". |
+| 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a parade of everyone's characters. Phones turn into a big **CHEER!** button. |
 
-**Headlines stay constructive whatever the result.** Each question lists several `takeaways`, and the first one whose threshold is met is shown. For example:
-- If 60% or more feel positive: "60% feel positive or energised: strong energy for the peak"
-- If fewer do: "A mixed picture, honestly shared. Thank you for that"
-- If few do: "It's been a demanding year, and we hear you"
+The questions:
+1. **How are you feeling right now?** This is the honest check.
+2. **If 2026 were a share price…** This is about pride.
+3. **How charged are you for peak season?**
+4. **What will make us unstoppable through the peak?** This is about what we can do.
 
-## Animation and the December mood
+The headlines stay encouraging whatever the outcome.
 
-**Throughout:**
-- A live heartbeat line in the top bar that spikes with every vote and reaction
-- Gentle snowfall (press **S** to toggle)
-- A "days to the holiday break" chip
-- Slide-style transitions and titles that reveal word by word
+## Test link
 
-**Question screens:**
-- Bars that grow in a staggered sequence and icons that animate:
-  - signal bars ripple
-  - batteries charge, with a lightning bolt on the leading answer
-  - share-price sparklines draw themselves
-- A red-pen circle and a handwritten note on the leading answer
-- A live word cloud and a stock-style ticker of the words people submit
-- Count-up numbers, a "+1" on each vote, and confetti at 10, 25, 50 and 100+ responses
-- Emoji reactions from phones that float up the screen
+The test copy is published as a private claude.ai page.
+- The page is the presenter screen. Move the mouse to show the controls, then press **▶ Simulate the room** to play through with about 40 simulated players.
+- Phones scan the QR code (the link ends in `#join`). Cross-device play works when signed in to claude.ai.
 
-**Summary:** confetti, and heavier snowfall.
-
-## Test link (no setup)
-
-A ready-to-try copy is published as a claude.ai page. It is private to you until you share it.
-
-- **The page itself** is the presenter screen. Move the mouse to show the controls, then press **▶ Simulate the room** to fill it with about 40 simulated colleagues.
-- **On your phone:** scan the QR code (or open the same link ending in `#join`). Live voting across devices works when you are signed in to claude.ai on both.
-
-To rebuild it after changing questions or styling: `ARTIFACT_URL=<link> npm run build:artifact`, which writes `dist/mood-pulse.html`.
+To rebuild it: `ARTIFACT_URL=<link> npm run build:artifact` writes `dist/mood-pulse.html`.
 
 ## Run it for the real event
 
@@ -54,64 +35,46 @@ npm install
 HOST_KEY=letmein npm start
 ```
 
-The console prints the participant link (the QR code points there) and the presenter link `/host?key=letmein`. Phones must be able to reach the server:
-- **Quick option:** use a tunnel, and start with `PUBLIC_URL=https://<tunnel-url>`.
-- **Sturdier option:** deploy to any Node host (Render, Railway, Fly.io) with `PUBLIC_URL` and `HOST_KEY` set.
-
-### Presenter controls
-
-The controls appear on mouse move. The keyboard works too:
+Open the presenter link `/host?key=letmein` on the projector. Phones need to reach the server:
+- **Quick option:** a tunnel, with `PUBLIC_URL=https://<tunnel>`.
+- **Sturdier option:** a Node host such as Render, Railway or Fly.io.
 
 | Key | Action |
 | --- | --- |
-| → / Space | Next screen (every phone follows) |
+| → / Space | Next screen (phones follow) |
 | ← | Previous screen |
-| H | Hide or reveal results (stamps "Results under embargo…") |
+| H | Reveal now, or hide again |
 | S | Snow on or off |
-| Click a word | Remove it from the word cloud and ticker |
+| Click a word | Remove it from the screen |
 | U | Restore removed words |
-| C, then C again | Clear the answers to the current question |
+| C, then C again | Clear the current question |
 | Reset button, clicked twice | Start over |
 
 | Env var | Default | Purpose |
 | --- | --- | --- |
 | `PORT` | 3000 | Port to listen on |
-| `PUBLIC_URL` | `http://<lan-ip>:PORT` | Address encoded in the QR code |
-| `HOST_KEY` | random (printed at startup) | Required to control the presenter screen |
-| `DATA_FILE` | `./data.json` | Where answers are saved, so a restart keeps them |
+| `PUBLIC_URL` | `http://<lan-ip>:PORT` | Address in the QR code |
+| `HOST_KEY` | random (printed at startup) | Required to control the screen |
+| `DATA_FILE` | `./data.json` | Saved answers |
 
-## Make it your own
+## Edit the content
 
 Everything is in `questions.json`:
 
-- **`holidayDate`**: drives the countdown chip.
-- **`lobby`**: the welcome text and the roadmap. The dates are placeholders, so adjust each item's `start`, `end` and `note`, and the `holiday` block.
-- **`summary`**: the closing title and sign-off.
-- **`reactions`**: the emoji buttons shown on phones.
+- **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
+- **`lobby`**: the title and intro.
+- **`recap`**: the thank-you title and subtitle.
+- **`roadmap.steps`**: the timeline. Each step has a `type` (`start`, `level`, `rest`, `boss` or `finish`), `when`, `label` and `note`. **The dates are placeholders marked "date TBD".**
+- **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
-  - `title` and `context`
-  - `wordPrompt`: the label for the optional one-word answer
-  - `takeaways`: an ordered list of `{ minTopBox, minAvg, text }`. Placeholders are `{topBox}`, `{avg}`, `{top}`, `{topPct}` and `{n}`.
-  - `options`: each has `id`, `label`, `icon`, an optional `score` from 1 to 5, and an optional red-pen `note`
-  - `demo`: weights and words for the simulator
-- **Icons**:
-  - `signal:1` to `signal:5`
-  - `chart:rocket`, `chart:bull`, `chart:volatile`, `chart:recovery` or `chart:sideways`
-  - `battery:0` to `battery:100`
-  - `help:target`, `help:focus`, `help:team`, `help:trophy` or `help:snow`
+  - `title`, `context` and `wordPrompt`
+  - `takeaways`: the upbeat headline, picked by outcome
+  - `pledge`: the "We'll do" line on the recap
+  - `options`: each has `label`, `icon`, an optional `score` from 1 to 5, and a speech-bubble `note`
+  - `demo`: data for the simulator
 
-The colours are variables at the top of `public/style.css`. They are a provisional, ASML-inspired palette, so replace them with the official brand values.
-
-## How it's built
-
-| File | Role |
-| --- | --- |
-| `public/core.js` | Survey logic, shared by the server and the test page |
-| `public/host.js`, `public/join.js` | The presenter screen and the phone view |
-| `public/fx.js`, `public/icons.js` | Motion, effects and icons |
-| `server.js` + `public/transport-server.js` | The real-event server (Server-Sent Events) |
-| `artifact/` + `scripts/build-artifact.js` | The claude.ai test page (shared data store plus a live room) |
+Colours and fonts are set at the top of `public/style.css`.
 
 ## Privacy
 
-No names or logins. Each phone gets a random token so people can change their answer, but the token is not linked to who they are.
+No names and no login. Phones get a random token so people can change their answer. Player names are built from fixed word lists, so nobody can put their own text on screen as a name. Words typed as answers can be removed by clicking them.

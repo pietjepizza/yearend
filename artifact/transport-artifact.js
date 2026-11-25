@@ -7,7 +7,7 @@
 (function (root) {
   root.ArtifactTransport = function (config, role, joinUrl) {
     const Core = root.PulseCore;
-    const S = config.questions.length;
+    const S = config.questions.length, LAST = Core.lastIndex(config);
     const store = {
       get(k) { try { return localStorage.getItem(k); } catch { return null; } },
       set(k, v) { try { localStorage.setItem(k, v); } catch {} },
@@ -17,11 +17,15 @@
     let mine = null;
     try { mine = JSON.parse(store.get('mp-mine') || 'null'); } catch {}
     if (!mine || typeof mine !== 'object') mine = { epoch: null, answers: {} };
+    let me = null;
+    try { me = JSON.parse(store.get('mp-player') || 'null'); } catch {}
+    if (!me) { me = Core.makePlayer(); store.set('mp-player', JSON.stringify(me)); }
+    me = Core.cleanPlayer(me);
 
-    const DEFAULT = { current: -1, revealed: true, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
+    const DEFAULT = { current: -1, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
     let control = { ...DEFAULT };
     let votes = {};                // token -> { epoch, answers: { [qi]: { option, word, ts } } }
-    let phonesHere = 0, localPhones = new Map();
+    let phonesHere = 0, roomPlayers = [], localPhones = new Map();
     let db = null, room = null, sim = null;
     const subs = { state: [], react: [] };
     let bc = null;
@@ -36,9 +40,12 @@
         for (const [qi, a] of Object.entries(v.answers || {})) add(tok, qi, a);
       }
       if (sim) for (const [bot, ans] of Object.entries(sim.answers)) for (const [qi, a] of Object.entries(ans)) add(bot, qi, a);
-      return { current: control.current, revealed: control.revealed, hidden: control.hidden || [], responses };
+      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], responses };
     }
-    const publicState = () => Core.publicState(config, stateObj(), { joinUrl, connected: phonesHere + (sim ? sim.connected : 0) });
+    const publicState = () => Core.publicState(config, stateObj(), {
+      joinUrl, connected: phonesHere + (sim ? sim.connected : 0),
+      players: [...roomPlayers, ...(sim ? sim.players.slice(0, sim.connected) : [])].slice(-80),
+    });
     let emitQueued = false, pendingPop = null;
     function emit(meta = {}) {
       if (meta.pop) pendingPop = meta.pop;
@@ -65,13 +72,14 @@
       });
     }
     function act(a, word) {
-      const c = { ...control, hidden: [...(control.hidden || [])], cleared: { ...(control.cleared || {}) } };
-      if (a === 'next') c.current = Math.min(c.current + 1, S);
-      else if (a === 'prev') c.current = Math.max(c.current - 1, -1);
-      else if (a === 'reveal') c.revealed = !c.revealed;
+      const c = { ...control, hidden: [...(control.hidden || [])], cleared: { ...(control.cleared || {}) }, revealedQ: { ...(control.revealedQ || {}) } };
+      if (a === 'next') Core.enter(config, c, Math.min(c.current + 1, LAST));
+      else if (a === 'prev') Core.enter(config, c, Math.max(c.current - 1, -1));
+      else if (a === 'reveal') { c.revealedQ[c.current] = true; c.timerEnd = 0; }
+      else if (a === 'conceal') { delete c.revealedQ[c.current]; c.timerEnd = 0; }
       else if (a === 'hide') { const w = Core.norm(word); if (w && !c.hidden.includes(w)) c.hidden.push(w); }
       else if (a === 'unhide') c.hidden = [];
-      else if (a === 'clear') { c.cleared[c.current] = Date.now(); if (sim) for (const b of Object.values(sim.answers)) delete b[c.current]; }
+      else if (a === 'clear') { c.cleared[c.current] = Date.now(); delete c.revealedQ[c.current]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[c.current]; }
       else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
       else return;
       c.rev = (control.rev || 0) + 1;
@@ -82,7 +90,7 @@
 
     // ---------- phone actions ----------
     async function vote(index, option, word) {
-      if (index !== control.current) return 'moved';
+      if (index !== control.current || index < 0 || index >= S) return 'moved';
       if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
       mine.answers[index] = { option, word: Core.clean(word, 24), ts: Date.now() };
       store.set('mp-mine', JSON.stringify(mine));
@@ -114,16 +122,17 @@
           emit(a && (!pa || pa.ts !== a.ts) ? { pop: a.option } : {});
         }
         if (m.t === 'react' && !room && config.reactions.includes(m.r)) subs.react.forEach(f => f(m.r));
-        if (m.t === 'here' && !room) { localPhones.set(m.token, Date.now()); countLocal(); }
+        if (m.t === 'here' && !room) { localPhones.set(m.token, { t: Date.now(), p: Core.cleanPlayer(m.p) }); countLocal(); }
         if (m.t === 'hello' && !db) bc.postMessage({ t: 'control', control });
       } else if (m.t === 'control' && !db && m.control) { control = { ...DEFAULT, ...m.control }; emit(); }
     };
     function countLocal() {
       const now = Date.now();
-      for (const [k, t] of localPhones) if (now - t > 12000) localPhones.delete(k);
-      if (localPhones.size !== phonesHere) { phonesHere = localPhones.size; emit(); }
+      for (const [k, v] of localPhones) if (now - v.t > 12000) localPhones.delete(k);
+      const list = [...localPhones.values()].map(v => v.p);
+      if (list.length !== phonesHere || JSON.stringify(list) !== JSON.stringify(roomPlayers)) { phonesHere = list.length; roomPlayers = list; emit(); }
     }
-    if (bc && role === 'phone') { bc.postMessage({ t: 'hello' }); const here = () => bc.postMessage({ t: 'here', token }); here(); setInterval(here, 5000); }
+    if (bc && role === 'phone') { bc.postMessage({ t: 'hello' }); const here = () => bc.postMessage({ t: 'here', token, p: me }); here(); setInterval(here, 5000); }
     if (role === 'host') setInterval(() => { if (!room) countLocal(); }, 4000);
 
     // ---------- claude.ai capabilities ----------
@@ -164,10 +173,12 @@
       }
       if (room) {
         if (role === 'host') room.on('react', msg => { const r = msg && msg.data && msg.data.r; if (config.reactions.includes(r)) subs.react.forEach(f => f(r)); }, () => {});
-        if (role === 'phone') room.presence({ role: 'phone' }).catch(() => {});
+        if (role === 'phone') room.presence({ role: 'phone', p: me }).catch(() => {});
         room.onPeers(ch => {
-          const n = ch.peers.filter(p => p.presence && p.presence.role === 'phone').length;
-          if (n !== phonesHere) { phonesHere = n; emit(); }
+          const phones = ch.peers.filter(p => p.presence && p.presence.role === 'phone');
+          phonesHere = phones.length;
+          roomPlayers = phones.map(p => Core.cleanPlayer(p.presence.p));
+          emit();
         }, () => {});
       }
       emit();
@@ -202,13 +213,17 @@
       }
     }
     function simulate(on) {
-      if (on && !sim) { sim = { answers: {}, connected: 0, target: 36 + ((Math.random() * 12) | 0), timer: setInterval(simTick, 280) }; }
+      if (on && !sim) {
+        const target = 36 + ((Math.random() * 12) | 0);
+        sim = { answers: {}, connected: 0, target, players: Array.from({ length: target }, () => Core.makePlayer()), timer: setInterval(simTick, 280) };
+      }
       else if (!on && sim) { clearInterval(sim.timer); sim = null; }
       emit();
       return !!sim;
     }
 
     const T = {
+      me,
       joinUrl, joinLabel: joinUrl ? 'Scan with your phone camera' : 'Open this page with #join on your phone',
       canControl: true,
       controlHint: '',

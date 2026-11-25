@@ -2,50 +2,78 @@
   "team": "Finance Operations",
   "event": "Year-End All-Hands 2026",
   "holidayDate": "2026-12-24",
+  "timer": 25,
   "reactions": [
     "👏",
     "🎉",
     "🔥",
-    "💙",
+    "💪",
     "😂",
     "🚀"
   ],
   "lobby": {
-    "kicker": "Peak season pulse",
-    "title": "Before the peak: how are we really doing?",
-    "intro": "A record sales year to close, the annual report to write and the ERP migration to land. The next three months are our busiest. Four quick questions, fully anonymous, so we know how everyone is really doing.",
-    "timeline": {
-      "start": "2026-12-01",
-      "end": "2027-03-01",
-      "items": [
-        {
-          "label": "Year-end close",
-          "start": "2026-12-01",
-          "end": "2027-01-22",
-          "note": "Record sales year"
-        },
-        {
-          "label": "Annual report",
-          "start": "2027-01-04",
-          "end": "2027-02-26"
-        },
-        {
-          "label": "ERP migration",
-          "start": "2027-01-11",
-          "end": "2027-03-01",
-          "note": "Go-live"
-        }
-      ],
-      "holiday": {
-        "label": "Holiday break",
-        "start": "2026-12-24",
-        "end": "2027-01-02"
-      }
-    }
+    "title": "Peak Season Pulse",
+    "intro": "Four quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"
   },
-  "summary": {
-    "title": "We hear you: {participants} colleagues shared their pulse",
-    "thanks": "Happy holidays, Finance Operations! We've got this, together."
+  "outro": [
+    "recap",
+    "roadmap",
+    "finale"
+  ],
+  "recap": {
+    "title": "Thank you for your honesty!",
+    "subtitle": "Here's what you told us, and what we'll do with it."
+  },
+  "roadmap": {
+    "title": "The road ahead",
+    "subtitle": "Key moments of the next few months. Final dates to be confirmed.",
+    "steps": [
+      {
+        "type": "start",
+        "when": "Today",
+        "label": "We're here",
+        "note": "One team, ready to go"
+      },
+      {
+        "type": "level",
+        "when": "December · date TBD",
+        "label": "Year-end close",
+        "note": "Closing a record year"
+      },
+      {
+        "type": "rest",
+        "when": "Holidays · date TBD",
+        "label": "Holiday break",
+        "note": "Laptops closed, batteries recharged"
+      },
+      {
+        "type": "level",
+        "when": "January · date TBD",
+        "label": "Annual report",
+        "note": "Telling our record-year story"
+      },
+      {
+        "type": "boss",
+        "when": "Early 2027 · date TBD",
+        "label": "ERP migration",
+        "note": "The big one, and we've got this"
+      },
+      {
+        "type": "finish",
+        "when": "Spring · date TBD",
+        "label": "Peak conquered!",
+        "note": "Celebrate together"
+      }
+    ]
+  },
+  "finale": {
+    "lines": [
+      "Record year? Delivered.",
+      "Peak season? Bring it on.",
+      "One team. Together."
+    ],
+    "title": "YES WE CAN!",
+    "thanks": "Happy holidays, Finance Operations!"
   },
   "questions": [
     {
@@ -54,51 +82,52 @@
       "takeaways": [
         {
           "minTopBox": 60,
-          "text": "{topBox}% feel positive or energised: strong energy for the peak"
+          "text": "{topBox}% feel positive or energised. What a team!"
         },
         {
           "minTopBox": 35,
-          "text": "A mixed picture, honestly shared. Thank you for that"
+          "text": "Honest answers, strong team. Thank you!"
         },
         {
-          "text": "It's been a demanding year, and we hear you"
+          "text": "Thanks for being honest. Now let's look after each other"
         }
       ],
+      "pledge": "Short weekly check-ins through the peak, so nobody runs on empty",
       "options": [
         {
           "id": "energised",
           "label": "Energised",
           "icon": "signal:5",
           "score": 5,
-          "note": "Strong buy!"
+          "note": "Unstoppable!"
         },
         {
           "id": "positive",
           "label": "Positive",
           "icon": "signal:4",
           "score": 4,
-          "note": "Solid fundamentals"
+          "note": "Love that energy!"
         },
         {
           "id": "steady",
           "label": "Steady",
           "icon": "signal:3",
           "score": 3,
-          "note": "Holding steady"
+          "note": "Rock solid!"
         },
         {
           "id": "stretched",
           "label": "Stretched",
           "icon": "signal:2",
           "score": 2,
-          "note": "Heard. Breather ahead"
+          "note": "We've got your back"
         },
         {
-          "id": "drained",
-          "label": "Running low",
+          "id": "recharge",
+          "label": "Need a recharge",
           "icon": "signal:1",
           "score": 1,
-          "note": "Heard. Rest is planned"
+          "note": "Rest is part of the plan"
         }
       ],
       "demo": {
@@ -133,39 +162,40 @@
       "wordPrompt": "Describe 2026 in one word (optional)",
       "takeaways": [
         {
-          "text": "The team's verdict on 2026: “{top}”"
+          "text": "2026 in one chart: “{top}”. What a year!"
         }
       ],
+      "pledge": "Celebrate the record year together, because we earned it",
       "options": [
         {
           "id": "rocket",
           "label": "Exponential growth",
           "icon": "chart:rocket",
-          "note": "Record year, literally!"
+          "note": "To the moon!"
         },
         {
           "id": "bull",
           "label": "Steady bull run",
           "icon": "chart:bull",
-          "note": "Textbook growth"
+          "note": "Textbook growth!"
         },
         {
           "id": "volatile",
           "label": "Volatile, but up",
           "icon": "chart:volatile",
-          "note": "Hold on tight!"
+          "note": "Up is up!"
         },
         {
           "id": "recovery",
           "label": "Dip and recovery",
           "icon": "chart:recovery",
-          "note": "Comeback story"
+          "note": "Comeback kids!"
         },
         {
           "id": "sideways",
-          "label": "Trading sideways",
+          "label": "Building the base",
           "icon": "chart:sideways",
-          "note": "Consolidation phase"
+          "note": "Ready to break out!"
         }
       ],
       "demo": {
@@ -193,58 +223,59 @@
       }
     },
     {
-      "title": "What's your battery level going into peak season?",
-      "context": "Dec–Feb: year-end close, annual report, ERP migration",
+      "title": "How charged are you for peak season?",
+      "context": "Year-end close · annual report · ERP migration",
       "wordPrompt": "What keeps you going? (one word, optional)",
       "takeaways": [
         {
           "minTopBox": 60,
-          "text": "{topBox}% are charged up for the peak. Let's go!"
+          "text": "{topBox}% are charged for the peak. Bring it on!"
         },
         {
           "minTopBox": 35,
-          "text": "Charge levels vary. We'll pace the peak together"
+          "text": "Charging up nicely. We'll pace the peak together"
         },
         {
-          "text": "Batteries are low, and that's heard. Recharge first, then we go"
+          "text": "Recharge first, then we go, and we go together"
         }
       ],
+      "pledge": "Protect the holiday break: laptops closed, batteries recharged",
       "options": [
         {
           "id": "full",
-          "label": "Fully charged, bring it on",
+          "label": "Fully charged, bring it on!",
           "icon": "battery:100",
           "score": 5,
-          "note": "Ready to compound"
+          "note": "Let's gooo!"
         },
         {
           "id": "ready",
-          "label": "Charged enough",
+          "label": "Charged and ready",
           "icon": "battery:70",
           "score": 4,
-          "note": "Bullish on Q1"
+          "note": "Ready to roll!"
         },
         {
-          "id": "reserve",
-          "label": "Running on reserve",
+          "id": "charging",
+          "label": "Charging up",
           "icon": "battery:35",
-          "score": 2,
-          "note": "Heard. Pace yourself"
+          "score": 3,
+          "note": "Almost there!"
         },
         {
-          "id": "recharge",
-          "label": "Recharge first, then go",
+          "id": "holiday",
+          "label": "Recharging over the holidays",
           "icon": "battery:10",
-          "score": 1,
+          "score": 2,
           "note": "Holiday approved ✓"
         }
       ],
       "demo": {
         "weights": [
-          6,
-          13,
-          10,
-          7
+          8,
+          14,
+          9,
+          5
         ],
         "words": [
           "coffee",
@@ -263,38 +294,39 @@
       }
     },
     {
-      "title": "What would help you most through the peak?",
-      "context": "We'll take the top answers into planning",
-      "wordPrompt": "Anything else that would help? (one word, optional)",
+      "title": "What will make us unstoppable through the peak?",
+      "context": "Your top picks go straight into our plan",
+      "wordPrompt": "Your own idea? (one word, optional)",
       "takeaways": [
         {
-          "text": "Top ask from the team: “{top}”. Noted."
+          "text": "Power-up #1: “{top}”. Let's make it happen!"
         }
       ],
+      "pledge": "Your #1 power-up goes into our peak plan, starting next week",
       "options": [
         {
           "id": "priorities",
           "label": "Clear priorities",
           "icon": "help:target",
-          "note": "Focus first ✓"
+          "note": "Focus mode: ON"
         },
         {
           "id": "focus",
           "label": "Protected focus time",
           "icon": "help:focus",
-          "note": "Fewer meetings ✓"
+          "note": "Do not disturb!"
         },
         {
           "id": "backup",
-          "label": "Backup from the team",
+          "label": "Backing each other up",
           "icon": "help:team",
-          "note": "We've got your back"
+          "note": "Team power!"
         },
         {
           "id": "wins",
-          "label": "Celebrating wins on the way",
+          "label": "Celebrating every win",
           "icon": "help:trophy",
-          "note": "Cake is on us"
+          "note": "Cake incoming!"
         },
         {
           "id": "break",

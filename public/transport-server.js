@@ -10,17 +10,26 @@
     return id;
   }
 
+  function player() {
+    let p = null;
+    try { p = JSON.parse(localStorage.getItem('mp-player') || 'null'); } catch {}
+    if (!p) { p = PulseCore.makePlayer(); try { localStorage.setItem('mp-player', JSON.stringify(p)); } catch {} }
+    return PulseCore.cleanPlayer(p);
+  }
+
   root.ServerTransport = function (role) {
     const key = new URLSearchParams(location.search).get('key') || '';
     const id = token();
+    const me = player();
     const T = {
+      me,
       joinUrl: location.origin,
       canControl: !!key,
       controlHint: 'Add ?key=… (printed in the server console) to the URL to control the screen',
       qrHtml: () => '<img src="/qr.svg" alt="QR code to join">',
       subscribe(onState, onReact) {
         const connect = () => {
-          const es = new EventSource('/events?role=' + role);
+          const es = new EventSource(`/events?role=${role}&a=${me.a}&n=${me.n}&c=${me.c}`);
           es.onopen = () => T.onStatus && T.onStatus('');
           es.onmessage = e => {
             const s = JSON.parse(e.data);

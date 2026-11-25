@@ -45,7 +45,7 @@
   }
 
   // ---------- confetti ----------
-  const COLORS = ['#10069f', '#3b2fe0', '#5fb8ff', '#ffc400', '#0b0b3b', '#d7263d'];
+  const COLORS = ['#ff5a5f', '#38bdf8', '#22c997', '#a78bfa', '#ff9f1c', '#ff7ac6', '#ffd23f', '#1d1b3a'];
   function Confetti(canvas) {
     let parts = [], running = false, ctx, W, H;
     this.burst = (kind = 'top', origin) => {
@@ -107,7 +107,7 @@
   }
 
   // ---------- live pulse line (heartbeat that spikes on activity) ----------
-  function PulseLine(canvas, { color = '#10069f', samples = 150, idle = 2600 } = {}) {
+  function PulseLine(canvas, { color = '#1d1b3a', samples = 150, idle = 2600 } = {}) {
     let ctx, W, H, buf = new Array(samples).fill(0), queue = [], lastBeat = 0;
     const resize = () => { ({ ctx, w: W, h: H } = fitCanvas(canvas)); };
     resize(); addEventListener('resize', resize);
@@ -140,6 +140,39 @@
     if (!reduce) raf(loop);
   }
 
+  // ---------- fireworks (finale) ----------
+  function Fireworks(canvas, colors = COLORS) {
+    let ctx, W, H, rockets = [], sparks = [], on = false, last = 0;
+    const resize = () => { ({ ctx, w: W, h: H } = fitCanvas(canvas)); };
+    resize(); addEventListener('resize', resize);
+    const launch = () => rockets.push({ x: W * (.15 + Math.random() * .7), y: H + 10, vy: -(H * (.013 + Math.random() * .006)), tx: H * (.12 + Math.random() * .3), c: colors[(Math.random() * colors.length) | 0] });
+    const burst = r => {
+      const n = 60 + (Math.random() * 40) | 0, sp = H * (.004 + Math.random() * .003);
+      for (let i = 0; i < n; i++) { const a = (i / n) * 6.283, v = sp * (.6 + Math.random() * .6); sparks.push({ x: r.x, y: r.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, c: Math.random() < .25 ? '#ffffff' : r.c }); }
+    };
+    const loop = t => {
+      if (!on || !canvas.isConnected) { ctx.clearRect(0, 0, W, H); return; }
+      if (t - last > 650) { launch(); if (Math.random() < .5) launch(); last = t; }
+      ctx.clearRect(0, 0, W, H);
+      rockets = rockets.filter(r => {
+        r.y += r.vy; r.vy *= .985;
+        ctx.fillStyle = r.c; ctx.beginPath(); ctx.arc(r.x, r.y, 3, 0, 6.283); ctx.fill();
+        if (r.y <= r.tx || r.vy > -1) { burst(r); return false; }
+        return true;
+      });
+      sparks = sparks.filter(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += .05; p.vx *= .985; p.life -= .012;
+        ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.c;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.6, 0, 6.283); ctx.fill();
+        return p.life > 0;
+      });
+      ctx.globalAlpha = 1;
+      raf(loop);
+    };
+    this.start = () => { if (on || reduce) return; on = true; resize(); raf(loop); };
+    this.stop = () => { on = false; };
+  }
+
   // ---------- reactions floating up ----------
   let floaters = 0;
   function floatReaction(r, { max = 45 } = {}) {
@@ -160,5 +193,5 @@
     clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), ms);
   }
 
-  root.FX = { reduce, tween, splitWords, Confetti, Snow, PulseLine, floatReaction, toast, fitCanvas };
+  root.FX = { reduce, tween, splitWords, Confetti, Snow, PulseLine, Fireworks, floatReaction, toast, fitCanvas };
 })(typeof self !== 'undefined' ? self : this);

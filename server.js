@@ -14,7 +14,7 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
 const QUESTIONS = CONFIG.questions;
 const REACTIONS = CONFIG.reactions || ['👏', '🎉', '🔥', '💙', '😂', '🚀'];
-const LOBBY = -1, SUMMARY = QUESTIONS.length;
+const LOBBY = -1, SUMMARY = QUESTIONS.length, LAST = Core.lastIndex(CONFIG);
 
 function lanAddress() {
   for (const list of Object.values(os.networkInterfaces())) {
@@ -26,9 +26,11 @@ const PUBLIC_URL = (process.env.PUBLIC_URL || `http://${lanAddress()}:${PORT}`).
 
 // ---- state -------------------------------------------------------------
 // responses[questionIndex] = { anonymousDeviceToken: { option, word, ts } }. No names are collected.
-let state = { current: LOBBY, revealed: true, responses: {}, hidden: [] };
+const fresh = () => ({ current: LOBBY, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [] });
+let state = fresh();
 try { state = { ...state, ...JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) }; } catch {}
 for (const r of Object.values(state.responses)) for (const a of Object.values(r || {})) delete a.name;
+state.revealedQ ||= {};
 let saveTimer;
 function save() {
   clearTimeout(saveTimer);
@@ -37,12 +39,14 @@ function save() {
 
 // ---- live updates (SSE) -------------------------------------------------
 // Presenter screens get every update; phones only hear about presenter actions.
-const clients = new Map(); // res -> 'host' | 'phone'
-const phoneCount = () => [...clients.values()].filter(r => r === 'phone').length;
-const publicState = extra => Core.publicState(CONFIG, state, { joinUrl: PUBLIC_URL, connected: phoneCount(), ...extra });
+const clients = new Map(); // res -> { role: 'host' | 'phone', player }
+const phones = () => [...clients.values()].filter(c => c.role === 'phone');
+const publicState = extra => Core.publicState(CONFIG, state, {
+  joinUrl: PUBLIC_URL, connected: phones().length, players: phones().slice(-80).map(c => c.player), ...extra,
+});
 function send(filter, payload, event) {
   const msg = (event ? `event: ${event}\n` : '') + `data: ${JSON.stringify(payload)}\n\n`;
-  for (const [res, role] of clients) if (filter(role)) res.write(msg);
+  for (const [res, c] of clients) if (filter(c.role)) res.write(msg);
 }
 const toHosts = role => role === 'host';
 const toAll = () => true;
@@ -102,8 +106,9 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && p === '/events') {
     const role = url.searchParams.get('role') === 'host' ? 'host' : 'phone';
+    const player = Core.cleanPlayer({ a: url.searchParams.get('a'), n: url.searchParams.get('n'), c: url.searchParams.get('c') });
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
-    clients.set(res, role);
+    clients.set(res, { role, player });
     res.write(`data: ${JSON.stringify(publicState())}\n\n`);
     if (role === 'phone') announceCount();
     req.on('close', () => { clients.delete(res); if (role === 'phone') announceCount(); });
@@ -140,16 +145,17 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && p.startsWith('/api/host/')) {
     if (url.searchParams.get('key') !== HOST_KEY) return json(res, 403, { error: 'wrong host key' });
     const action = p.slice('/api/host/'.length);
-    if (action === 'next') state.current = Math.min(state.current + 1, SUMMARY);
-    else if (action === 'prev') state.current = Math.max(state.current - 1, LOBBY);
-    else if (action === 'reveal') state.revealed = !state.revealed;
-    else if (action === 'clear') delete state.responses[state.current];
+    if (action === 'next') Core.enter(CONFIG, state, Math.min(state.current + 1, LAST));
+    else if (action === 'prev') Core.enter(CONFIG, state, Math.max(state.current - 1, LOBBY));
+    else if (action === 'reveal') { state.revealedQ[state.current] = true; state.timerEnd = 0; }
+    else if (action === 'conceal') { delete state.revealedQ[state.current]; state.timerEnd = 0; }
+    else if (action === 'clear') { delete state.responses[state.current]; delete state.revealedQ[state.current]; Core.enter(CONFIG, state, state.current); }
     else if (action === 'hide') { const w = Core.norm(url.searchParams.get('word')); if (w && !state.hidden.includes(w)) state.hidden.push(w); }
     else if (action === 'unhide') state.hidden = [];
-    else if (action === 'reset') state = { current: LOBBY, revealed: true, responses: {}, hidden: [] };
+    else if (action === 'reset') state = fresh();
     else return json(res, 404, { error: 'unknown action' });
     save();
-    send(['hide', 'unhide', 'reveal'].includes(action) ? toHosts : toAll, publicState());
+    send(['hide', 'unhide'].includes(action) ? toHosts : toAll, publicState());
     return json(res, 200, { ok: true });
   }
 
