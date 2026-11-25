@@ -1,6 +1,14 @@
 {
   "team": "Finance Operations",
   "event": "Year-End All-Hands 2026",
+  "reactions": [
+    "👏",
+    "🎉",
+    "🔥",
+    "💙",
+    "😂",
+    "🚀"
+  ],
   "questions": [
     {
       "title": "How are you feeling right now?",
@@ -11,31 +19,36 @@
           "id": "energised",
           "label": "Energised",
           "icon": "signal:5",
-          "score": 5
+          "score": 5,
+          "note": "Strong buy!"
         },
         {
           "id": "positive",
           "label": "Positive",
           "icon": "signal:4",
-          "score": 4
+          "score": 4,
+          "note": "Solid fundamentals"
         },
         {
           "id": "steady",
           "label": "Steady",
           "icon": "signal:3",
-          "score": 3
+          "score": 3,
+          "note": "Holding steady"
         },
         {
           "id": "stretched",
           "label": "Stretched",
           "icon": "signal:2",
-          "score": 2
+          "score": 2,
+          "note": "Time for a breather?"
         },
         {
           "id": "drained",
           "label": "Running low",
           "icon": "signal:1",
-          "score": 1
+          "score": 1,
+          "note": "Holiday: approved ✓"
         }
       ]
     },
@@ -47,27 +60,32 @@
         {
           "id": "rocket",
           "label": "Exponential growth",
-          "icon": "chart:rocket"
+          "icon": "chart:rocket",
+          "note": "To the moon!"
         },
         {
           "id": "bull",
           "label": "Steady bull run",
-          "icon": "chart:bull"
+          "icon": "chart:bull",
+          "note": "Textbook growth"
         },
         {
           "id": "volatile",
           "label": "Volatile, but up",
-          "icon": "chart:volatile"
+          "icon": "chart:volatile",
+          "note": "Hold on tight!"
         },
         {
           "id": "recovery",
           "label": "Dip and recovery",
-          "icon": "chart:recovery"
+          "icon": "chart:recovery",
+          "note": "Comeback story"
         },
         {
           "id": "sideways",
           "label": "Trading sideways",
-          "icon": "chart:sideways"
+          "icon": "chart:sideways",
+          "note": "Consolidation phase"
         }
       ]
     },
@@ -80,25 +98,29 @@
           "id": "full",
           "label": "Fully charged",
           "icon": "battery:100",
-          "score": 5
+          "score": 5,
+          "note": "Ready to compound"
         },
         {
           "id": "ready",
           "label": "Ready to go",
           "icon": "battery:70",
-          "score": 4
+          "score": 4,
+          "note": "Bullish on 2027"
         },
         {
           "id": "reserve",
           "label": "Running on reserve",
           "icon": "battery:35",
-          "score": 2
+          "score": 2,
+          "note": "Recharge pending…"
         },
         {
           "id": "recharge",
           "label": "Holiday first, then go",
           "icon": "battery:10",
-          "score": 1
+          "score": 1,
+          "note": "Out of office: approved ✓"
         }
       ]
     }

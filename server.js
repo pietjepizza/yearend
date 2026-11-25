@@ -1,4 +1,4 @@
-// Year-end all-hands "Mood Pulse": live check-in with a consulting-style presenter screen.
+// Year-end all-hands "Mood Pulse": anonymous live check-in with a consulting-style presenter screen.
 // Zero-framework Node server: static pages + JSON API + Server-Sent Events.
 const http = require('http');
 const fs = require('fs');
@@ -12,6 +12,7 @@ const HOST_KEY = process.env.HOST_KEY || crypto.randomBytes(3).toString('hex');
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
 const QUESTIONS = CONFIG.questions;
+const REACTIONS = CONFIG.reactions || ['👏', '🎉', '🔥', '💙', '😂', '🚀'];
 const SUMMARY = QUESTIONS.length; // index of the closing "executive summary" screen
 
 function lanAddress() {
@@ -23,14 +24,17 @@ function lanAddress() {
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://${lanAddress()}:${PORT}`).replace(/\/$/, '');
 
 // ---- state -------------------------------------------------------------
-// responses[questionIndex] = { participantId: { name, option, word, ts } }
-let state = { current: 0, revealed: true, responses: {} };
+// responses[questionIndex] = { anonymousDeviceId: { option, word, ts } }. No names are collected.
+let state = { current: 0, revealed: true, responses: {}, hidden: [] };
 try { state = { ...state, ...JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) }; } catch {}
+for (const r of Object.values(state.responses)) for (const a of Object.values(r || {})) delete a.name;
 let saveTimer;
 function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => fs.writeFile(DATA_FILE, JSON.stringify(state), () => {}), 300);
 }
+const normWord = w => String(w || '').toLowerCase().trim();
+const isHidden = w => state.hidden.includes(normWord(w));
 
 // ---- analytics ------------------------------------------------------------
 function analyse(qi) {
@@ -44,7 +48,7 @@ function analyse(qi) {
     if (!opt) continue;
     counts[opt.id]++;
     if (typeof opt.score === 'number') { scoreSum += opt.score; scored++; if (opt.score >= 4) topBoxN++; }
-    if (a.word) { const w = a.word.toLowerCase(); words[w] = (words[w] || 0) + 1; }
+    if (a.word && !isHidden(a.word)) { const w = normWord(a.word); words[w] = (words[w] || 0) + 1; }
   }
   const n = answers.length;
   const top = q.options.reduce((best, o) => (counts[o.id] > counts[best.id] ? o : best), q.options[0]);
@@ -66,26 +70,29 @@ function analyse(qi) {
 function publicState() {
   const base = {
     team: CONFIG.team, event: CONFIG.event, index: state.current, total: QUESTIONS.length,
-    revealed: state.revealed, joinUrl: PUBLIC_URL,
+    revealed: state.revealed, joinUrl: PUBLIC_URL, reactions: REACTIONS,
   };
   if (state.current === SUMMARY) {
-    const items = QUESTIONS.map((q, i) => ({ title: q.title, ...analyse(i) }));
+    const items = QUESTIONS.map((q, i) => ({ title: q.title, options: q.options, ...analyse(i) }));
     const participants = new Set(Object.values(state.responses).flatMap(r => Object.keys(r || {}))).size;
     return { ...base, summary: true, items, participants };
   }
   const q = QUESTIONS[state.current];
   const recent = Object.values(state.responses[state.current] || {})
-    .filter(a => a.word).sort((a, b) => b.ts - a.ts).slice(0, 14).map(a => a.word);
+    .filter(a => a.word && !isHidden(a.word)).sort((a, b) => b.ts - a.ts).slice(0, 14).map(a => a.word);
   return { ...base, question: q, ...analyse(state.current), recent };
 }
 
 // ---- live updates (SSE) -------------------------------------------------
-const clients = new Set();
-function broadcast(extra) {
-  const msg = `data: ${JSON.stringify({ ...publicState(), ...extra })}\n\n`;
-  for (const res of clients) res.write(msg);
+// Presenter screens get every update; phones only hear about host actions (question changes etc.).
+const clients = new Map(); // res -> 'host' | 'phone'
+function send(filter, payload, event) {
+  const msg = (event ? `event: ${event}\n` : '') + `data: ${JSON.stringify(payload)}\n\n`;
+  for (const [res, role] of clients) if (filter(role)) res.write(msg);
 }
-setInterval(() => { for (const res of clients) res.write(': ping\n\n'); }, 25000);
+const toHosts = role => role === 'host';
+const toAll = () => true;
+setInterval(() => { for (const res of clients.keys()) res.write(': ping\n\n'); }, 25000);
 
 // ---- helpers ------------------------------------------------------------
 function readBody(req) {
@@ -116,6 +123,8 @@ function sendFile(res, file, type) {
   });
 }
 
+const lastReaction = new Map();
+
 // ---- routes -------------------------------------------------------------
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
@@ -137,9 +146,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && p === '/events') {
+    const role = url.searchParams.get('role') === 'host' ? 'host' : 'phone';
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
     res.write(`data: ${JSON.stringify(publicState())}\n\n`);
-    clients.add(res);
+    clients.set(res, role);
     req.on('close', () => clients.delete(res));
     return;
   }
@@ -152,10 +162,22 @@ const server = http.createServer(async (req, res) => {
     if (Number(b.index) !== state.current || state.current === SUMMARY) return json(res, 409, { error: 'question changed' });
     const q = QUESTIONS[state.current];
     if (!q.options.some(o => o.id === b.option)) return json(res, 400, { error: 'unknown option' });
-    const answer = { name: clean(b.name, 40), option: b.option, word: clean(b.word, 24), ts: Date.now() };
+    const answer = { option: b.option, word: clean(b.word, 24), ts: Date.now() };
     (state.responses[state.current] ||= {})[id] = answer;
     save();
-    broadcast({ pop: answer.option });
+    send(toHosts, { ...publicState(), pop: answer.option });
+    return json(res, 200, { ok: true });
+  }
+
+  if (req.method === 'POST' && p === '/api/react') {
+    let b;
+    try { b = await readBody(req); } catch { return json(res, 400, { error: 'bad json' }); }
+    const id = clean(b.id, 64);
+    if (!id || !REACTIONS.includes(b.r)) return json(res, 400, { error: 'bad reaction' });
+    const now = Date.now();
+    if (now - (lastReaction.get(id) || 0) < 250) return json(res, 429, { error: 'slow down' });
+    lastReaction.set(id, now);
+    send(toHosts, { r: b.r }, 'react');
     return json(res, 200, { ok: true });
   }
 
@@ -166,10 +188,13 @@ const server = http.createServer(async (req, res) => {
     else if (action === 'prev') state.current = Math.max(state.current - 1, 0);
     else if (action === 'reveal') state.revealed = !state.revealed;
     else if (action === 'clear') delete state.responses[state.current];
-    else if (action === 'reset') { state.responses = {}; state.current = 0; state.revealed = true; }
+    else if (action === 'hide') { const w = normWord(url.searchParams.get('word')); if (w && !state.hidden.includes(w)) state.hidden.push(w); }
+    else if (action === 'unhide') state.hidden = [];
+    else if (action === 'reset') { state.responses = {}; state.current = 0; state.revealed = true; state.hidden = []; }
     else return json(res, 404, { error: 'unknown action' });
     save();
-    broadcast();
+    const toWho = ['hide', 'unhide', 'reveal'].includes(action) ? toHosts : toAll;
+    send(toWho, publicState());
     return json(res, 200, { ok: true });
   }
 
