@@ -1,85 +1,104 @@
 {
-  "event": "Finance Operations · Year-End 2026",
+  "team": "Finance Operations",
+  "event": "Year-End All-Hands 2026",
   "questions": [
     {
       "title": "How are you feeling right now?",
-      "subtitle": "Be honest — it's anonymous on the big screen",
+      "wordPrompt": "One word for your mood (optional)",
+      "takeaway": "{topBox}% of the team feels positive or energised",
       "options": [
         {
-          "emoji": "🤩",
-          "label": "Fantastic"
+          "id": "energised",
+          "label": "Energised",
+          "icon": "signal:5",
+          "score": 5
         },
         {
-          "emoji": "😄",
-          "label": "Great"
+          "id": "positive",
+          "label": "Positive",
+          "icon": "signal:4",
+          "score": 4
         },
         {
-          "emoji": "🙂",
-          "label": "Good"
+          "id": "steady",
+          "label": "Steady",
+          "icon": "signal:3",
+          "score": 3
         },
         {
-          "emoji": "😐",
-          "label": "Meh"
+          "id": "stretched",
+          "label": "Stretched",
+          "icon": "signal:2",
+          "score": 2
         },
         {
-          "emoji": "😕",
-          "label": "Not great"
-        },
-        {
-          "emoji": "😩",
-          "label": "Exhausted"
+          "id": "drained",
+          "label": "Running low",
+          "icon": "signal:1",
+          "score": 1
         }
       ]
     },
     {
-      "title": "2026 in one emoji?",
-      "subtitle": "What did this year feel like for you?",
+      "title": "If 2026 were a share price, what would the chart look like?",
+      "wordPrompt": "Describe 2026 in one word (optional)",
+      "takeaway": "The team's verdict on 2026: “{top}”",
       "options": [
         {
-          "emoji": "🚀",
-          "label": "Rocket ride"
+          "id": "rocket",
+          "label": "Exponential growth",
+          "icon": "chart:rocket"
         },
         {
-          "emoji": "🎢",
-          "label": "Rollercoaster"
+          "id": "bull",
+          "label": "Steady bull run",
+          "icon": "chart:bull"
         },
         {
-          "emoji": "🏗️",
-          "label": "Building"
+          "id": "volatile",
+          "label": "Volatile, but up",
+          "icon": "chart:volatile"
         },
         {
-          "emoji": "📚",
-          "label": "Learning"
+          "id": "recovery",
+          "label": "Dip and recovery",
+          "icon": "chart:recovery"
         },
         {
-          "emoji": "🔥",
-          "label": "On fire"
-        },
-        {
-          "emoji": "🌊",
-          "label": "Treading water"
+          "id": "sideways",
+          "label": "Trading sideways",
+          "icon": "chart:sideways"
         }
       ]
     },
     {
-      "title": "Your energy heading into 2027?",
-      "subtitle": "Charge level check",
+      "title": "What's your battery level heading into 2027?",
+      "wordPrompt": "What will you focus on in 2027? (one word, optional)",
+      "takeaway": "{topBox}% of the team is charged up for 2027",
       "options": [
         {
-          "emoji": "⚡",
-          "label": "Fully charged"
+          "id": "full",
+          "label": "Fully charged",
+          "icon": "battery:100",
+          "score": 5
         },
         {
-          "emoji": "💪",
-          "label": "Ready"
+          "id": "ready",
+          "label": "Ready to go",
+          "icon": "battery:70",
+          "score": 4
         },
         {
-          "emoji": "🔋",
-          "label": "Need a recharge"
+          "id": "reserve",
+          "label": "Running on reserve",
+          "icon": "battery:35",
+          "score": 2
         },
         {
-          "emoji": "🏖️",
-          "label": "Holiday first"
+          "id": "recharge",
+          "label": "Holiday first, then go",
+          "icon": "battery:10",
+          "score": 1
         }
       ]
     }

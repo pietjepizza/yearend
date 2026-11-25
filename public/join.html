@@ -3,38 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a3c">
+<meta name="theme-color" content="#0b0b3b">
 <title>Mood Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<script src="/icons.js"></script>
 </head>
 <body>
-<div class="phone">
-  <header>
-    <div class="event" id="event"></div>
-    <h1 id="title">Loading…</h1>
-    <p class="sub" id="sub"></p>
-    <div class="step" id="step"></div>
-  </header>
+<div class="app">
+  <div class="app-bar"><span class="team" id="team">Mood Pulse</span><span class="step" id="step"></span></div>
+  <div class="progress"><i id="prog" style="width:0"></i></div>
 
-  <section id="pick" hidden>
-    <div class="grid" id="grid"></div>
-    <div class="field">
-      <label for="word">One word to go with it? (optional)</label>
-      <input id="word" maxlength="24" autocomplete="off" placeholder="e.g. proud, busy, grateful">
-    </div>
-    <div class="field">
-      <label for="name">Your name (optional — never shown on screen)</label>
-      <input id="name" maxlength="40" autocomplete="given-name">
-    </div>
-    <button class="primary" id="send" disabled>Send my mood</button>
-  </section>
+  <main class="app-main">
+    <section id="pick" hidden>
+      <div class="q-k" id="qk"></div>
+      <h1 class="q-t" id="qt"></h1>
+      <div class="opts" id="opts" role="radiogroup"></div>
+      <div class="field">
+        <label for="word" id="wordLabel">One word (optional)</label>
+        <input id="word" maxlength="24" autocomplete="off" enterkeyhint="done">
+        <div class="note">Shown on screen without your name.</div>
+      </div>
+      <div class="field">
+        <label for="name">Your name (optional)</label>
+        <input id="name" maxlength="40" autocomplete="given-name">
+        <div class="note">Never shown on screen.</div>
+      </div>
+    </section>
 
-  <section id="done" class="done" hidden>
-    <div class="big" id="doneEmoji"></div>
-    <h2>Thanks — you're on the big screen!</h2>
-    <p class="muted">Keep this page open. The next question appears here automatically.</p>
-    <button class="link" id="change">Change my answer</button>
-  </section>
+    <section id="done" class="done" hidden>
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>Response recorded</h2>
+      <p>Your answer is now live on the big screen. The next question appears here automatically.</p>
+      <div class="chosen" id="chosen"></div>
+      <button class="link" id="change">Change my answer</button>
+      <div class="waiting-note"><i></i>Waiting for the next question</div>
+    </section>
+
+    <section id="wrap" class="done" hidden>
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>That's a wrap</h2>
+      <p>Thank you for sharing your pulse. Look up: the executive summary is on screen now.</p>
+    </section>
+  </main>
+
+  <div class="cta-wrap" id="ctaWrap" hidden><button class="cta" id="send" disabled>Submit response</button></div>
 </div>
 
 <script>
@@ -44,46 +59,61 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
 let id = store.get('mp-id');
-if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)); store.set('mp-id', id); }
+if (!id) { id = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); store.set('mp-id', id); }
 $('name').value = store.get('mp-name') || '';
 
-let current = null, choice = null, editing = false;
+let s = null, current = null, choice = null, editing = false;
 
-function renderQuestion(s, mine) {
-  $('event').textContent = s.event;
-  $('title').textContent = s.question.title;
-  $('sub').textContent = s.question.subtitle || '';
-  $('step').textContent = `Question ${s.index + 1} of ${s.total}`;
-  $('grid').innerHTML = '';
-  for (const o of s.question.options) {
-    const b = document.createElement('button');
-    b.className = 'opt' + (o.emoji === choice ? ' sel' : '');
-    b.innerHTML = `<span class="e"></span><span class="l"></span>`;
-    b.querySelector('.e').textContent = o.emoji;
-    b.querySelector('.l').textContent = o.label;
-    b.onclick = () => {
-      choice = o.emoji;
-      document.querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === b));
-      $('send').disabled = false;
-      if (navigator.vibrate) navigator.vibrate(15);
-    };
-    $('grid').appendChild(b);
-  }
-  $('send').disabled = !choice;
-  showDone(!!mine && !editing, mine);
+function show(which) {
+  for (const k of ['pick', 'done', 'wrap']) $(k).hidden = k !== which;
+  $('ctaWrap').hidden = which !== 'pick';
 }
 
-function showDone(done, mine) {
-  $('pick').hidden = done;
-  $('done').hidden = !done;
-  if (done && mine) $('doneEmoji').textContent = mine.emoji;
+function render() {
+  $('team').textContent = s.team;
+  const steps = s.total;
+  $('prog').style.width = (Math.min(s.index, steps) / steps) * 100 + '%';
+  if (s.summary) { $('step').textContent = 'Done'; $('prog').style.width = '100%'; return show('wrap'); }
+
+  const q = s.question;
+  $('step').textContent = `Question ${s.index + 1} of ${steps}`;
+  $('qk').textContent = `Question ${s.index + 1}`;
+  $('qt').textContent = q.title;
+  $('wordLabel').textContent = q.wordPrompt || 'One word (optional)';
+  $('opts').innerHTML = '';
+  for (const o of q.options) {
+    const b = document.createElement('button');
+    b.className = 'opt' + (o.id === choice ? ' sel' : '');
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', o.id === choice);
+    b.innerHTML = `<span class="ic">${icon(o.icon)}</span><span class="l"></span><span class="radio"></span>`;
+    b.querySelector('.l').textContent = o.label;
+    b.onclick = () => {
+      choice = o.id;
+      document.querySelectorAll('.opt').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); });
+      $('send').disabled = false;
+      if (navigator.vibrate) navigator.vibrate(10);
+    };
+    $('opts').appendChild(b);
+  }
+  $('send').disabled = !choice;
+
+  if (s.mine && !editing) {
+    const o = q.options.find(x => x.id === s.mine.option);
+    $('chosen').innerHTML = o ? `<span class="ic">${icon(o.icon)}</span><span></span>` : '';
+    if (o) $('chosen').lastChild.textContent = o.label + (s.mine.word ? ` · “${s.mine.word}”` : '');
+    show('done');
+  } else show('pick');
 }
 
 async function load() {
-  const s = await fetch('/api/state?id=' + encodeURIComponent(id)).then(r => r.json());
-  if (current !== s.index) { choice = s.mine ? s.mine.emoji : null; editing = false; $('word').value = s.mine ? s.mine.word : ''; }
-  current = s.index;
-  renderQuestion(s, s.mine);
+  s = await fetch('/api/state?id=' + encodeURIComponent(id)).then(r => r.json());
+  if (current !== s.index) {
+    choice = s.mine ? s.mine.option : null; editing = false;
+    $('word').value = s.mine ? s.mine.word : '';
+    current = s.index; scrollTo(0, 0);
+  }
+  render();
 }
 
 $('send').onclick = async () => {
@@ -92,18 +122,17 @@ $('send').onclick = async () => {
   store.set('mp-name', $('name').value.trim());
   const r = await fetch('/api/vote', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, index: current, emoji: choice, word: $('word').value, name: $('name').value }),
+    body: JSON.stringify({ id, index: current, option: choice, word: $('word').value, name: $('name').value }),
   });
   editing = false;
   await load();
-  if (!r.ok) alert('The question just changed — please answer the new one.');
+  if (!r.ok) alert('The question just changed. Please answer the new one.');
 };
-$('change').onclick = () => { editing = true; showDone(false); };
+$('change').onclick = () => { editing = true; render(); };
 
-// Live: reload when the host moves to another question.
 function connect() {
   const es = new EventSource('/events');
-  es.onmessage = e => { const s = JSON.parse(e.data); if (s.index !== current) load(); };
+  es.onmessage = e => { const d = JSON.parse(e.data); if (d.index !== current) load(); };
   es.onerror = () => { es.close(); setTimeout(connect, 2000); };
 }
 load().then(connect);
