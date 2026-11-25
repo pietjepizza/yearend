@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mood Pulse — Presenter</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="host">
+  <div class="main">
+    <div class="event" id="event"></div>
+    <h1 id="title">Loading…</h1>
+    <p class="sub" id="sub"></p>
+    <div class="bars" id="bars"></div>
+    <div class="words" id="words"></div>
+  </div>
+  <aside class="side">
+    <div class="qr"><img src="/qr.svg" alt="QR code to join"></div>
+    <div>
+      <div class="muted">Scan or go to</div>
+      <div class="join-url" id="url"></div>
+    </div>
+    <div>
+      <div class="counter" id="count">0</div>
+      <div class="counter-l">responses</div>
+    </div>
+  </aside>
+</div>
+<div class="nav" id="nav"></div>
+<div class="status" id="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const key = new URLSearchParams(location.search).get('key') || '';
+let lastIndex = null;
+
+function render(s) {
+  $('event').textContent = s.event;
+  $('title').textContent = s.question.title;
+  $('sub').textContent = s.question.subtitle || '';
+  $('url').textContent = s.joinUrl.replace(/^https?:\/\//, '');
+  $('count').textContent = s.count;
+  $('nav').innerHTML = `Question <b>${s.index + 1}/${s.total}</b> · ← → switch · <b>H</b> hide/reveal results · <b>C</b> clear this question` + (key ? '' : ' · <b>add ?key=… to the URL to control</b>');
+
+  const bars = $('bars');
+  bars.classList.toggle('hidden-results', !s.revealed);
+  if (lastIndex !== s.index) {
+    bars.innerHTML = s.question.options.map(o => `
+      <div class="bar" data-e="${o.emoji}">
+        <div class="n">0</div><div class="col" style="height:8px"></div>
+        <div class="e">${o.emoji}</div><div class="l"></div>
+      </div>`).join('');
+    s.question.options.forEach((o, i) => bars.children[i].querySelector('.l').textContent = o.label);
+    lastIndex = s.index;
+  }
+  const max = Math.max(1, ...Object.values(s.counts));
+  const topN = Math.max(...Object.values(s.counts));
+  const avail = bars.clientHeight - 200;
+  for (const el of bars.children) {
+    const n = s.counts[el.dataset.e] || 0;
+    el.querySelector('.n').textContent = n;
+    el.querySelector('.col').style.height = Math.max(8, (n / max) * avail) + 'px';
+    el.classList.toggle('top', s.revealed && n > 0 && n === topN);
+  }
+
+  const words = Object.entries(s.words).sort((a, b) => b[1] - a[1]).slice(0, 30);
+  const wmax = words.length ? words[0][1] : 1;
+  $('words').innerHTML = '';
+  if (s.revealed) for (const [w, n] of words) {
+    const span = document.createElement('span');
+    span.textContent = w;
+    span.style.fontSize = (18 + 26 * (n / wmax)) + 'px';
+    span.style.color = n === wmax ? 'var(--accent)' : '';
+    $('words').appendChild(span);
+  }
+}
+
+function floatEmoji(e) {
+  const d = document.createElement('div');
+  d.className = 'floater';
+  d.textContent = e;
+  d.style.left = (5 + Math.random() * 65) + 'vw';
+  d.style.setProperty('--r', (Math.random() * 60 - 30) + 'deg');
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3300);
+}
+
+let latest;
+function connect() {
+  const es = new EventSource('/events');
+  es.onopen = () => $('status').textContent = '';
+  es.onmessage = e => {
+    latest = JSON.parse(e.data);
+    render(latest);
+    if (latest.pop) floatEmoji(latest.pop);
+  };
+  es.onerror = () => { $('status').textContent = 'reconnecting…'; es.close(); setTimeout(connect, 2000); };
+}
+connect();
+addEventListener('resize', () => latest && render(latest));
+
+async function act(a) {
+  const r = await fetch(`/api/host/${a}?key=${encodeURIComponent(key)}`, { method: 'POST' });
+  if (r.status === 403) $('status').textContent = 'Host key missing or wrong — check the server console for the presenter link';
+}
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') act('next');
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') act('prev');
+  else if (e.key.toLowerCase() === 'h') act('reveal');
+  else if (e.key.toLowerCase() === 'c' && confirm('Clear all answers for this question?')) act('clear');
+});
+</script>
+</body>
+</html>

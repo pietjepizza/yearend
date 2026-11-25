@@ -1,0 +1,22 @@
+{
+  "name": "mood-pulse",
+  "version": "1.0.0",
+  "description": "Live emoji mood check-in for the year-end all-hands",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pietjepizza/yearend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pietjepizza/yearend/issues"
+  },
+  "homepage": "https://github.com/pietjepizza/yearend#readme",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

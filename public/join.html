@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1035">
+<title>Mood Pulse</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="phone">
+  <header>
+    <div class="event" id="event"></div>
+    <h1 id="title">Loading…</h1>
+    <p class="sub" id="sub"></p>
+    <div class="step" id="step"></div>
+  </header>
+
+  <section id="pick" hidden>
+    <div class="grid" id="grid"></div>
+    <div class="field">
+      <label for="word">One word to go with it? (optional)</label>
+      <input id="word" maxlength="24" autocomplete="off" placeholder="e.g. proud, busy, grateful">
+    </div>
+    <div class="field">
+      <label for="name">Your name (optional — never shown on screen)</label>
+      <input id="name" maxlength="40" autocomplete="given-name">
+    </div>
+    <button class="primary" id="send" disabled>Send my mood</button>
+  </section>
+
+  <section id="done" class="done" hidden>
+    <div class="big" id="doneEmoji"></div>
+    <h2>Thanks — you're on the big screen!</h2>
+    <p class="muted">Keep this page open. The next question appears here automatically.</p>
+    <button class="link" id="change">Change my answer</button>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+let id = store.get('mp-id');
+if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)); store.set('mp-id', id); }
+$('name').value = store.get('mp-name') || '';
+
+let current = null, choice = null, editing = false;
+
+function renderQuestion(s, mine) {
+  $('event').textContent = s.event;
+  $('title').textContent = s.question.title;
+  $('sub').textContent = s.question.subtitle || '';
+  $('step').textContent = `Question ${s.index + 1} of ${s.total}`;
+  $('grid').innerHTML = '';
+  for (const o of s.question.options) {
+    const b = document.createElement('button');
+    b.className = 'opt' + (o.emoji === choice ? ' sel' : '');
+    b.innerHTML = `<span class="e"></span><span class="l"></span>`;
+    b.querySelector('.e').textContent = o.emoji;
+    b.querySelector('.l').textContent = o.label;
+    b.onclick = () => {
+      choice = o.emoji;
+      document.querySelectorAll('.opt').forEach(x => x.classList.toggle('sel', x === b));
+      $('send').disabled = false;
+      if (navigator.vibrate) navigator.vibrate(15);
+    };
+    $('grid').appendChild(b);
+  }
+  $('send').disabled = !choice;
+  showDone(!!mine && !editing, mine);
+}
+
+function showDone(done, mine) {
+  $('pick').hidden = done;
+  $('done').hidden = !done;
+  if (done && mine) $('doneEmoji').textContent = mine.emoji;
+}
+
+async function load() {
+  const s = await fetch('/api/state?id=' + encodeURIComponent(id)).then(r => r.json());
+  if (current !== s.index) { choice = s.mine ? s.mine.emoji : null; editing = false; $('word').value = s.mine ? s.mine.word : ''; }
+  current = s.index;
+  renderQuestion(s, s.mine);
+}
+
+$('send').onclick = async () => {
+  if (!choice) return;
+  $('send').disabled = true;
+  store.set('mp-name', $('name').value.trim());
+  const r = await fetch('/api/vote', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, index: current, emoji: choice, word: $('word').value, name: $('name').value }),
+  });
+  editing = false;
+  await load();
+  if (!r.ok) alert('The question just changed — please answer the new one.');
+};
+$('change').onclick = () => { editing = true; showDone(false); };
+
+// Live: reload when the host moves to another question.
+function connect() {
+  const es = new EventSource('/events');
+  es.onmessage = e => { const s = JSON.parse(e.data); if (s.index !== current) load(); };
+  es.onerror = () => { es.close(); setTimeout(connect, 2000); };
+}
+load().then(connect);
+</script>
+</body>
+</html>
