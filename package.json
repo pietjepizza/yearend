@@ -4,7 +4,8 @@
   "description": "Live emoji mood check-in for the year-end all-hands",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:artifact": "node scripts/build-artifact.js"
   },
   "repository": {
     "type": "git",

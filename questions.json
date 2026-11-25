@@ -1,6 +1,7 @@
 {
   "team": "Finance Operations",
   "event": "Year-End All-Hands 2026",
+  "holidayDate": "2026-12-24",
   "reactions": [
     "👏",
     "🎉",
@@ -9,11 +10,60 @@
     "😂",
     "🚀"
   ],
+  "lobby": {
+    "kicker": "Peak season pulse",
+    "title": "Before the peak: how are we really doing?",
+    "intro": "A record sales year to close, the annual report to write and the ERP migration to land. The next three months are our busiest. Four quick questions, fully anonymous, so we know how everyone is really doing.",
+    "timeline": {
+      "start": "2026-12-01",
+      "end": "2027-03-01",
+      "items": [
+        {
+          "label": "Year-end close",
+          "start": "2026-12-01",
+          "end": "2027-01-22",
+          "note": "Record sales year"
+        },
+        {
+          "label": "Annual report",
+          "start": "2027-01-04",
+          "end": "2027-02-26"
+        },
+        {
+          "label": "ERP migration",
+          "start": "2027-01-11",
+          "end": "2027-03-01",
+          "note": "Go-live"
+        }
+      ],
+      "holiday": {
+        "label": "Holiday break",
+        "start": "2026-12-24",
+        "end": "2027-01-02"
+      }
+    }
+  },
+  "summary": {
+    "title": "We hear you: {participants} colleagues shared their pulse",
+    "thanks": "Happy holidays, Finance Operations! We've got this, together."
+  },
   "questions": [
     {
       "title": "How are you feeling right now?",
       "wordPrompt": "One word for your mood (optional)",
-      "takeaway": "{topBox}% of the team feels positive or energised",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% feel positive or energised: strong energy for the peak"
+        },
+        {
+          "minTopBox": 35,
+          "text": "A mixed picture, honestly shared. Thank you for that"
+        },
+        {
+          "text": "It's been a demanding year, and we hear you"
+        }
+      ],
       "options": [
         {
           "id": "energised",
@@ -41,27 +91,57 @@
           "label": "Stretched",
           "icon": "signal:2",
           "score": 2,
-          "note": "Time for a breather?"
+          "note": "Heard. Breather ahead"
         },
         {
           "id": "drained",
           "label": "Running low",
           "icon": "signal:1",
           "score": 1,
-          "note": "Holiday: approved ✓"
+          "note": "Heard. Rest is planned"
         }
-      ]
+      ],
+      "demo": {
+        "weights": [
+          5,
+          11,
+          7,
+          6,
+          2
+        ],
+        "words": [
+          "proud",
+          "busy",
+          "grateful",
+          "tired",
+          "focused",
+          "proud",
+          "excited",
+          "busy",
+          "relieved",
+          "hectic",
+          "happy",
+          "proud",
+          "festive",
+          "stretched",
+          "motivated"
+        ]
+      }
     },
     {
       "title": "If 2026 were a share price, what would the chart look like?",
       "wordPrompt": "Describe 2026 in one word (optional)",
-      "takeaway": "The team's verdict on 2026: “{top}”",
+      "takeaways": [
+        {
+          "text": "The team's verdict on 2026: “{top}”"
+        }
+      ],
       "options": [
         {
           "id": "rocket",
           "label": "Exponential growth",
           "icon": "chart:rocket",
-          "note": "To the moon!"
+          "note": "Record year, literally!"
         },
         {
           "id": "bull",
@@ -87,42 +167,163 @@
           "icon": "chart:sideways",
           "note": "Consolidation phase"
         }
-      ]
+      ],
+      "demo": {
+        "weights": [
+          8,
+          7,
+          12,
+          4,
+          2
+        ],
+        "words": [
+          "record",
+          "intense",
+          "growth",
+          "rollercoaster",
+          "busy",
+          "record",
+          "wild",
+          "solid",
+          "intense",
+          "rewarding",
+          "record",
+          "fast"
+        ]
+      }
     },
     {
-      "title": "What's your battery level heading into 2027?",
-      "wordPrompt": "What will you focus on in 2027? (one word, optional)",
-      "takeaway": "{topBox}% of the team is charged up for 2027",
+      "title": "What's your battery level going into peak season?",
+      "context": "Dec–Feb: year-end close, annual report, ERP migration",
+      "wordPrompt": "What keeps you going? (one word, optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% are charged up for the peak. Let's go!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Charge levels vary. We'll pace the peak together"
+        },
+        {
+          "text": "Batteries are low, and that's heard. Recharge first, then we go"
+        }
+      ],
       "options": [
         {
           "id": "full",
-          "label": "Fully charged",
+          "label": "Fully charged, bring it on",
           "icon": "battery:100",
           "score": 5,
           "note": "Ready to compound"
         },
         {
           "id": "ready",
-          "label": "Ready to go",
+          "label": "Charged enough",
           "icon": "battery:70",
           "score": 4,
-          "note": "Bullish on 2027"
+          "note": "Bullish on Q1"
         },
         {
           "id": "reserve",
           "label": "Running on reserve",
           "icon": "battery:35",
           "score": 2,
-          "note": "Recharge pending…"
+          "note": "Heard. Pace yourself"
         },
         {
           "id": "recharge",
-          "label": "Holiday first, then go",
+          "label": "Recharge first, then go",
           "icon": "battery:10",
           "score": 1,
-          "note": "Out of office: approved ✓"
+          "note": "Holiday approved ✓"
         }
-      ]
+      ],
+      "demo": {
+        "weights": [
+          6,
+          13,
+          10,
+          7
+        ],
+        "words": [
+          "coffee",
+          "team",
+          "holiday",
+          "coffee",
+          "family",
+          "music",
+          "team",
+          "sports",
+          "chocolate",
+          "sleep",
+          "coffee",
+          "colleagues"
+        ]
+      }
+    },
+    {
+      "title": "What would help you most through the peak?",
+      "context": "We'll take the top answers into planning",
+      "wordPrompt": "Anything else that would help? (one word, optional)",
+      "takeaways": [
+        {
+          "text": "Top ask from the team: “{top}”. Noted."
+        }
+      ],
+      "options": [
+        {
+          "id": "priorities",
+          "label": "Clear priorities",
+          "icon": "help:target",
+          "note": "Focus first ✓"
+        },
+        {
+          "id": "focus",
+          "label": "Protected focus time",
+          "icon": "help:focus",
+          "note": "Fewer meetings ✓"
+        },
+        {
+          "id": "backup",
+          "label": "Backup from the team",
+          "icon": "help:team",
+          "note": "We've got your back"
+        },
+        {
+          "id": "wins",
+          "label": "Celebrating wins on the way",
+          "icon": "help:trophy",
+          "note": "Cake is on us"
+        },
+        {
+          "id": "break",
+          "label": "A real holiday break",
+          "icon": "help:snow",
+          "note": "Laptops closed ✓"
+        }
+      ],
+      "demo": {
+        "weights": [
+          9,
+          11,
+          6,
+          4,
+          8
+        ],
+        "words": [
+          "clarity",
+          "templates",
+          "automation",
+          "patience",
+          "pizza",
+          "documentation",
+          "training",
+          "clarity",
+          "headcount",
+          "cake"
+        ]
+      }
     }
   ]
 }
