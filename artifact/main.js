@@ -10,7 +10,7 @@
   const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', SIM ? { local: true, slot: SIM.slot } : {});
   const qr = document.getElementById('qr-template');
   T.qrHtml = () => (qr ? qr.innerHTML : '<div style="color:#0b0b3b;font:600 13px/1.4 Inter,sans-serif;padding:8px">Open this page with #join on your phone</div>');
-  if (SIM && !isPhone) T.joinLabel = 'Simulator: vote on the phones beside this screen';
+  if (SIM && !isPhone) T.joinLabel = SIM.label || 'Simulator: vote on the phones beside this screen';
   if (isPhone) mountJoin(app, T); else mountHost(app, T);
 
   if (SIM && !isPhone) {

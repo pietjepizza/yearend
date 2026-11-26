@@ -42,6 +42,16 @@ To rebuild it: `ARTIFACT_URL=<link> npm run build:artifact` writes `dist/mood-pu
 
 Everything runs in the browser, with no login or devices needed. To rebuild it: `ARTIFACT_URL=<test link> npm run build:sim`.
 
+## Online demo (GitHub Pages)
+
+`docs/` is a static website for GitHub Pages: https://pietjepizza.github.io/yearend/
+- `index.html`: the landing page
+- `simulator.html`: the simulator, fully working in the browser
+- `presenter.html`: the deck full-screen, in demo mode, with the room simulator
+- `phone.html`: the phone view, which syncs with `presenter.html` in the same browser only
+
+To rebuild it: `npm run build:pages` (set `PAGES_URL` if the address differs). GitHub Pages only serves files, so live voting from other devices on the day needs the Node server below, or a realtime backend.
+
 ## Run it for the real event
 
 ```bash
