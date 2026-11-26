@@ -3,8 +3,140 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10069f">
 <style>[hidden]{display:none!important}</style>
-<script>window.SIM={"role":"host","label":"Demo: open phone.html in another tab of this browser"}</script>
+
+<script src="vendor/supabase.js"></script>
+<script>window.PULSE_LIVE={"url":"https://evdtpvbacpibeasrczhu.supabase.co","key":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZHRwdmJhY3BpYmVhc3Jjemh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5Nzc0ODgsImV4cCI6MjExMDU1MzQ4OH0.SfKzou_Ogcsroj9EpOgB7yBhvd6tNyYGm8Lqiu7EZAQ","role":"host"};</script>
+<script>
+// Live backend for the static website (GitHub Pages), built on Supabase.
+// It offers the small db / room / user surface that ArtifactTransport already uses:
+//   db.doc('live/state')      → table pulse_state (row 'main'), written via rpc pulse_set_state (needs the presenter key)
+//   db.collection('votes')    → table pulse_votes, live through Postgres changes
+//   db.doc('votes/<token>')   → rpc pulse_vote
+//   room                      → a Supabase Realtime channel: broadcast for reactions, presence for "who is connected"
+// Needs the supabase-js UMD build loaded first (global `supabase`).
+(function (root) {
+  root.SupabaseBackend = function ({ url, key, hostKey = '', roomName = 'pulse-room', presenceKey }) {
+    const sb = root.supabase.createClient(url, key, { auth: { persistSession: false }, realtime: { params: { eventsPerSecond: 20 } } });
+    const fail = (code, e) => { const err = new Error((e && e.message) || code); err.code = code; throw err; };
+    const voteDoc = r => ({ id: r.token, data: () => ({ epoch: r.epoch, answers: r.answers || {} }) });
+
+    // If the realtime connection (a WebSocket) cannot be opened, for example on a network that blocks
+    // WebSockets, fall back to polling so the screen and the votes keep flowing.
+    function withFallback(channel, load, everyMs) {
+      let live = false, timer = null;
+      const startPolling = () => { if (!timer && !live) timer = setInterval(load, everyMs); };
+      const stopPolling = () => { clearInterval(timer); timer = null; };
+      channel.subscribe(status => {
+        if (status === 'SUBSCRIBED') { live = true; stopPolling(); load(); }
+        else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') { live = false; startPolling(); }
+      });
+      setTimeout(startPolling, 4000);
+      load();
+      return () => { stopPolling(); sb.removeChannel(channel); };
+    }
+
+    function stateRef() {
+      return {
+        onSnapshot(next, onError) {
+          let lastAt = '';
+          const deliver = (data, at) => { if (at && at === lastAt) return; lastAt = at || lastAt; next({ exists: !!data, data: () => data, metadata: { fromCache: false } }); };
+          const load = async () => {
+            const { data, error } = await sb.from('pulse_state').select('data,updated_at').eq('id', 'main').maybeSingle();
+            if (error) { if (onError) onError({ code: 'unavailable', message: error.message }); return; }
+            deliver(data && data.data, data && data.updated_at);
+          };
+          const ch = sb.channel('pulse-state-' + Math.random().toString(36).slice(2, 8))
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'pulse_state' }, p => {
+              const row = p.new;
+              if (row && row.id === 'main') deliver(row.data, row.updated_at);
+            });
+          return withFallback(ch, load, 2000);
+        },
+        async set(obj) {
+          const { error } = await sb.rpc('pulse_set_state', { p_key: hostKey, p_data: obj });
+          if (error) fail(error.code === '42501' ? 'invalid_argument' : 'unavailable', error);
+        },
+      };
+    }
+
+    const db = {
+      doc(path) {
+        if (path === 'live/state') return stateRef();
+        if (path.startsWith('votes/')) {
+          const token = path.slice(6);
+          return {
+            async set(body) {
+              const { error } = await sb.rpc('pulse_vote', { p_token: token, p_epoch: String(body.epoch || ''), p_answers: body.answers || {} });
+              if (error) fail('unavailable', error);
+            },
+          };
+        }
+        throw new TypeError('Unknown document ' + path);
+      },
+      collection(path) {
+        if (path !== 'votes') throw new TypeError('Unknown collection ' + path);
+        return {
+          onSnapshot(next) {
+            const known = new Map();   // token -> updated_at
+            let first = true;
+            const emit = changes => { if (changes.length || first) next({ docChanges: () => changes }); first = false; };
+            const load = async () => {
+              const { data, error } = await sb.from('pulse_votes').select('token,epoch,answers,updated_at').limit(2000);
+              if (error || !data) return;
+              const changes = [], seen = new Set();
+              for (const r of data) {
+                seen.add(r.token);
+                if (known.get(r.token) === r.updated_at) continue;
+                changes.push({ type: known.has(r.token) ? 'modified' : 'added', doc: voteDoc(r) });
+                known.set(r.token, r.updated_at);
+              }
+              for (const id of [...known.keys()]) if (!seen.has(id)) { known.delete(id); changes.push({ type: 'removed', doc: { id, data: () => ({}) } }); }
+              emit(changes);
+            };
+            const ch = sb.channel('pulse-votes-' + Math.random().toString(36).slice(2, 8))
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'pulse_votes' }, p => {
+                if (p.eventType === 'DELETE') {
+                  const id = p.old && p.old.token;
+                  if (id && known.has(id)) { known.delete(id); emit([{ type: 'removed', doc: { id, data: () => ({}) } }]); }
+                  return;
+                }
+                const r = p.new;
+                if (known.get(r.token) === r.updated_at) return;
+                const t = known.has(r.token) ? 'modified' : 'added';
+                known.set(r.token, r.updated_at);
+                emit([{ type: t, doc: voteDoc(r) }]);
+              });
+            return withFallback(ch, load, 1500);
+          },
+        };
+      },
+    };
+
+    // ---- room: reactions (broadcast) + who is connected (presence) ----
+    const ch = sb.channel(roomName, { config: { broadcast: { self: false }, presence: { key: presenceKey || Math.random().toString(36).slice(2) } } });
+    const listeners = {}, peerSubs = [];
+    let mine = null, joined = false;
+    ch.on('broadcast', { event: 'react' }, ({ payload }) => (listeners.react || []).forEach(f => f({ topic: 'react', data: payload })));
+    ch.on('presence', { event: 'sync' }, () => {
+      const peers = Object.values(ch.presenceState()).flat().map(meta => ({ presence: meta }));
+      peerSubs.forEach(f => f({ peers, joined: [], left: [], updated: [] }));
+    });
+    ch.subscribe(async status => { if (status === 'SUBSCRIBED') { joined = true; if (mine) await ch.track(mine); } });
+    const room = {
+      on(topic, fn) { (listeners[topic] ||= []).push(fn); return () => { listeners[topic] = listeners[topic].filter(x => x !== fn); }; },
+      emit(topic, data) { return ch.send({ type: 'broadcast', event: topic, payload: data }).then(() => {}); },
+      presence(obj) { mine = { ...(mine || {}), ...obj }; return joined ? ch.track(mine).then(() => {}) : Promise.resolve(); },
+      onPeers(fn) { peerSubs.push(fn); return () => {}; },
+    };
+
+    const user = { canEdit: async () => !!hostKey };
+    return { db, room, user };
+  };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
 </head>
 <body>
 <title>Mood Pulse</title>
@@ -2096,7 +2228,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       writing = writing.then(async () => {
         if (db) {
           try { await db.doc('live/state').set(snapshot); }
-          catch (e) { T.onStatus && T.onStatus(e && e.code === 'invalid_argument' ? 'Only editors of this page can control the presenter screen' : 'Could not save the presenter state, retrying on the next action'); }
+          catch (e) { T.onStatus && T.onStatus(e && e.code === 'invalid_argument' ? (opts.controlHint || 'Only editors of this page can control the presenter screen') : 'Could not save the presenter state, retrying on the next action'); }
         }
         if (bc) bc.postMessage({ t: 'control', control: snapshot });
       });
@@ -2171,10 +2303,10 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     // ---------- claude.ai capabilities ----------
     (async () => {
       const use = name => (!opts.local && root.claude && typeof root.claude.use === 'function' ? root.claude.use(name).catch(() => null) : Promise.resolve(null));
-      const [dbNs, roomNs, user] = await Promise.all([use('db'), use('room'), use('user')]);
+      const [dbNs, roomNs, user] = opts.backend ? [opts.backend.db, opts.backend.room, opts.backend.user] : await Promise.all([use('db'), use('room'), use('user')]);
       db = dbNs; room = roomNs;
       if (role === 'host' && user && typeof user.canEdit === 'function') {
-        try { const can = await user.canEdit(); if (can === false) { T.canControl = false; T.controlHint = 'Only editors of this page can control the presenter screen'; } } catch {}
+        try { const can = await user.canEdit(); if (can === false) { T.canControl = false; T.controlHint = opts.controlHint || 'Only editors of this page can control the presenter screen'; } } catch {}
       }
       if (db) {
         const timer = setTimeout(() => T.onStatus && T.onStatus('Waiting for the shared session data…'), 10000);
@@ -2273,7 +2405,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       qrHtml: () => '',
       subscribe(onState, onReact) { subs.state.push(onState); if (onReact) subs.react.push(onReact); emit(); },
       act, vote, react, getState,
-      simulate: role === 'host' ? simulate : undefined,
+      simulate: role === 'host' && !opts.noSim ? simulate : undefined,
       simulating: () => !!sim,
       simReact: role === 'host' ? simReact : undefined,
     };
@@ -2289,10 +2421,21 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 (function () {
   const app = document.getElementById('app');
   const SIM = window.SIM || null;
-  const isPhone = SIM ? SIM.role === 'phone' : location.hash === '#join';
-  if (!SIM) addEventListener('hashchange', () => location.reload());
+  const LIVE = window.PULSE_LIVE || null;   // { url, key, role }: the static website talking to Supabase
+  const isPhone = SIM ? SIM.role === 'phone' : LIVE && LIVE.role ? LIVE.role === 'phone' : location.hash === '#join';
+  if (!SIM && !LIVE) addEventListener('hashchange', () => location.reload());
   const config = window.PULSE_CONFIG;
-  const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', SIM ? { local: true, slot: SIM.slot } : {});
+  let opts = {};
+  if (SIM) opts = { local: true, slot: SIM.slot };
+  else if (LIVE && window.SupabaseBackend) {
+    const params = new URLSearchParams(location.search);
+    opts = {
+      backend: SupabaseBackend({ url: LIVE.url, key: LIVE.key, hostKey: isPhone ? '' : params.get('key') || '' }),
+      controlHint: 'View only: open this page with ?key=<presenter key> to control it',
+      noSim: params.get('sim') !== '1',
+    };
+  }
+  const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', opts);
   const qr = document.getElementById('qr-template');
   T.qrHtml = () => (qr ? qr.innerHTML : '<div style="color:#0b0b3b;font:600 13px/1.4 Inter,sans-serif;padding:8px">Open this page with #join on your phone</div>');
   if (SIM && !isPhone) T.joinLabel = SIM.label || 'Simulator: vote on the phones beside this screen';

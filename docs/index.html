@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10069f">
 <style>[hidden]{display:none!important}</style>
+
 
 </head>
 <body>
@@ -36,6 +38,7 @@
   .card b { font-family: var(--display); font-size: 21px; font-weight: 600; }
   .card p { margin: 0; color: var(--fg-2); line-height: 1.5; font-size: 15px; }
   .card .go { margin-top: auto; padding-top: 8px; font-weight: 600; color: var(--sky); }
+  .tag.live { background: #ff4d6d; color: #fff; }
   .tag { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #05042a; background: var(--sky); border-radius: 999px; padding: 3px 10px; }
   .notes { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .note { border-top: 1px solid var(--line); padding-top: 14px; color: var(--fg-2); font-size: 14px; line-height: 1.6; }
@@ -56,20 +59,22 @@
       <span class="go">Open the simulator →</span>
     </a>
     <a class="card" href="presenter.html">
+      <span class="tag live">Live</span>
       <b>Presenter screen</b>
-      <p>The deck full-screen, as it looks on the projector. Move the mouse for the controls and press "Simulate the room" to see it fill up.</p>
+      <p>The real thing, full-screen on the projector. Phones anywhere can join by scanning the QR code. To control it, open it with your presenter key.</p>
       <span class="go">Open the presenter screen →</span>
     </a>
     <a class="card" href="phone.html">
+      <span class="tag live">Live</span>
       <b>Phone view</b>
-      <p>What attendees see on their phone. In this online demo it talks to the presenter screen in the same browser only.</p>
+      <p>What attendees see after scanning the QR code: anonymous voting, words and reactions, live on the big screen.</p>
       <span class="go">Open the phone view →</span>
     </a>
   </div>
 
   <div class="notes">
     <div class="note"><b>Presenter keys</b><kbd>→</kbd> next · <kbd>←</kbd> back · <kbd>H</kbd> reveal or hide results · <kbd>S</kbd> snow on or off</div>
-    <div class="note"><b>Live voting on the day</b>This website only serves files, so phones on other devices cannot vote here. For the event, run the included Node server, or add a realtime backend.</div>
+    <div class="note"><b>Live voting</b>Votes, words and reactions travel through a small realtime database. Nobody logs in, no names are stored, and only the presenter (with the key) can move the screens.</div>
   </div>
 </main>
 

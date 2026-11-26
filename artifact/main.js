@@ -4,10 +4,21 @@
 (function () {
   const app = document.getElementById('app');
   const SIM = window.SIM || null;
-  const isPhone = SIM ? SIM.role === 'phone' : location.hash === '#join';
-  if (!SIM) addEventListener('hashchange', () => location.reload());
+  const LIVE = window.PULSE_LIVE || null;   // { url, key, role }: the static website talking to Supabase
+  const isPhone = SIM ? SIM.role === 'phone' : LIVE && LIVE.role ? LIVE.role === 'phone' : location.hash === '#join';
+  if (!SIM && !LIVE) addEventListener('hashchange', () => location.reload());
   const config = window.PULSE_CONFIG;
-  const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', SIM ? { local: true, slot: SIM.slot } : {});
+  let opts = {};
+  if (SIM) opts = { local: true, slot: SIM.slot };
+  else if (LIVE && window.SupabaseBackend) {
+    const params = new URLSearchParams(location.search);
+    opts = {
+      backend: SupabaseBackend({ url: LIVE.url, key: LIVE.key, hostKey: isPhone ? '' : params.get('key') || '' }),
+      controlHint: 'View only: open this page with ?key=<presenter key> to control it',
+      noSim: params.get('sim') !== '1',
+    };
+  }
+  const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', opts);
   const qr = document.getElementById('qr-template');
   T.qrHtml = () => (qr ? qr.innerHTML : '<div style="color:#0b0b3b;font:600 13px/1.4 Inter,sans-serif;padding:8px">Open this page with #join on your phone</div>');
   if (SIM && !isPhone) T.joinLabel = SIM.label || 'Simulator: vote on the phones beside this screen';

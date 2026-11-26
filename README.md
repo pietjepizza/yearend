@@ -42,15 +42,22 @@ To rebuild it: `ARTIFACT_URL=<link> npm run build:artifact` writes `dist/mood-pu
 
 Everything runs in the browser, with no login or devices needed. To rebuild it: `ARTIFACT_URL=<test link> npm run build:sim`.
 
-## Online demo (GitHub Pages)
+## Online, with live voting (GitHub Pages + Supabase)
 
-`docs/` is a static website for GitHub Pages: https://pietjepizza.github.io/yearend/
+`docs/` is the website for GitHub Pages: https://pietjepizza.github.io/yearend/
 - `index.html`: the landing page
-- `simulator.html`: the simulator, fully working in the browser
-- `presenter.html`: the deck full-screen, in demo mode, with the room simulator
-- `phone.html`: the phone view, which syncs with `presenter.html` in the same browser only
+- `presenter.html`: **live**. The deck for the projector. To control it, open `presenter.html?key=<presenter key>`. Without the key the page is a view-only mirror.
+- `phone.html`: **live**. The QR code points here, and attendees vote from anywhere.
+- `simulator.html`: a stand-alone simulator that runs in the browser only
 
-To rebuild it: `npm run build:pages` (set `PAGES_URL` if the address differs). GitHub Pages only serves files, so live voting from other devices on the day needs the Node server below, or a realtime backend.
+Live voting uses a small Supabase database: the tables `pulse_state`, `pulse_votes` and `pulse_secrets`, and the functions `pulse_vote` and `pulse_set_state`, set up by `supabase/pulse_live_voting.sql`.
+- **Reading:** everyone can read the current screen and the anonymous answers.
+- **Writing:** phones can only submit answers through `pulse_vote`, which validates the input. Only someone with the presenter key can change the screen.
+- **Reset:** the Reset button starts a new run and deletes the answers from earlier runs.
+- **The key** is stored only as a SHA-256 hash. Never commit the key or its hash.
+- **Connection fallback:** if a network blocks WebSockets, the pages fall back to checking every couple of seconds. Reactions and the "connected" counter need the live connection.
+
+To rebuild the site: `npm run build:pages`. You can override `PAGES_URL`, `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Add `&sim=1` to the presenter URL to show the room simulator, but don't use it during the real event, because simulated answers would mix with real ones.
 
 ## Run it for the real event
 

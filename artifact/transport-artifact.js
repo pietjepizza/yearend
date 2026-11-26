@@ -68,7 +68,7 @@
       writing = writing.then(async () => {
         if (db) {
           try { await db.doc('live/state').set(snapshot); }
-          catch (e) { T.onStatus && T.onStatus(e && e.code === 'invalid_argument' ? 'Only editors of this page can control the presenter screen' : 'Could not save the presenter state, retrying on the next action'); }
+          catch (e) { T.onStatus && T.onStatus(e && e.code === 'invalid_argument' ? (opts.controlHint || 'Only editors of this page can control the presenter screen') : 'Could not save the presenter state, retrying on the next action'); }
         }
         if (bc) bc.postMessage({ t: 'control', control: snapshot });
       });
@@ -143,10 +143,10 @@
     // ---------- claude.ai capabilities ----------
     (async () => {
       const use = name => (!opts.local && root.claude && typeof root.claude.use === 'function' ? root.claude.use(name).catch(() => null) : Promise.resolve(null));
-      const [dbNs, roomNs, user] = await Promise.all([use('db'), use('room'), use('user')]);
+      const [dbNs, roomNs, user] = opts.backend ? [opts.backend.db, opts.backend.room, opts.backend.user] : await Promise.all([use('db'), use('room'), use('user')]);
       db = dbNs; room = roomNs;
       if (role === 'host' && user && typeof user.canEdit === 'function') {
-        try { const can = await user.canEdit(); if (can === false) { T.canControl = false; T.controlHint = 'Only editors of this page can control the presenter screen'; } } catch {}
+        try { const can = await user.canEdit(); if (can === false) { T.canControl = false; T.controlHint = opts.controlHint || 'Only editors of this page can control the presenter screen'; } } catch {}
       }
       if (db) {
         const timer = setTimeout(() => T.onStatus && T.onStatus('Waiting for the shared session data…'), 10000);
@@ -245,7 +245,7 @@
       qrHtml: () => '',
       subscribe(onState, onReact) { subs.state.push(onState); if (onReact) subs.react.push(onReact); emit(); },
       act, vote, react, getState,
-      simulate: role === 'host' ? simulate : undefined,
+      simulate: role === 'host' && !opts.noSim ? simulate : undefined,
       simulating: () => !!sim,
       simReact: role === 'host' ? simReact : undefined,
     };

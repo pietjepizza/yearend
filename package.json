@@ -21,5 +21,8 @@
   "homepage": "https://github.com/pietjepizza/yearend#readme",
   "dependencies": {
     "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.45.4"
   }
 }
