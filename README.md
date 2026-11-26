@@ -28,6 +28,17 @@ The test copy is published as a private claude.ai page.
 
 To rebuild it: `ARTIFACT_URL=<link> npm run build:artifact` writes `dist/mood-pulse.html`.
 
+## Simulator (test everything on one page)
+
+`dist/simulator.html` shows the presenter screen with two to four live phones beside it, plus a control panel:
+- jump to any screen
+- go back and forward, reveal, or reset
+- choose the countdown (off, 10 or 25 seconds)
+- run a simulated room with a size and speed you pick
+- fire bursts of reactions
+
+Everything runs in the browser, with no login or devices needed. To rebuild it: `ARTIFACT_URL=<test link> npm run build:sim`.
+
 ## Run it for the real event
 
 ```bash

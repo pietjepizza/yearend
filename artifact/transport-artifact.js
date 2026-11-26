@@ -5,21 +5,22 @@
 // - Without db/room (signed out, or a local preview), tabs in the same browser sync via BroadcastChannel.
 // - The presenter can also simulate a full room, so the whole flow can be tested alone.
 (function (root) {
-  root.ArtifactTransport = function (config, role, joinUrl) {
+  root.ArtifactTransport = function (config, role, joinUrl, opts = {}) {
+    const sfx = opts.slot ? '-' + opts.slot : '';   // separate identities for several phones in one browser (simulator)
     const Core = root.PulseCore;
     const S = config.questions.length, LAST = Core.lastIndex(config);
     const store = {
       get(k) { try { return localStorage.getItem(k); } catch { return null; } },
       set(k, v) { try { localStorage.setItem(k, v); } catch {} },
     };
-    let token = store.get('mp-id');
-    if (!token) { token = 'p' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set('mp-id', token); }
+    let token = store.get('mp-id' + sfx);
+    if (!token) { token = 'p' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set('mp-id' + sfx, token); }
     let mine = null;
-    try { mine = JSON.parse(store.get('mp-mine') || 'null'); } catch {}
+    try { mine = JSON.parse(store.get('mp-mine' + sfx) || 'null'); } catch {}
     if (!mine || typeof mine !== 'object') mine = { epoch: null, answers: {} };
     let me = null;
-    try { me = JSON.parse(store.get('mp-player') || 'null'); } catch {}
-    if (!me) { me = Core.makePlayer(); store.set('mp-player', JSON.stringify(me)); }
+    try { me = JSON.parse(store.get('mp-player' + sfx) || 'null'); } catch {}
+    if (!me) { me = Core.makePlayer(); store.set('mp-player' + sfx, JSON.stringify(me)); }
     me = Core.cleanPlayer(me);
 
     const DEFAULT = { current: -1, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
@@ -75,6 +76,7 @@
       const c = { ...control, hidden: [...(control.hidden || [])], cleared: { ...(control.cleared || {}) }, revealedQ: { ...(control.revealedQ || {}) } };
       if (a === 'next') Core.enter(config, c, Math.min(c.current + 1, LAST));
       else if (a === 'prev') Core.enter(config, c, Math.max(c.current - 1, -1));
+      else if (a === 'goto') Core.enter(config, c, Math.max(-1, Math.min(LAST, Number(word) || 0)));
       else if (a === 'reveal') { c.revealedQ[c.current] = true; c.timerEnd = 0; }
       else if (a === 'conceal') { delete c.revealedQ[c.current]; c.timerEnd = 0; }
       else if (a === 'hide') { const w = Core.norm(word); if (w && !c.hidden.includes(w)) c.hidden.push(w); }
@@ -93,7 +95,7 @@
       if (index !== control.current || index < 0 || index >= S) return 'moved';
       if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
       mine.answers[index] = { option, word: Core.clean(word, 24), ts: Date.now() };
-      store.set('mp-mine', JSON.stringify(mine));
+      store.set('mp-mine' + sfx, JSON.stringify(mine));
       const body = { epoch: mine.epoch, answers: mine.answers };
       if (db) {
         try { await db.doc('votes/' + token).set(body); }
@@ -137,7 +139,7 @@
 
     // ---------- claude.ai capabilities ----------
     (async () => {
-      const use = name => (root.claude && typeof root.claude.use === 'function' ? root.claude.use(name).catch(() => null) : Promise.resolve(null));
+      const use = name => (!opts.local && root.claude && typeof root.claude.use === 'function' ? root.claude.use(name).catch(() => null) : Promise.resolve(null));
       const [dbNs, roomNs, user] = await Promise.all([use('db'), use('room'), use('user')]);
       db = dbNs; room = roomNs;
       if (role === 'host' && user && typeof user.canEdit === 'function') {
@@ -169,7 +171,8 @@
           }, () => {});
         }
       } else if (role === 'host') {
-        T.onStatus && T.onStatus('Test mode: phones in this browser only. Sign in to claude.ai to connect other devices.');
+        if (!opts.local) T.onStatus && T.onStatus('Test mode: phones in this browser only. Sign in to claude.ai to connect other devices.');
+        if (bc) setTimeout(() => bc.postMessage({ t: 'control', control }), 300);
       }
       if (room) {
         if (role === 'host') room.on('react', msg => { const r = msg && msg.data && msg.data.r; if (config.reactions.includes(r)) subs.react.forEach(f => f(r)); }, () => {});
@@ -212,15 +215,23 @@
         for (let i = 0; i < n; i++) setTimeout(() => subs.react.forEach(f => f(config.reactions[(Math.random() * config.reactions.length) | 0])), i * 140);
       }
     }
-    function simulate(on) {
-      if (on && !sim) {
-        const target = 36 + ((Math.random() * 12) | 0);
-        sim = { answers: {}, connected: 0, target, players: Array.from({ length: target }, () => Core.makePlayer()), timer: setInterval(simTick, 280) };
+    const SPEED = { calm: 650, normal: 280, busy: 110 };
+    function simulate(on, o = {}) {
+      if (on) {
+        const target = o.size || (sim ? sim.target : 36 + ((Math.random() * 12) | 0));
+        if (!sim) sim = { answers: {}, connected: 0, target, players: [] };
+        sim.target = target;
+        while (sim.players.length < target) sim.players.push(Core.makePlayer());
+        if (sim.connected > target) sim.connected = target;
+        clearInterval(sim.timer);
+        sim.timer = setInterval(simTick, SPEED[o.speed] || sim.interval || SPEED.normal);
+        if (o.speed) sim.interval = SPEED[o.speed];
       }
-      else if (!on && sim) { clearInterval(sim.timer); sim = null; }
+      else if (sim) { clearInterval(sim.timer); sim = null; }
       emit();
       return !!sim;
     }
+    const simReact = r => subs.react.forEach(f => f(r));
 
     const T = {
       me,
@@ -232,6 +243,7 @@
       act, vote, react, getState,
       simulate: role === 'host' ? simulate : undefined,
       simulating: () => !!sim,
+      simReact: role === 'host' ? simReact : undefined,
     };
     return T;
   };

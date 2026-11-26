@@ -1,0 +1,240 @@
+<title>Pulse Simulator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Simulator chrome: the same deep-blue world as the show, so the frames sit naturally inside it.
+     Layout: presenter screen + control panel on the left, live phones on the right (stacked on narrow screens). */
+  :root {
+    --bg: #05042a; --panel: rgba(255, 255, 255, .06); --panel-2: rgba(255, 255, 255, .11);
+    --line: rgba(255, 255, 255, .16); --fg: #ffffff; --fg-2: rgba(255, 255, 255, .72); --fg-3: rgba(255, 255, 255, .5);
+    --brand: #10069f; --blue: #3b6fff; --sky: #5fb8ff; --gold: #ffc400;
+    --display: 'Space Grotesk', 'Inter', system-ui, sans-serif; --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1200px 700px at 15% -10%, #1b129e 0%, transparent 60%), radial-gradient(900px 600px at 100% 0%, #10307a 0%, transparent 55%), var(--bg); color: var(--fg); font-family: var(--body); min-height: 100vh; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .sim { padding-block: 18px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1680px; margin: 0 auto; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand b { font-family: var(--display); font-size: 22px; letter-spacing: -.01em; }
+  .brand span { font-family: var(--display); font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--sky); }
+  .now { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; min-width: 0; }
+  .now i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d6d; box-shadow: 0 0 0 0 rgba(255, 77, 109, .6); animation: live 1.8s infinite; flex: none; }
+  .now span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @keyframes live { 70% { box-shadow: 0 0 0 7px rgba(255, 77, 109, 0); } 100% { box-shadow: none; } }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 29vw, 500px); gap: 20px; align-items: start; }
+  .stage { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .screen { position: relative; aspect-ratio: 16 / 9; width: 100%; max-width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(0, 0, 20, .55); background: #03021a; }
+  .screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .screen-k { position: absolute; left: 12px; bottom: 10px; z-index: 2; font-size: 11px; font-weight: 600; color: var(--fg-3); pointer-events: none; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px 28px; }
+  .group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .grow { flex: 1 1 340px; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-3); }
+  .screens, .btns, .reacts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .panel button { border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px; padding: 8px 13px; font-weight: 600; font-size: 14px; transition: background .15s, border-color .15s, transform .1s; }
+  .panel button:hover { background: rgba(255, 255, 255, .18); }
+  .panel button:active { transform: scale(.97); }
+  .screens button { font-family: var(--display); }
+  .screens button.on { background: var(--blue); border-color: var(--sky); box-shadow: 0 0 14px rgba(95, 184, 255, .45); }
+  .panel button.primary { background: var(--sky); color: #05042a; border-color: transparent; }
+  .panel button.primary.on { background: var(--gold); }
+  .panel button.armed { background: #ff4d6d; border-color: transparent; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0 !important; border-radius: 0 !important; background: transparent !important; padding: 8px 12px !important; }
+  .seg button + button { border-left: 1px solid var(--line) !important; }
+  .seg button.on { background: var(--panel-2) !important; color: var(--sky); }
+  .crowd { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .crowd label { font-size: 14px; font-weight: 600; color: var(--fg-2); white-space: nowrap; }
+  .crowd label b { color: var(--fg); font-family: var(--display); display: inline-block; min-width: 2.2em; }
+  .crowd input[type=range] { flex: 1 1 140px; min-width: 120px; accent-color: var(--sky); }
+  .crowd .seg, .crowd .primary { flex: none; }
+  .reacts button { font-size: 20px; padding: 6px 10px; line-height: 1; }
+  .hint { font-size: 12px; color: var(--fg-3); margin: 0; }
+
+  .phones { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .phones-h { display: flex; justify-content: space-between; align-items: center; }
+  .phones-h button { border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px; padding: 7px 12px; font-weight: 600; font-size: 13px; }
+  .phones-h button:disabled { opacity: .4; cursor: default; }
+  .phone-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .phone { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+  .phone-k { font-size: 12px; font-weight: 600; color: var(--fg-2); }
+  .bezel { position: relative; width: calc(390px * var(--s)); height: calc(800px * var(--s)); max-width: 100%; border-radius: calc(44px * var(--s)); padding: 0; overflow: hidden; background: #000; box-shadow: 0 0 0 calc(10px * var(--s)) #15142e, 0 0 0 calc(11px * var(--s)) rgba(255, 255, 255, .18), 0 18px 40px rgba(0, 0, 20, .6); }
+  .bezel iframe { position: absolute; left: 0; top: 0; width: 390px; height: 800px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; background: #05042a; }
+  .tip { font-size: 13px; color: var(--fg-2); line-height: 1.5; margin: 4px 0 0; }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .phones { position: static; }
+  }
+  @media (prefers-reduced-motion: reduce) { .now i { animation: none; } }
+</style>
+
+<div class="sim">
+  <header class="top">
+    <div class="brand"><b>Peak Season Pulse</b><span>Simulator</span></div>
+    <div class="now" role="status"><i></i><span id="now">Simulator laden…</span></div>
+  </header>
+
+  <div class="layout">
+    <section class="stage">
+      <div class="screen"><iframe id="hostFrame" title="Beamerscherm"></iframe></div>
+
+      <div class="panel">
+        <div class="group">
+          <div class="label">Ga naar scherm</div>
+          <div class="screens" id="screens"></div>
+        </div>
+        <div class="row">
+          <div class="group">
+            <div class="label">Bediening</div>
+            <div class="btns">
+              <button id="btnPrev">◀ Vorige</button>
+              <button id="btnNext">Volgende ▶</button>
+              <button id="btnReveal">Nu onthullen</button>
+              <button id="btnReset">Alles resetten</button>
+            </div>
+          </div>
+          <div class="group">
+            <div class="label">Aftellen per vraag</div>
+            <div class="seg" id="timerSeg"><button data-t="0">Uit</button><button data-t="10">10 s</button><button data-t="25" class="on">25 s</button></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="group grow">
+            <div class="label">Gesimuleerde zaal</div>
+            <div class="crowd">
+              <button class="primary" id="crowdBtn">▶ Start zaal</button>
+              <label for="crowdSize">Grootte <b id="crowdN">40</b></label>
+              <input type="range" id="crowdSize" min="5" max="150" step="5" value="40">
+              <div class="seg" id="speedSeg"><button data-s="calm">Rustig</button><button data-s="normal" class="on">Normaal</button><button data-s="busy">Druk</button></div>
+            </div>
+          </div>
+          <div class="group">
+            <div class="label">Reacties afvuren</div>
+            <div class="reacts" id="reacts"></div>
+          </div>
+        </div>
+        <p class="hint">Tip: klik in het beamerscherm en gebruik ← → en H, net als op de dag zelf.</p>
+      </div>
+    </section>
+
+    <aside class="phones">
+      <div class="phones-h"><span class="label">Telefoons</span><button id="addPhone">+ Telefoon</button></div>
+      <div class="phone-list" id="phones"></div>
+      <p class="tip">Elke telefoon is een eigen anonieme speler. Stem, typ een woord of stuur een reactie, en kijk hoe het op het beamerscherm verschijnt.</p>
+    </aside>
+  </div>
+</div>
+
+<script type="application/json" id="app-src">__APP_JSON__</script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const APP = JSON.parse($('app-src').textContent);
+  const frameDoc = sim => '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><script>window.SIM=' +
+    JSON.stringify(sim) + '<\/script>' + APP + '</body></html>';
+
+  // --- presenter + phones ---
+  $('hostFrame').srcdoc = frameDoc({ role: 'host' });
+  let phoneCount = 0;
+  const MAX_PHONES = 4;
+  function addPhone() {
+    if (phoneCount >= MAX_PHONES) return;
+    phoneCount++;
+    const wrap = document.createElement('div');
+    wrap.className = 'phone';
+    wrap.innerHTML = `<div class="phone-k">Telefoon ${phoneCount}</div><div class="bezel"><iframe title="Telefoon ${phoneCount}"></iframe></div>`;
+    $('phones').appendChild(wrap);
+    wrap.querySelector('iframe').srcdoc = frameDoc({ role: 'phone', slot: phoneCount });
+    $('addPhone').disabled = phoneCount >= MAX_PHONES;
+    fitPhones();
+  }
+  function fitPhones() {
+    const list = $('phones'), col = (list.clientWidth - 14) / 2;
+    const s = Math.max(.42, Math.min(.68, (col - 22) / 390));
+    list.querySelectorAll('.bezel').forEach(b => b.style.setProperty('--s', s.toFixed(3)));
+  }
+  addEventListener('resize', fitPhones);
+  $('addPhone').onclick = addPhone;
+  addPhone(); addPhone();
+
+  // --- control panel, wired to the presenter frame once it is ready ---
+  let api = null, state = null, simOn = false, speed = 'normal', resetArmed = 0;
+  const wait = setInterval(() => {
+    const w = $('hostFrame').contentWindow;
+    if (w && w.__sim) { clearInterval(wait); api = w.__sim; init(); }
+  }, 100);
+
+  function init() {
+    $('screens').innerHTML = api.stages().map(st => `<button data-i="${st.i}" title="${(st.title || st.label).replace(/"/g, '&quot;')}">${st.label}</button>`).join('');
+    $('screens').onclick = e => { const b = e.target.closest('button'); if (b) api.goto(Number(b.dataset.i)); };
+    $('reacts').innerHTML = api.reactions.map(r => `<button aria-label="Stuur ${r}">${r}</button>`).join('');
+    $('reacts').onclick = e => {
+      const b = e.target.closest('button'); if (!b) return;
+      for (let k = 0; k < 8; k++) setTimeout(() => api.react(b.textContent), k * 120);
+    };
+    api.onState(render);
+  }
+
+  const LABEL = { lobby: 'Lobby', recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' };
+  function render(s) {
+    state = s;
+    const where = s.stage === 'question' ? `Vraag ${s.index + 1} van ${s.total}` : LABEL[s.stage] || s.stage;
+    const bits = [where];
+    if (s.stage === 'question') bits.push(s.revealed ? 'onthuld' : 'stemmen loopt', `${s.stats.n} stemmen`);
+    bits.push(`${s.connected || 0} spelers verbonden`);
+    $('now').textContent = bits.join(' · ');
+    document.querySelectorAll('#screens button').forEach(b => b.classList.toggle('on', Number(b.dataset.i) === s.index));
+    $('btnReveal').disabled = s.stage !== 'question';
+    $('btnReveal').textContent = s.stage === 'question' && s.revealed ? 'Resultaat verbergen' : 'Nu onthullen';
+  }
+
+  $('btnPrev').onclick = () => api && api.act('prev');
+  $('btnNext').onclick = () => api && api.act('next');
+  $('btnReveal').onclick = () => api && state && api.act(state.revealed ? 'conceal' : 'reveal');
+  $('btnReset').onclick = () => {
+    if (!api) return;
+    if (Date.now() - resetArmed > 3000) {
+      resetArmed = Date.now(); $('btnReset').classList.add('armed'); $('btnReset').textContent = 'Klik nogmaals om te resetten';
+      setTimeout(() => { $('btnReset').classList.remove('armed'); $('btnReset').textContent = 'Alles resetten'; }, 3000);
+      return;
+    }
+    resetArmed = 0; $('btnReset').classList.remove('armed'); $('btnReset').textContent = 'Alles resetten';
+    if (simOn) toggleCrowd();
+    api.act('reset');
+  };
+
+  $('timerSeg').onclick = e => {
+    const b = e.target.closest('button'); if (!b || !api) return;
+    $('timerSeg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    api.setTimer(Number(b.dataset.t));
+    if (state && state.stage === 'question' && !state.revealed) api.goto(state.index); // restart the countdown
+  };
+
+  function toggleCrowd() {
+    if (!api) return;
+    simOn = api.simulate(!simOn, { size: Number($('crowdSize').value), speed });
+    $('crowdBtn').textContent = simOn ? '■ Stop zaal' : '▶ Start zaal';
+    $('crowdBtn').classList.toggle('on', simOn);
+  }
+  $('crowdBtn').onclick = toggleCrowd;
+  $('crowdSize').oninput = () => {
+    $('crowdN').textContent = $('crowdSize').value;
+    if (simOn && api) api.simulate(true, { size: Number($('crowdSize').value) });
+  };
+  $('speedSeg').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    speed = b.dataset.s;
+    $('speedSeg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    if (simOn && api) api.simulate(true, { speed });
+  };
+})();
+</script>
