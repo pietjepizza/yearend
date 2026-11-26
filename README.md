@@ -9,7 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | A straight, animated roadmap. A light pulse travels from today through the year-end close, the holiday break and the annual report to the ERP migration (a gold key milestone), ending with "Peak conquered!". |
+| 6 | **The road ahead** | A winding road with numbered stops. A light travels from today through DR2, Christmas, the year-end close, SOX controls and the annual report to the ERP migration (ramp-down, the cutover as the gold "boss level", ramp-up and hypercare), ending with "Peak conquered!". Underneath, a **workload curve** fills in as the light moves, with a live readout (Calm, Steady, Busy, Very busy, Peak) and an "ERP migration" bracket. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
@@ -115,7 +115,13 @@ Everything is in `questions.json`:
 - **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.
-- **`roadmap.steps`**: the timeline. Each step has a `type` (`start`, `level`, `rest`, `boss` for the gold key milestone, or `finish`), `when`, `label` and `note`. **The dates are placeholders marked "date TBD".**
+- **`roadmap.steps`**: the timeline. **The dates are placeholders marked "TBD".** Each step has:
+  - `type`: `start`, `level` (numbered), `rest` (snowflake), `boss` (the gold milestone) or `finish`
+  - `when`, `label` and `note`
+  - `load`: the workload from 0 to 100, which shapes the curve under the road (90 or more reads as "Peak")
+  - `group` (optional): steps in a row with the same group get a bracket under the curve, such as "ERP migration"
+  - `say` (optional): a speech bubble when the light reaches the stop
+- **`roadmap.source`** and **`roadmap.workloadLabel`**: the footnote and the label of the workload strip.
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
   - `title`, `context` and `wordPrompt`

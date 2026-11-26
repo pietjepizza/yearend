@@ -187,7 +187,7 @@
       "nav": "03 Road ahead",
       "number": "03",
       "title": "The road ahead",
-      "subtitle": "Peak season: year-end close, annual report, ERP migration"
+      "subtitle": "DR2, year-end close, SOX, annual report and the ERP cutover"
     },
     {
       "type": "roadmap",
@@ -251,43 +251,90 @@
   },
   "roadmap": {
     "title": "The road ahead",
-    "subtitle": "Key moments of the next few months. Final dates to be confirmed.",
+    "subtitle": "Busy months ahead, and we take them on together. Final dates to be confirmed.",
+    "source": "Workload is indicative · dates TBD",
+    "workloadLabel": "Workload",
     "steps": [
       {
         "type": "start",
         "when": "Today",
         "label": "We're here",
-        "note": "One team, ready to go"
+        "note": "One team, ready to go",
+        "load": 60
       },
       {
         "type": "level",
-        "when": "December · date TBD",
-        "label": "Year-end close",
-        "note": "Closing a record year"
+        "when": "December · TBD",
+        "label": "DR2",
+        "note": "Second dress rehearsal",
+        "load": 75
       },
       {
         "type": "rest",
-        "when": "Holidays · date TBD",
-        "label": "Holiday break",
-        "note": "Laptops closed, batteries recharged"
+        "when": "Late December",
+        "label": "Christmas",
+        "note": "Laptops closed, batteries recharged",
+        "load": 20
       },
       {
         "type": "level",
-        "when": "January · date TBD",
+        "when": "Early January · TBD",
+        "label": "Year-end close",
+        "note": "Closing a record year",
+        "load": 90
+      },
+      {
+        "type": "level",
+        "when": "January · TBD",
+        "label": "SOX controls",
+        "note": "Controls tested, evidence ready",
+        "load": 85
+      },
+      {
+        "type": "level",
+        "when": "Jan – Feb · TBD",
         "label": "Annual report",
-        "note": "Telling our record-year story"
+        "note": "Telling our record-year story",
+        "load": 85
+      },
+      {
+        "type": "level",
+        "when": "End of January · TBD",
+        "label": "Ramp-down",
+        "note": "Closing out the old system",
+        "load": 90,
+        "group": "ERP migration"
       },
       {
         "type": "boss",
-        "when": "Early 2027 · date TBD",
-        "label": "ERP migration",
-        "note": "The big one, and we've got this"
+        "when": "End Jan / early Feb · TBD",
+        "label": "Cutover",
+        "note": "The big switch-over",
+        "load": 100,
+        "group": "ERP migration"
+      },
+      {
+        "type": "level",
+        "when": "Early February · TBD",
+        "label": "Ramp-up",
+        "note": "Live in the new system",
+        "load": 95,
+        "group": "ERP migration"
+      },
+      {
+        "type": "level",
+        "when": "February onwards",
+        "label": "Hypercare",
+        "note": "Extra support as it settles",
+        "load": 75,
+        "group": "ERP migration"
       },
       {
         "type": "finish",
-        "when": "Spring · date TBD",
+        "when": "Spring · TBD",
         "label": "Peak conquered!",
-        "note": "Celebrate together"
+        "note": "Celebrate together",
+        "load": 40
       }
     ]
   },

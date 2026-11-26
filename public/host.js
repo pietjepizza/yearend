@@ -545,70 +545,176 @@
       FX.tween($('sb-w'), wordsAll, undefined, 1400);
     }
 
-    // ---------- ROADMAP: the team walks the road ahead ----------
+    // ---------- ROADMAP: the team walks a winding road, with the workload curve beneath ----------
+    const LOAD_WORDS = [[90, 'Peak'], [75, 'Very busy'], [55, 'Busy'], [35, 'Steady'], [0, 'Calm']];
+    const loadWord = v => LOAD_WORDS.find(([min]) => v >= min)[1];
+    const SAY = { rest: 'Recharge time!', boss: "We've got this!", finish: 'We did it!' };
+    // Smooth curve through the workload points that never overshoots them (monotone cubic).
+    function smoothCurve(xs, ys) {
+      const n = xs.length;
+      if (n === 1) return () => ys[0];
+      const d = xs.slice(1).map((x, i) => (ys[i + 1] - ys[i]) / (x - xs[i]));
+      const m = xs.map((_, i) => i === 0 ? d[0] : i === n - 1 ? d[n - 2] : d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2);
+      d.forEach((di, i) => {
+        if (!di) { m[i] = m[i + 1] = 0; return; }
+        const a = m[i] / di, b = m[i + 1] / di, s = a * a + b * b;
+        if (s > 9) { const t = 3 / Math.sqrt(s); m[i] = t * a * di; m[i + 1] = t * b * di; }
+      });
+      return x => {
+        let i = 0;
+        while (i < n - 2 && x > xs[i + 1]) i++;
+        const h = xs[i + 1] - xs[i], t = Math.max(0, Math.min(1, (x - xs[i]) / h)), t2 = t * t, t3 = t2 * t;
+        return (2 * t3 - 3 * t2 + 1) * ys[i] + (t3 - 2 * t2 + t) * h * m[i] + (-2 * t3 + 3 * t2) * ys[i + 1] + (t3 - t2) * h * m[i + 1];
+      };
+    }
     function buildRoadmap(s) {
       const R = s.roadmap || {};
       $('titleblock').innerHTML = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
       $('content').innerHTML = `<div class="card roadmap st" style="--i:0"><div class="road-box" id="road"></div></div>`;
-      $('source').textContent = 'Next few months';
+      $('source').textContent = R.source || 'Next few months';
       $('ticker').innerHTML = (R.steps || []).map(st => `<span>${esc(st.label)}: ${esc(st.when || '')}</span>`).join('');
-      requestAnimationFrame(() => drawRoad(R.steps || []));
+      requestAnimationFrame(() => drawRoad(R));
     }
-    function drawRoad(steps) {
-      const box = $('road');
+    function drawRoad(R) {
+      const box = $('road'), steps = (R && R.steps) || [];
       if (!box || !steps.length) return;
-      const W = box.clientWidth, H = box.clientHeight, u = U();
-      const y = H * .5;
-      const pts = steps.map((st, i) => ({ x: u * 7 + (W - u * 14) * (i / (steps.length - 1)), y }));
-      const segs = pts.slice(1).map((b, i) => `M${pts[i].x} ${y} L${b.x} ${y}`);
-      const glyph = st => st.type === 'start' ? '<i class="now"></i>'
+      const W = box.clientWidth, H = box.clientHeight, u = U(), n = steps.length;
+      const loaded = steps.map((st, i) => [i, st.load]).filter(([, v]) => typeof v === 'number');
+      const hasLoad = loaded.length > 1;
+      const loadH = hasLoad ? Math.max(u * 8, H * .26) : 0;
+      const roadBottom = H - loadH - (hasLoad ? u * 1.2 : 0);
+      const x0 = u * 6, x1 = W - u * 5, gap = n > 1 ? (x1 - x0) / (n - 1) : 0;
+      const xs = steps.map((_, i) => n > 1 ? x0 + gap * i : W / 2);
+      // Cards alternate above and below, so each one may use about two gaps; the end cards are pushed inside the box.
+      const cw = Math.max(u * 9, Math.min(u * 14.5, gap * 2 - u * 1.2, (x0 + gap * 2 - u) / 1.5, (W - x1 + gap * 2 - u) / 1.5));
+      const dx = x => Math.max(0, Math.min(W - cw, x - cw / 2)) - (x - cw / 2);
+      box.style.setProperty('--cw', cw + 'px');
+      const levels = steps.map((_, i) => steps.slice(0, i + 1).filter(x => (x.type || 'level') === 'level').length);
+      const glyph = (st, i) => st.type === 'start' ? '<b>GO</b>'
         : st.type === 'rest' ? icon('help:snow')
-        : st.type === 'boss' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.8 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z" fill="currentColor"/></svg>'
-        : st.type === 'finish' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-        : `<b>${steps.slice(0, steps.indexOf(st) + 1).filter(x => x.type === 'level').length}</b>`;
+        : st.type === 'boss' ? '<b>!</b>'
+        : st.type === 'finish' ? icon('help:trophy')
+        : `<b>${levels[i]}</b>`;
       box.innerHTML = `
-        <svg class="road-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-          <path class="road-bed" d="M${pts[0].x} ${y} L${pts[pts.length - 1].x} ${y}"/>
-          <path class="road-done" id="roadDone" d="M${pts[0].x} ${y} L${pts[pts.length - 1].x} ${y}"/>
-          ${segs.map((d, i) => `<path class="seg-measure" id="seg${i}" d="${d}"/>`).join('')}
-        </svg>
+        <svg class="road-svg" id="roadSvg" viewBox="0 0 ${W} ${H}" aria-hidden="true"></svg>
+        ${hasLoad ? `<div class="load" id="load" style="height:${loadH}px"></div>` : ''}
         ${steps.map((st, i) => `
-          <div class="stop ${st.type} ${i === 0 ? 'first' : i === steps.length - 1 ? 'last' : ''}" id="stop${i}" style="left:${pts[i].x}px;top:${y}px;--c:${LANES[i % LANES.length]}">
-            <div class="dot">${glyph(st)}</div>
-            <div class="stem ${i % 2 ? 'below' : 'above'}"></div>
-            <div class="scard ${i % 2 ? 'below' : 'above'}">
+          <div class="stop ${st.type || 'level'} ${i === 0 ? 'first' : i === n - 1 ? 'last' : ''}" id="stop${i}" style="left:${xs[i]}px">
+            <div class="dot">${glyph(st, i)}</div>
+            <div class="scard ${i % 2 ? 'below' : 'above'}" style="--c:${LANES[i % LANES.length]};--dx:${dx(xs[i])}px">
               <span class="when">${esc(st.when || '')}</span>
-              <b>${esc(st.label)}</b>
+              <b>${esc(st.type === 'boss' ? 'Boss level: ' + st.label : st.label)}</b>
               ${st.note ? `<span class="snote">${esc(st.note)}</span>` : ''}
             </div>
           </div>`).join('')}
-        <div class="walker" id="walker"><i></i></div>`;
-      walk(steps, pts);
+        <div class="walker" id="walker"><div class="say" id="say"></div><i></i></div>`;
+
+      // Wind the road as far as the cards allow: high stops carry their card above, low stops below.
+      const cards = [...box.querySelectorAll('.scard')];
+      const tallest = side => Math.max(0, ...cards.filter(c => c.classList.contains(side)).map(c => c.offsetHeight));
+      const reach = u * 2.6 + u * 1.2;   // biggest dot radius + the gap to its card
+      let hi = tallest('above') + reach, lo = roadBottom - tallest('below') - reach;
+      const mid = (hi + lo) / 2, amp = Math.max(0, Math.min(lo - hi, u * 10));
+      hi = mid - amp / 2; lo = mid + amp / 2;
+      const pts = xs.map((x, i) => ({ x, y: i % 2 ? lo : hi }));
+      pts.forEach((p, i) => ($('stop' + i).style.top = p.y + 'px'));
+      const segs = pts.slice(1).map((b, i) => { const a = pts[i], mx = (a.x + b.x) / 2; return `M${a.x} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}`; });
+      const full = segs.map((d, i) => i ? d.replace(/^M[^C]+/, '') : d).join(' ') || `M${pts[0].x} ${pts[0].y}`;
+      $('roadSvg').innerHTML = `
+        <path class="road-bed" d="${full}"/>
+        <path class="road-dash" d="${full}"/>
+        <path class="road-done" id="roadDone" d="${full}"/>
+        ${segs.map((d, i) => `<path class="seg-measure" id="seg${i}" d="${d}"/>`).join('')}`;
+
+      const meter = hasLoad ? drawLoad(R, steps, xs, loaded, W, loadH, u) : null;
+      walk(steps, pts, meter);
     }
-    function walk(steps, pts) {
+    // The workload strip: a faint forecast line, filled in behind the walker, with a live readout.
+    function drawLoad(R, steps, xs, loaded, W, lh, u) {
+      const curve = smoothCurve(loaded.map(([i]) => xs[i]), loaded.map(([, v]) => Math.max(0, Math.min(100, v))));
+      const xa = xs[loaded[0][0]], xb = xs[loaded[loaded.length - 1][0]];
+      const top = u * 2.4, base = lh - u * 2.3;
+      const yOf = v => base - (Math.max(0, Math.min(100, v)) / 100) * (base - top);
+      const samples = [];
+      for (let x = xa; x < xb; x += 4) samples.push([x, yOf(curve(x))]);
+      samples.push([xb, yOf(curve(xb))]);
+      const line = samples.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+      const groups = [];
+      steps.forEach((st, i) => {
+        if (!st.group) return;
+        const g = groups[groups.length - 1];
+        if (g && g.label === st.group && g.last === i - 1) g.last = i; else groups.push({ label: st.group, first: i, last: i });
+      });
+      const half = (xs[1] - xs[0] || u * 8) * .42;
+      const box = $('load');
+      box.innerHTML = `
+        <svg class="load-svg" viewBox="0 0 ${W} ${lh}" aria-hidden="true">
+          <defs>
+            <linearGradient id="loadFill" x1="0" y1="${top}" x2="0" y2="${base}" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#ffc400" stop-opacity=".55"/><stop offset=".45" stop-color="#5fb8ff" stop-opacity=".32"/><stop offset="1" stop-color="#3b6fff" stop-opacity=".04"/>
+            </linearGradient>
+            <linearGradient id="loadStroke" x1="0" y1="${top}" x2="0" y2="${base}" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#ffc400"/><stop offset=".5" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
+            </linearGradient>
+            <clipPath id="loadClip"><rect id="loadRect" x="0" y="0" width="${xa}" height="${lh}"/></clipPath>
+          </defs>
+          ${[100, 60, 20].map(v => `<line class="load-grid" x1="${xa}" x2="${xb}" y1="${yOf(v)}" y2="${yOf(v)}"/>`).join('')}
+          ${xs.map(x => `<line class="load-guide" x1="${x}" x2="${x}" y1="0" y2="${base}"/>`).join('')}
+          <path class="load-ghost" d="${line}"/>
+          <g clip-path="url(#loadClip)">
+            <path class="load-area" d="${line} L${xb} ${base} L${xa} ${base} Z"/>
+            <path class="load-line" d="${line}"/>
+          </g>
+        </svg>
+        <div class="load-k">${esc(R.workloadLabel || 'Workload')}</div>
+        ${[[100, 'Peak'], [60, 'Busy'], [20, 'Calm']].map(([v, w]) => `<div class="load-lv" style="top:${yOf(v)}px">${w}</div>`).join('')}
+        ${groups.map((g, k) => `<div class="load-band" id="band${k}" style="left:${xs[g.first] - half}px;width:${xs[g.last] - xs[g.first] + half * 2}px"><span>${esc(g.label)}</span></div>`).join('')}
+        <div class="load-mark" id="loadMark"><i></i><span id="loadWord"></span></div>`;
+      const mark = $('loadMark'), word = $('loadWord'), rect = $('loadRect');
+      return {
+        at(x) {
+          const cx = Math.max(xa, Math.min(xb, x)), v = curve(cx);
+          rect.setAttribute('width', Math.max(0, x));
+          mark.style.transform = `translate(${cx}px, ${yOf(v)}px)`;
+          mark.classList.toggle('hot', v >= 90);
+          mark.classList.toggle('flip', cx > W - u * 12);
+          const w = loadWord(v);
+          if (word.textContent !== w) word.textContent = w;
+        },
+        reach(i) {
+          if (i === 0) mark.classList.add('on');
+          groups.forEach((g, k) => { if (g.first === i) $('band' + k).classList.add('on'); });
+        },
+      };
+    }
+    function walk(steps, pts, meter) {
       const lens = steps.slice(1).map((_, i) => $('seg' + i).getTotalLength());
       const totalLen = lens.reduce((a, b) => a + b, 0);
-      const done = $('roadDone'), walker = $('walker');
+      const done = $('roadDone'), walker = $('walker'), say = $('say');
       done.style.strokeDasharray = `${totalLen} ${totalLen}`;
       done.style.strokeDashoffset = totalLen;
       const place = (i, len) => {
         const p = $('seg' + i).getPointAtLength(len);
         walker.style.transform = `translate(${p.x}px, ${p.y}px)`;
+        if (meter) meter.at(p.x);
       };
       walker.style.transform = `translate(${pts[0].x}px, ${pts[0].y}px)`;
+      if (meter) meter.at(pts[0].x);
       const reach = i => {
         const stop = $('stop' + i);
         if (!stop) return;
         stop.classList.add('reached');
-        const st = steps[i];
-        pulse.spike(st.type === 'boss' ? 1 : .7);
-        if (st.type === 'boss' || st.type === 'finish') flashLights();
-        if (st.type === 'finish') walker.classList.add('arrived');
+        if (meter) meter.reach(i);
+        const st = steps[i], line = st.say || SAY[st.type];
+        if (line) { say.textContent = line; say.classList.remove('on'); void say.offsetWidth; say.classList.add('on'); }
+        if (st.type === 'boss') { $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake'); flashLights(); pulse.spike(1); }
+        else if (st.type === 'finish') { walker.classList.add('arrived'); confetti.burst('cannons'); flashLights(); pulse.spike(1); }
+        else pulse.spike(.7);
       };
       let seg = 0, acc = 0;
       const startWalk = () => {
         walker.classList.add('moving');
-        const dur = 1400, t0 = performance.now();
+        const dur = 1100, t0 = performance.now();
         const step = t => {
           if (!walker.isConnected) return;
           const k = Math.min(1, (t - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -618,12 +724,12 @@
           acc += lens[seg]; seg++;
           walker.classList.remove('moving');
           reach(seg);
-          if (seg < lens.length) later(startWalk, steps[seg].type === 'boss' ? 1600 : 1100);
+          if (seg < lens.length) later(startWalk, steps[seg].type === 'boss' ? 1800 : steps[seg].say || SAY[steps[seg].type] ? 1400 : 950);
         };
         requestAnimationFrame(step);
       };
       later(() => reach(0), 700);
-      later(startWalk, 1700);
+      if (lens.length) later(startWalk, 1700);
     }
 
     // ---------- FINALE: yes we can! ----------
@@ -697,7 +803,7 @@
     addEventListener('resize', () => {
       if (!latest) return;
       if (latest.stage === 'question') layoutCloud(latest);
-      if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoad((latest.roadmap || {}).steps || []); }
+      if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoad(latest.roadmap || {}); }
     });
     document.fonts && document.fonts.ready.then(() => latest && latest.stage === 'question' && layoutCloud(latest));
 
