@@ -251,10 +251,105 @@
   },
   "roadmap": {
     "title": "The road ahead",
-    "subtitle": "Peak season, mapped: the higher the mountain, the busier we are. Final dates to be confirmed.",
-    "style": "peak",
-    "source": "Workload is indicative · dates TBD",
+    "subtitle": "What's coming, and how busy it gets. Indicative dates, to be confirmed.",
+    "style": "gantt",
+    "start": "2026-12-01",
+    "end": "2027-03-15",
+    "sweepSeconds": 12,
+    "source": "Indicative dates · TBD",
     "workloadLabel": "Team workload",
+    "peakLabel": "Peak",
+    "holiday": {
+      "label": "Christmas break",
+      "start": "2026-12-24",
+      "end": "2027-01-04",
+      "callout": "Recharge",
+      "factor": 0.35
+    },
+    "rows": [
+      {
+        "label": "Year-end close",
+        "note": "Closing a record year",
+        "items": [
+          {
+            "type": "bar",
+            "label": "Close & report",
+            "start": "2027-01-04",
+            "end": "2027-01-22",
+            "weight": 1.2
+          }
+        ]
+      },
+      {
+        "label": "SOX controls",
+        "note": "Tested and evidenced",
+        "items": [
+          {
+            "type": "bar",
+            "label": "Year-end testing & evidence",
+            "start": "2026-12-07",
+            "end": "2027-02-05",
+            "weight": 0.8
+          }
+        ]
+      },
+      {
+        "label": "Annual report",
+        "note": "Our record-year story",
+        "items": [
+          {
+            "type": "bar",
+            "label": "Drafting, review & sign-off",
+            "start": "2027-01-11",
+            "end": "2027-02-26",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "label": "ERP migration",
+        "note": "DR2 → cutover → hypercare",
+        "items": [
+          {
+            "type": "milestone",
+            "label": "DR2",
+            "note": "second dress rehearsal",
+            "date": "2026-12-12",
+            "weight": 0.9
+          },
+          {
+            "type": "bar",
+            "label": "Ramp-down",
+            "start": "2027-01-22",
+            "end": "2027-01-29",
+            "weight": 1
+          },
+          {
+            "type": "milestone",
+            "key": true,
+            "label": "Cutover",
+            "when": "end Jan / early Feb",
+            "date": "2027-01-30",
+            "weight": 1.6
+          },
+          {
+            "type": "bar",
+            "label": "Ramp-up",
+            "start": "2027-02-01",
+            "end": "2027-02-10",
+            "weight": 1.3
+          },
+          {
+            "type": "bar",
+            "label": "Hypercare",
+            "start": "2027-02-10",
+            "end": "2027-03-15",
+            "weight": 0.9,
+            "fade": true
+          }
+        ]
+      }
+    ],
     "overview": "Peak season, mapped",
     "steps": [
       {

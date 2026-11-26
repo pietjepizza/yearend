@@ -9,7 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | "Peak season, mapped": the season drawn as a mountain range whose height is the workload. Christmas is a valley and the ERP cutover is the summit. The mountains rise, then the camera zooms in and follows a light climbing the ridge. Each milestone (DR2, Christmas, year-end close, SOX controls, annual report, ramp-down, cutover, ramp-up, hypercare) plants a flag with its note, and the cutover summit glows gold. Finally the camera pulls back to show the whole range, with months along the ground and the ERP migration stretch highlighted. A **team workload** meter beside the title follows the climb (Calm, Steady, Busy, Very busy, Peak). Press **H** to skip straight to the full overview. |
+| 6 | **The road ahead** | A real timeline: a Gantt chart of the overlapping workstreams (year-end close, SOX controls, annual report, and the ERP migration from DR2 through ramp-down, cutover and ramp-up to hypercare) on a date axis from December to March. A playhead sweeps through the months: bars draw in, milestones pop, and callouts mark today, the Christmas break and the cutover (a gold line). It slows down for the cutover. Underneath, a separate **team workload** chart fills in as it goes, with "Recharge" and "Peak" callouts. It is worked out from how the workstreams overlap. The meter beside the title follows the playhead. Press **H** to skip to the end. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
@@ -74,7 +74,7 @@ Open the presenter link `/host?key=letmein` on the projector. Phones need to rea
 | --- | --- |
 | → / Space | Next screen (phones follow) |
 | ← | Previous screen |
-| H | Reveal now, or hide again. On the timeline: skip to the full overview |
+| H | Reveal now, or hide again. On the timeline: skip to the end |
 | S | Snow on or off |
 | Click a word | Remove it from the screen |
 | U | Restore removed words |
@@ -115,15 +115,16 @@ Everything is in `questions.json`:
 - **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.
-- **`roadmap.steps`**: the timeline. **The dates are placeholders marked "TBD".** Each step has:
-  - `type`: `start`, `level` (numbered), `rest` (snowflake), `boss` (the gold summit flag) or `finish` (trophy)
-  - `when`, `label` and `note`. The note unfolds when the camera reaches the flag.
-  - `load`: the workload from 0 to 100, which sets the height of the mountains (90 or more reads as "Peak")
-  - `month`: the month band along the ground, such as `Jan`
-  - `group` (optional): steps in a row with the same group are highlighted in gold, such as "ERP migration"
-  - `say` (optional): a speech bubble when the light reaches the stop
-- **`roadmap.style`**: `peak` (the mountain range, the default) or `road` (the earlier winding road with a workload strip).
-- **`roadmap.source`**, **`roadmap.workloadLabel`** and **`roadmap.overview`**: the footnote, the label of the workload meter, and its caption once the whole range is shown.
+- **`roadmap`**: the timeline. **The dates are indicative and to be confirmed.**
+  - `start` and `end`: the date range shown, such as `2026-12-01` to `2027-03-15`. `today` is optional; without it, today's real date is marked.
+  - `holiday`: the Christmas break band, with `label`, `start`, `end`, `callout` (the label at the dip) and `factor` (how much it damps the workload)
+  - `rows`: one row per workstream, each with a `label`, a `note` and `items`. An item is either
+    - a bar: `type: "bar"`, `label`, `start`, `end`, plus `fade: true` to let it trail off (hypercare), or
+    - a milestone: `type: "milestone"`, `label`, `date` and `note`. With `key: true` it becomes the gold cutover line with a callout at the top, which can use `when` for its date text.
+  - `weight` on any item: how much it adds to the workload (default 1). The workload chart adds up whatever is active each day, on top of `baseLoad` (default 0.6), smooths it, and scales the busiest day to "Peak".
+  - `sweepSeconds`: how long the sweep takes (default 12)
+  - `workloadLabel`, `peakLabel` and `source`: labels and the footnote
+  - `style`: `gantt` (the default), `peak` (the mountain range) or `road` (the winding road). The other two styles use `steps` instead of `rows`, with `type`, `when`, `label`, `note`, `load` (0 to 100), `month`, `group` and `say`.
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
   - `title`, `context` and `wordPrompt`
