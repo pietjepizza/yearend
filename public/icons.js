@@ -69,39 +69,25 @@
     return '';
   }
 
-  // Blob characters: a round body in the lane colour with an expression for the mood (1 tired … 5 ecstatic).
-  // Classes .lid (blink), .eyes (look around) and .bodyshape (squash) are animated in CSS.
-  const INK = '#0b0b3b';
-  function blob(color, mood = 4, variant = 0) {
-    const bodies = [
-      'M32 5 C49 5 59 17 59 34 C59 51 48 60 32 60 C16 60 5 51 5 34 C5 17 15 5 32 5 Z',
-      'M31 6 C47 4 60 16 59 33 C58 50 47 61 31 60 C15 59 4 49 6 32 C8 16 17 7 31 6 Z',
-      'M33 5 C50 7 60 19 58 36 C56 52 45 61 30 59 C14 57 4 46 6 31 C8 15 18 4 33 5 Z',
-    ];
-    const m = Math.max(1, Math.min(5, Math.round(mood)));
-    const mouths = {
-      5: `<path d="M22 40 Q32 52 42 40 Z" fill="${INK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`,
-      4: `<path d="M23 41 Q32 50 41 41" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-      3: `<path d="M25 45 H39" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
-      2: `<path d="M23 46 Q27.5 42 32 46 Q36.5 50 41 46" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M51 17 Q54 23 51 25 Q48 23 51 17 Z" fill="#7fd6ff" stroke="${INK}" stroke-width="1.5"/>`,
-      1: `<path d="M24 48 Q32 41 40 48" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><text x="46" y="16" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="9" fill="${INK}">z</text><text x="51" y="10" font-family="Fredoka, Nunito, sans-serif" font-weight="700" font-size="7" fill="${INK}">z</text>`,
-    };
-    const lid = m === 1 ? 'tired' : '';
-    const cheeks = '';
-    return `<svg class="blob mood-${m}" viewBox="0 0 64 68" aria-hidden="true">
-      <ellipse cx="22" cy="62" rx="7" ry="4" fill="${INK}"/><ellipse cx="42" cy="62" rx="7" ry="4" fill="${INK}"/>
-      <path class="bodyshape" d="${bodies[variant % bodies.length]}" fill="${color}" stroke="${INK}" stroke-width="3"/>
-      <path d="M16 18 Q22 11 30 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".55"/>
-      ${cheeks}
-      <g class="eyes">
-        <circle cx="24" cy="30" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.5"/><circle cx="40" cy="30" r="6.5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
-        <circle class="pupil" cx="25" cy="31" r="2.8" fill="${INK}"/><circle class="pupil" cx="41" cy="31" r="2.8" fill="${INK}"/>
-        <rect class="lid ${lid}" x="16" y="22" width="32" height="9" fill="${color}"/>
-      </g>
-      ${mouths[m]}
+  // Light orbs: a glowing point of light in the lane colour (no faces).
+  // orb(color) is plain; orbIcon(color, spec) puts a line icon inside; orbText(color, text) shows initials.
+  function orb(color, inner = '') {
+    return `<svg class="orb" viewBox="0 0 64 64" aria-hidden="true">
+      <circle class="halo" cx="32" cy="32" r="30" fill="${color}" opacity=".16"/>
+      <circle class="glow" cx="32" cy="32" r="23" fill="${color}" opacity=".3"/>
+      <circle class="core" cx="32" cy="32" r="17" fill="${color}"/>
+      <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>
+      ${inner || '<ellipse cx="27" cy="26" rx="6" ry="4" fill="#fff" opacity=".4"/>'}
     </svg>`;
   }
+  const orbIcon = (color, spec) => orb(color, `<g style="color:#fff">${icon(spec).replace('<svg ', '<svg x="18" y="22.5" width="28" height="19" ')}</g>`);
+  const orbText = (color, text) => orb(color, `<text x="32" y="37.5" text-anchor="middle" font-family="Space Grotesk, Inter, sans-serif" font-weight="700" font-size="15" fill="#fff">${String(text).replace(/[<>&]/g, '')}</text>`);
+  // Kept for compatibility with older call sites: a plain orb.
+  const blob = color => orb(color);
 
   root.icon = icon;
   root.blob = blob;
+  root.orb = orb;
+  root.orbIcon = orbIcon;
+  root.orbText = orbText;
 })(typeof self !== 'undefined' ? self : this);

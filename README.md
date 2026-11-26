@@ -7,10 +7,10 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | # | Screen | What happens |
 | --- | --- | --- |
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
-| 1–4 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a little character racing in its own lane, and the winner gets a crown and a speech bubble. Words float in as bubbles. |
+| 1–4 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | An animated timeline. The team character walks from today through the year-end close, the holiday break and the annual report to the ERP "boss level", ending with "Peak conquered!". |
-| 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a parade of everyone's characters. Phones turn into a big **CHEER!** button. |
+| 6 | **The road ahead** | A straight, animated roadmap. A light pulse travels from today through the year-end close, the holiday break and the annual report to the ERP migration (a gold key milestone), ending with "Peak conquered!". |
+| 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
 1. **How are you feeling right now?** This is the honest check.
@@ -64,7 +64,7 @@ Everything is in `questions.json`:
 - **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.
-- **`roadmap.steps`**: the timeline. Each step has a `type` (`start`, `level`, `rest`, `boss` or `finish`), `when`, `label` and `note`. **The dates are placeholders marked "date TBD".**
+- **`roadmap.steps`**: the timeline. Each step has a `type` (`start`, `level`, `rest`, `boss` for the gold key milestone, or `finish`), `when`, `label` and `note`. **The dates are placeholders marked "date TBD".**
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
   - `title`, `context` and `wordPrompt`

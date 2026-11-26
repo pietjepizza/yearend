@@ -9,7 +9,8 @@
   const day = s => new Date(s + 'T00:00:00').getTime();
   const hash = w => [...String(w)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
   const moodOf = (o, i) => (typeof o.score === 'number' ? Math.max(3, o.score) : [5, 4, 5, 4, 5, 4][i % 6]);
-  const CROWN = '<svg class="crown" viewBox="0 0 40 28" aria-hidden="true"><path d="M3 24 L6 7 L14 15 L20 3 L26 15 L34 7 L37 24 Z" fill="#ffd23f" stroke="#1d1b3a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="17" r="2.6" fill="#ff5a5f" stroke="#1d1b3a" stroke-width="1.5"/></svg>';
+  const CROWN = '<svg class="crown" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="none" stroke="#ffc400" stroke-width="2.5"/><circle class="ring-dash" cx="32" cy="32" r="30" fill="none" stroke="#fff3c4" stroke-width="2.5" stroke-dasharray="3 9" stroke-linecap="round"/></svg>';
+  const initials = p => PulseCore.playerName(p).split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const FLAG = '<svg class="flag" viewBox="0 0 20 40" aria-hidden="true"><path d="M3 2 V38" stroke="#1d1b3a" stroke-width="2.5" stroke-linecap="round"/><path d="M4 3 h14 v12 h-14z" fill="#fff" stroke="#1d1b3a" stroke-width="2"/><path d="M4 3 h3.5 v3 h-3.5z M11 3 h3.5 v3 h-3.5z M7.5 6 h3.5 v3 h-3.5z M14.5 6 h3.5 v3 h-3.5z M4 9 h3.5 v3 h-3.5z M11 9 h3.5 v3 h-3.5z M7.5 12 h3.5 v3 h-3.5z M14.5 12 h3.5 v3 h-3.5z" fill="#1d1b3a"/></svg>';
   const PHONE = '<svg class="phone-ico" viewBox="0 0 40 60" aria-hidden="true"><rect x="3" y="3" width="34" height="54" rx="7" fill="#fff" stroke="#1d1b3a" stroke-width="3"/><rect x="10" y="14" width="8" height="8" fill="#1d1b3a"/><rect x="22" y="14" width="8" height="8" fill="#1d1b3a"/><rect x="10" y="26" width="8" height="8" fill="#1d1b3a"/><rect x="24" y="28" width="4" height="4" fill="#1d1b3a"/><rect x="22" y="34" width="8" height="2.5" fill="#1d1b3a"/><path class="scanline" d="M7 18 H33" stroke="#ff5a5f" stroke-width="2.5"/><rect x="15" y="47" width="10" height="3" rx="1.5" fill="#1d1b3a"/></svg>';
 
@@ -157,9 +158,9 @@
             <div class="steps">
               <div class="step" style="--k:0"><div class="num">1</div><div class="sico">${PHONE}</div><b>Scan the code</b><span>No app, no login</span></div>
               <div class="arrow" style="--k:0"></div>
-              <div class="step" style="--k:1"><div class="num">2</div><div class="sico">${blob(LANES[2], 5, 1)}</div><b>Pick your answer</b><span>100% anonymous</span></div>
+              <div class="step" style="--k:1"><div class="num">2</div><div class="sico">${orbIcon(LANES[1], 'signal:4')}</div><b>Pick your answer</b><span>100% anonymous</span></div>
               <div class="arrow" style="--k:1"></div>
-              <div class="step" style="--k:2"><div class="num">3</div><div class="sico race-ico">${CROWN}${blob(LANES[0], 5, 2)}</div><b>Watch the race</b><span>Live on this screen</span></div>
+              <div class="step" style="--k:2"><div class="num">3</div><div class="sico race-ico">${CROWN}${orbIcon(LANES[0], 'chart:rocket')}</div><b>Watch the results</b><span>Live on this screen</span></div>
             </div>
           </div>
           <div class="card join-card call st" style="--i:1">
@@ -192,7 +193,7 @@
       const old = new Set(have);
       box.innerHTML = players.map((p, i) => {
         const k = want[i];
-        return `<div class="chip ${old.has(k) ? '' : 'pop'}" data-k="${k}" style="--c:${LANES[p.c % LANES.length]};--d:${(hash(k) % 20) / 10}s">${blob(LANES[p.c % LANES.length], 4 + (hash(k) % 2), hash(k) % 3)}<span>${esc(PulseCore.playerName(p))}</span></div>`;
+        return `<div class="chip ${old.has(k) ? '' : 'pop'}" data-k="${k}" style="--c:${LANES[p.c % LANES.length]};--d:${(hash(k) % 20) / 10}s">${orbText(LANES[p.c % LANES.length], initials(p))}<span>${esc(PulseCore.playerName(p))}</span></div>`;
       }).join('');
     }
 
@@ -223,7 +224,7 @@
                     <div class="runner" style="--f:0">
                       ${o.note ? `<div class="bubble">${esc(o.note)}</div>` : ''}
                       ${CROWN}
-                      <div class="body-wrap" style="--d:${(i * .37).toFixed(2)}s">${blob(LANES[i % LANES.length], moodOf(o, i), i)}</div>
+                      <div class="body-wrap" style="--d:${(i * .37).toFixed(2)}s">${orb(LANES[i % LANES.length])}</div>
                     </div>
                   </div>
                   <div class="pct" data-v="0">0%</div>
@@ -290,7 +291,7 @@
         else $('k-avg').textContent = '?';
       } else {
         const opt = q.options.find(o => o.id === s.stats.topId), i = q.options.indexOf(opt);
-        const html = s.revealed && opt ? `${blob(LANES[i % LANES.length], moodOf(opt, i), i)}<b>${esc(opt.label)}</b>` : '<span class="q">?</span>';
+        const html = s.revealed && opt ? `${orbIcon(LANES[i % LANES.length], opt.icon)}<b>${esc(opt.label)}</b>` : '<span class="q">?</span>';
         if ($('leader').dataset.k !== html) { $('leader').dataset.k = html; $('leader').innerHTML = html; }
       }
       if (meta.pop) hop(meta.pop);
@@ -441,7 +442,7 @@
         const chips = Object.entries(it.words).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([w], k) => `<span style="--k:${k}">${esc(w)}</span>`).join('');
         return `<div class="card fcard st" style="--i:${i};--c:${LANES[i % LANES.length]}">
           <div class="fhead">Round ${i + 1}</div>
-          <div class="fwin">${opt ? `<div class="fblob">${CROWN}${blob(LANES[oi % LANES.length], moodOf(opt, oi), oi)}</div><div><b>${esc(opt.label)}</b><span>${it.stats.topPct}% of votes</span></div>` : '<div><b>No votes yet</b></div>'}</div>
+          <div class="fwin">${opt ? `<div class="fblob">${CROWN}${orbIcon(LANES[oi % LANES.length], opt.icon)}</div><div><b>${esc(opt.label)}</b><span>${it.stats.topPct}% of votes</span></div>` : '<div><b>No votes yet</b></div>'}</div>
           <div class="ft">${it.takeaway ? emphasise(it.takeaway) : ''}</div>
           ${chips ? `<div class="fchips">${chips}</div>` : ''}
           ${it.pledge ? `<div class="pledge" style="--k:${i}"><span class="stamp">We'll do</span>${esc(it.pledge)}</div>` : ''}
@@ -470,35 +471,31 @@
       const box = $('road');
       if (!box || !steps.length) return;
       const W = box.clientWidth, H = box.clientHeight, u = U();
-      const pts = steps.map((st, i) => ({ x: u * 5 + (W - u * 10) * (i / (steps.length - 1)), y: H * (i % 2 ? .66 : .4) }));
-      const segs = [];
-      for (let i = 1; i < pts.length; i++) {
-        const a = pts[i - 1], b = pts[i], mx = (a.x + b.x) / 2;
-        segs.push(`M${a.x} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}`);
-      }
-      const full = segs.map((d, i) => i ? d.replace(/^M[^C]+/, '') : d).join(' ');
-      const glyph = (st, i) => st.type === 'start' ? '<b>GO</b>'
+      const y = H * .5;
+      const pts = steps.map((st, i) => ({ x: u * 7 + (W - u * 14) * (i / (steps.length - 1)), y }));
+      const segs = pts.slice(1).map((b, i) => `M${pts[i].x} ${y} L${b.x} ${y}`);
+      const glyph = st => st.type === 'start' ? '<i class="now"></i>'
         : st.type === 'rest' ? icon('help:snow')
-        : st.type === 'boss' ? '<b>!</b>'
-        : st.type === 'finish' ? icon('help:trophy')
-        : `<b>${steps.slice(0, i + 1).filter(x => x.type === 'level').length}</b>`;
+        : st.type === 'boss' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.5 L12 16.8 L6.1 20.5 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z" fill="currentColor"/></svg>'
+        : st.type === 'finish' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17.5 L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : `<b>${steps.slice(0, steps.indexOf(st) + 1).filter(x => x.type === 'level').length}</b>`;
       box.innerHTML = `
         <svg class="road-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-          <path class="road-bed" d="${full}"/>
-          <path class="road-dash" d="${full}"/>
-          <path class="road-done" id="roadDone" d="${full}"/>
+          <path class="road-bed" d="M${pts[0].x} ${y} L${pts[pts.length - 1].x} ${y}"/>
+          <path class="road-done" id="roadDone" d="M${pts[0].x} ${y} L${pts[pts.length - 1].x} ${y}"/>
           ${segs.map((d, i) => `<path class="seg-measure" id="seg${i}" d="${d}"/>`).join('')}
         </svg>
         ${steps.map((st, i) => `
-          <div class="stop ${st.type} ${i === 0 ? 'first' : i === steps.length - 1 ? 'last' : ''}" id="stop${i}" style="left:${pts[i].x}px;top:${pts[i].y}px">
-            <div class="dot">${glyph(st, i)}</div>
-            <div class="scard ${i % 2 ? 'below' : 'above'}" style="--c:${LANES[i % LANES.length]}">
+          <div class="stop ${st.type} ${i === 0 ? 'first' : i === steps.length - 1 ? 'last' : ''}" id="stop${i}" style="left:${pts[i].x}px;top:${y}px;--c:${LANES[i % LANES.length]}">
+            <div class="dot">${glyph(st)}</div>
+            <div class="stem ${i % 2 ? 'below' : 'above'}"></div>
+            <div class="scard ${i % 2 ? 'below' : 'above'}">
               <span class="when">${esc(st.when || '')}</span>
-              <b>${esc(st.type === 'boss' ? 'Boss level: ' + st.label : st.label)}</b>
+              <b>${esc(st.label)}</b>
               ${st.note ? `<span class="snote">${esc(st.note)}</span>` : ''}
             </div>
           </div>`).join('')}
-        <div class="walker" id="walker"><div class="say" id="say"></div>${CROWN}<div class="wbody">${blob(LANES[1], 5, 1)}</div></div>`;
+        <div class="walker" id="walker"><i></i></div>`;
       walk(steps, pts);
     }
     function walk(steps, pts) {
@@ -517,16 +514,14 @@
         if (!stop) return;
         stop.classList.add('reached');
         const st = steps[i];
-        const say = { rest: 'Recharge time!', boss: "We've got this!", finish: 'We did it!' }[st.type];
-        if (say) { $('say').textContent = say; $('say').classList.remove('on'); void $('say').offsetWidth; $('say').classList.add('on'); }
-        if (st.type === 'boss') { $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake'); flashLights(); }
-        if (st.type === 'finish') { walker.classList.add('champion'); confetti.burst('cannons'); flashLights(); }
-        else pulse.spike(.8);
+        pulse.spike(st.type === 'boss' ? 1 : .7);
+        if (st.type === 'boss' || st.type === 'finish') flashLights();
+        if (st.type === 'finish') walker.classList.add('arrived');
       };
       let seg = 0, acc = 0;
       const startWalk = () => {
-        walker.classList.add('walking');
-        const dur = 1300, t0 = performance.now();
+        walker.classList.add('moving');
+        const dur = 1400, t0 = performance.now();
         const step = t => {
           if (!walker.isConnected) return;
           const k = Math.min(1, (t - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -534,9 +529,9 @@
           done.style.strokeDashoffset = totalLen - (acc + lens[seg] * e);
           if (k < 1) return requestAnimationFrame(step);
           acc += lens[seg]; seg++;
-          walker.classList.remove('walking');
+          walker.classList.remove('moving');
           reach(seg);
-          if (seg < lens.length) later(startWalk, steps[seg].type === 'boss' ? 1800 : 1200);
+          if (seg < lens.length) later(startWalk, steps[seg].type === 'boss' ? 1600 : 1100);
         };
         requestAnimationFrame(step);
       };
@@ -570,9 +565,9 @@
       const box = $('parade');
       if (!box || box.dataset.done) return;
       box.dataset.done = '1';
-      const players = (s.players || []).slice(-18);
-      const crew = players.length >= 6 ? players : Array.from({ length: 14 }, (_, i) => ({ a: i, n: i * 3, c: i % 6 }));
-      box.innerHTML = crew.map((p, i) => `<div class="marcher" style="--i:${i};--n:${crew.length}">${blob(LANES[p.c % LANES.length], 5, i % 3)}</div>`).join('');
+      const players = (s.players || []).slice(-40);
+      const crew = players.length >= 12 ? players : Array.from({ length: 28 }, (_, i) => ({ a: i, n: i * 3, c: i % 6 }));
+      box.innerHTML = crew.map((p, i) => `<i style="--i:${i};--c:${LANES[p.c % LANES.length]}"></i>`).join('');
     }
 
     // ---------- reactions ----------

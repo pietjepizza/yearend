@@ -81,10 +81,11 @@
     const me = T.me || { a: 0, n: 0, c: 1 };
     const myColor = LANES[me.c % LANES.length];
     const myName = PulseCore.playerName(me);
-    $('me').innerHTML = `${blob(myColor, 5, me.n % 3)}<span></span>`;
+    const myInitials = myName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    $('me').innerHTML = `${orbText(myColor, myInitials)}<span></span>`;
     $('me').lastChild.textContent = myName;
     $('myName').textContent = myName;
-    for (const id of ['heroLobby', 'heroDone', 'heroWrap']) $(id).innerHTML = blob(myColor, 5, me.n % 3);
+    for (const id of ['heroLobby', 'heroDone', 'heroWrap']) $(id).innerHTML = orbText(myColor, myInitials);
 
     let s = null, current = null, choice = null, editing = false, reactionsBuilt = false, shown = null, cheers = 0;
 
@@ -172,7 +173,7 @@
           const b = document.createElement('button');
           b.className = 'opt st'; b.style.setProperty('--i', i + 2); b.style.setProperty('--c', LANES[i % LANES.length]); b.dataset.id = o.id;
           b.setAttribute('role', 'radio');
-          b.innerHTML = `${blob(LANES[i % LANES.length], moodOf(o, i), i)}<span class="l"></span><span class="radio"></span>`;
+          b.innerHTML = `${orbIcon(LANES[i % LANES.length], o.icon)}<span class="l"></span><span class="radio"></span>`;
           b.querySelector('.l').textContent = o.label;
           b.onclick = () => {
             choice = o.id; markChoice();
@@ -187,7 +188,7 @@
 
       if (s.mine && !editing) {
         const i = q.options.findIndex(x => x.id === s.mine.option), o = q.options[i];
-        $('chosen').innerHTML = o ? `${blob(LANES[i % LANES.length], moodOf(o, i), i)}<span></span>` : '';
+        $('chosen').innerHTML = o ? `${orbIcon(LANES[i % LANES.length], o.icon)}<span></span>` : '';
         if (o) $('chosen').lastChild.textContent = o.label + (s.mine.word ? ` · “${s.mine.word}”` : '');
         show('done');
       } else show('pick');
