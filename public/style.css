@@ -294,6 +294,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .ticker-in { display: inline-block; animation: tick 40s linear infinite; padding-left: 100%; }
 .ticker span { margin-right: calc(var(--u) * 2.2); color: var(--fg); }
 .ticker span::before { content: '◆'; color: var(--sky); margin-right: .5em; font-size: .7em; vertical-align: .15em; }
+.ticker span.joke { color: var(--ice); font-style: italic; }
+.ticker span.joke::before { content: '▸'; color: var(--gold); font-style: normal; }
 @keyframes tick { to { transform: translateX(-100%); } }
 .pager { font-family: var(--display); color: var(--fg); }
 

@@ -11,9 +11,20 @@
     "😂",
     "🚀"
   ],
+  "ticker": [
+    "Reconciling the audience… 98% matched",
+    "Applying holiday accruals…",
+    "Rounding difference detected: within tolerance",
+    "Coffee consumption: ahead of forecast",
+    "Loading final_FINAL_v3.xlsx…",
+    "Meetings that could have been an email: in line with guidance",
+    "Variance analysis: vibes are up",
+    "Audit trail confirms: you were here",
+    "Outlook 2027: strong buy"
+  ],
   "lobby": {
     "title": "Peak Season Pulse",
-    "intro": "Four quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"
+    "intro": "Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"
   },
   "outro": [
     "recap",
@@ -76,6 +87,213 @@
     "thanks": "Happy holidays, Finance Operations!"
   },
   "questions": [
+    {
+      "title": "If the ERP migration were a movie, which one would it be?",
+      "wordPrompt": "Your movie tagline in one word (optional)",
+      "takeaways": [
+        {
+          "text": "ERP migration, the movie: “{top}”. Popcorn ready!"
+        }
+      ],
+      "pledge": "Celebrate every ERP milestone together, popcorn included",
+      "options": [
+        {
+          "id": "mission",
+          "label": "Mission: Impossible",
+          "icon": "movie:mission",
+          "note": "…made possible!"
+        },
+        {
+          "id": "oceans",
+          "label": "Ocean's Eleven",
+          "icon": "movie:heist",
+          "note": "Great team, perfect plan"
+        },
+        {
+          "id": "rings",
+          "label": "The Lord of the Rings",
+          "icon": "movie:quest",
+          "note": "Long road, happy ending"
+        },
+        {
+          "id": "fast",
+          "label": "Fast & Furious",
+          "icon": "movie:race",
+          "note": "Family. And deadlines."
+        },
+        {
+          "id": "toy",
+          "label": "Toy Story",
+          "icon": "movie:toy",
+          "note": "To go-live and beyond!"
+        }
+      ],
+      "demo": {
+        "weights": [
+          12,
+          9,
+          8,
+          5,
+          7
+        ],
+        "words": [
+          "epic",
+          "teamwork",
+          "sequel",
+          "blockbuster",
+          "thriller",
+          "popcorn",
+          "plot-twist",
+          "heroes",
+          "adventure",
+          "epic"
+        ]
+      }
+    },
+    {
+      "title": "How charged are you for peak season?",
+      "context": "Year-end close · annual report · ERP migration",
+      "wordPrompt": "What keeps you going? (one word, optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% are charged for the peak. Bring it on!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Charging up nicely. We'll pace the peak together"
+        },
+        {
+          "text": "Recharge first, then we go, and we go together"
+        }
+      ],
+      "pledge": "Protect the holiday break: laptops closed, batteries recharged",
+      "options": [
+        {
+          "id": "full",
+          "label": "Fully charged, bring it on!",
+          "icon": "battery:100",
+          "score": 5,
+          "note": "Let's gooo!"
+        },
+        {
+          "id": "ready",
+          "label": "Charged and ready",
+          "icon": "battery:70",
+          "score": 4,
+          "note": "Ready to roll!"
+        },
+        {
+          "id": "charging",
+          "label": "Charging up",
+          "icon": "battery:35",
+          "score": 3,
+          "note": "Almost there!"
+        },
+        {
+          "id": "holiday",
+          "label": "Recharging over the holidays",
+          "icon": "battery:10",
+          "score": 2,
+          "note": "Holiday approved ✓"
+        }
+      ],
+      "demo": {
+        "weights": [
+          8,
+          14,
+          9,
+          5
+        ],
+        "words": [
+          "coffee",
+          "team",
+          "holiday",
+          "coffee",
+          "family",
+          "music",
+          "team",
+          "sports",
+          "chocolate",
+          "sleep",
+          "coffee",
+          "colleagues"
+        ]
+      },
+      "meterLabel": "Team energy"
+    },
+    {
+      "title": "What's the weather forecast for January?",
+      "context": "Your outlook for the start of 2027",
+      "wordPrompt": "What will you bring? (one word, optional)",
+      "meterLabel": "Team forecast",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% expect sunshine. Sunglasses on!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Mixed forecast, and we've got umbrellas for everyone"
+        },
+        {
+          "text": "Storm first, rainbow after. We'll weather it together"
+        }
+      ],
+      "pledge": "Short weekly check-ins, so nobody gets caught in the rain",
+      "options": [
+        {
+          "id": "sunny",
+          "label": "Sunny, bring it on",
+          "icon": "weather:sun",
+          "score": 5,
+          "note": "Sunglasses on!"
+        },
+        {
+          "id": "mostly",
+          "label": "Mostly sunny, some deadlines",
+          "icon": "weather:partly",
+          "score": 4,
+          "note": "Light jacket weather"
+        },
+        {
+          "id": "showers",
+          "label": "Showers, but we brought umbrellas",
+          "icon": "weather:rain",
+          "score": 3,
+          "note": "Umbrellas ready!"
+        },
+        {
+          "id": "rainbow",
+          "label": "Storm first, rainbow after",
+          "icon": "weather:rainbow",
+          "score": 2,
+          "note": "Rainbow incoming!"
+        }
+      ],
+      "demo": {
+        "weights": [
+          7,
+          15,
+          9,
+          6
+        ],
+        "words": [
+          "umbrella",
+          "coffee",
+          "optimism",
+          "snacks",
+          "sunglasses",
+          "energy",
+          "patience",
+          "teamwork",
+          "humour",
+          "coffee"
+        ]
+      }
+    }
+  ],
+  "spareQuestions": [
     {
       "title": "How are you feeling right now?",
       "wordPrompt": "One word for your mood (optional)",
@@ -219,77 +437,6 @@
           "rewarding",
           "record",
           "fast"
-        ]
-      }
-    },
-    {
-      "title": "How charged are you for peak season?",
-      "context": "Year-end close · annual report · ERP migration",
-      "wordPrompt": "What keeps you going? (one word, optional)",
-      "takeaways": [
-        {
-          "minTopBox": 60,
-          "text": "{topBox}% are charged for the peak. Bring it on!"
-        },
-        {
-          "minTopBox": 35,
-          "text": "Charging up nicely. We'll pace the peak together"
-        },
-        {
-          "text": "Recharge first, then we go, and we go together"
-        }
-      ],
-      "pledge": "Protect the holiday break: laptops closed, batteries recharged",
-      "options": [
-        {
-          "id": "full",
-          "label": "Fully charged, bring it on!",
-          "icon": "battery:100",
-          "score": 5,
-          "note": "Let's gooo!"
-        },
-        {
-          "id": "ready",
-          "label": "Charged and ready",
-          "icon": "battery:70",
-          "score": 4,
-          "note": "Ready to roll!"
-        },
-        {
-          "id": "charging",
-          "label": "Charging up",
-          "icon": "battery:35",
-          "score": 3,
-          "note": "Almost there!"
-        },
-        {
-          "id": "holiday",
-          "label": "Recharging over the holidays",
-          "icon": "battery:10",
-          "score": 2,
-          "note": "Holiday approved ✓"
-        }
-      ],
-      "demo": {
-        "weights": [
-          8,
-          14,
-          9,
-          5
-        ],
-        "words": [
-          "coffee",
-          "team",
-          "holiday",
-          "coffee",
-          "family",
-          "music",
-          "team",
-          "sports",
-          "chocolate",
-          "sleep",
-          "coffee",
-          "colleagues"
         ]
       }
     },

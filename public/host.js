@@ -175,7 +175,7 @@
           </div>
         </div>`;
       $('source').textContent = 'Grab your phone';
-      $('ticker').innerHTML = '<span>Scan the code to join</span><span>Fully anonymous</span><span>Four quick questions</span><span>Answers race live on screen</span>';
+      $('ticker').innerHTML = ['Scan the code to join', ...(s.ticker || [])].map(t => `<span class="joke">${esc(t)}</span>`).join('');
     }
 
     function paintLobby(s) {
@@ -239,7 +239,7 @@
             </div>
             <div class="minis">
               <div class="card mini meter st" style="--i:2" id="meterCard">
-                ${scored ? `<div class="mini-k">Team energy</div>
+                ${scored ? `<div class="mini-k">${esc(q.meterLabel || 'Team energy')}</div>
                   <svg class="gauge" viewBox="0 0 120 70" aria-hidden="true">
                     <path d="M12 62 A48 48 0 0 1 26.1 28.1" class="seg" stroke="#2a1fd1"/>
                     <path d="M26.1 28.1 A48 48 0 0 1 60 14" class="seg" stroke="#3b6fff"/>
@@ -297,9 +297,14 @@
       if (meta.pop) hop(meta.pop);
       scheduleCloud(s);
 
-      const tick = (s.recent || []).map(w => `<span>${esc(w)}</span>`).join('');
+      // live words, with a light-hearted ticker line after every few words (or only jokes until words arrive)
+      const jokes = s.ticker || [], words = s.recent || [];
+      const parts = [];
+      words.forEach((w, k) => { parts.push(`<span>${esc(w)}</span>`); if (k % 4 === 3 && jokes.length) parts.push(`<span class="joke">${esc(jokes[(s.index + k) % jokes.length])}</span>`); });
+      if (!words.length) jokes.forEach(j => parts.push(`<span class="joke">${esc(j)}</span>`));
+      const tick = parts.join('');
       if (tick !== lastTicker) { lastTicker = tick; $('ticker').innerHTML = tick; }
-      $('source').textContent = 'Live feed';
+      $('source').textContent = words.length ? 'Live feed' : 'Finance news';
 
       if (!s.revealed && s.timeLeft > 0) startTimer(s.timeLeft, s.timerTotal);
       else stopTimer(!s.revealed && s.timerTotal > 0);
@@ -450,7 +455,7 @@
       }).join('');
       $('recapBand').innerHTML = `
         <div class="stat"><span class="v" id="sb-p" data-v="0">0</span><span class="k">players</span></div>
-        <div class="stat"><span class="v"><span id="sb-a" data-v="0">–</span><small>/5</small></span><span class="k">team energy</span></div>
+        <div class="stat"><span class="v"><span id="sb-a" data-v="0">–</span><small>/5</small></span><span class="k">team outlook</span></div>
         <div class="stat"><span class="v" id="sb-w" data-v="0">0</span><span class="k">words shared</span></div>
         <div class="thanks">Honesty makes us stronger. Thank you.</div>`;
       FX.tween($('sb-p'), s.participants, undefined, 1400);

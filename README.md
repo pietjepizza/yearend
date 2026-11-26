@@ -7,16 +7,19 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | # | Screen | What happens |
 | --- | --- | --- |
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
-| 1–4 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
+| 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
 | 6 | **The road ahead** | A straight, animated roadmap. A light pulse travels from today through the year-end close, the holiday break and the annual report to the ERP migration (a gold key milestone), ending with "Peak conquered!". |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
-1. **How are you feeling right now?** This is the honest check.
-2. **If 2026 were a share price…** This is about pride.
-3. **How charged are you for peak season?**
-4. **What will make us unstoppable through the peak?** This is about what we can do.
+1. **If the ERP migration were a movie…** The icebreaker: Mission: Impossible, Ocean's Eleven and more.
+2. **How charged are you for peak season?** The energy check, with a team-energy meter.
+3. **What's the weather forecast for January?** A light-hearted outlook, with a team-forecast meter.
+
+Questions that were dropped are kept under `spareQuestions` in `questions.json`. To bring one back, move it into `questions`.
+
+Between the live words, the bottom ticker shows light-hearted finance lines such as "Reconciling the audience… 98% matched". They come from the `ticker` list in `questions.json`.
 
 The headlines stay encouraging whatever the outcome.
 

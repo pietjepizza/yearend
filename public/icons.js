@@ -56,6 +56,33 @@
         `<path class="bolt" d="M24 9 L19 17 H24 L21 24 L29 14 H24 Z" fill="#ffc400" stroke="#ffffff" stroke-width="1.2"/>`);
     }
 
+    if (kind === 'movie') {
+      const bodies = {
+        mission: '<path d="M5 27 C 13 27, 13 15, 21 15 S 29 23, 35 13"/><g class="h"><path d="M39 3.5 v3.5 M39 11 v3.5 M33.5 9 h3.5 M41 9 h3.5 M35 5 l2 2 M41 11 l2 2 M43 5 l-2 2 M37 11 l-2 2" stroke-width="2"/></g>',
+        heist: '<path d="M14 10 L20 4 H28 L34 10 L24 28 Z"/><path d="M14 10 H34 M20 4 L22 10 L24 28 M28 4 L26 10 L24 28" stroke-width="1.6"/><path class="h" d="M37 4 l1.2 2.4 2.4 1.2 -2.4 1.2 -1.2 2.4 -1.2 -2.4 -2.4 -1.2 2.4 -1.2 z" fill="currentColor" stroke="none"/>',
+        quest: '<path d="M4 28 L16 10 L23 19 L30 12 L44 28 Z"/><path class="h" d="M30 12 V3 L37 5.5 L30 8" stroke-width="2"/>',
+        race: '<path d="M7 26 A17 17 0 0 1 41 26"/><path d="M11 18 l2.5 1.5 M24 9 v3 M37 18 l-2.5 1.5" stroke-width="1.8"/><path class="h" d="M24 26 L33 14" stroke-width="2.6"/><circle cx="24" cy="26" r="2.4" fill="currentColor" stroke="none"/>',
+        toy: '<path d="M24 3 C 30 8, 31 16, 28 23 H20 C 17 16, 18 8, 24 3 Z"/><circle cx="24" cy="12.5" r="2.6"/><path d="M20 18 L15 25 L20 23 M28 18 L33 25 L28 23" stroke-width="2"/><path class="h" d="M21.5 25.5 L24 31 L26.5 25.5" stroke-width="2"/>',
+      };
+      return svg('i-help movie-' + arg, bodies[arg] || bodies.mission);
+    }
+
+    if (kind === 'weather') {
+      const cloud = (dx, dy) => `<path transform="translate(${dx} ${dy})" d="M14 24 H33 A5.5 5.5 0 0 0 32.5 13 A8 8 0 0 0 18 14 A5 5 0 0 0 14 24 Z"/>`;
+      let rays = '';
+      for (let k = 0; k < 8; k++) {
+        const a = (Math.PI / 4) * k, c = Math.cos(a), s2 = Math.sin(a);
+        rays += `M${(24 + c * 9).toFixed(1)} ${(16 + s2 * 9).toFixed(1)} L${(24 + c * 13).toFixed(1)} ${(16 + s2 * 13).toFixed(1)} `;
+      }
+      const bodies = {
+        sun: `<circle cx="24" cy="16" r="6"/><path class="h" d="${rays}"/>`,
+        partly: `<g transform="translate(-6 -5) scale(.8)"><circle cx="24" cy="16" r="6"/><path class="h" d="${rays}"/></g>${cloud(2, 3)}`,
+        rain: `${cloud(0, -6)}<path class="h" d="M18 22 l-2 5 M25 22 l-2 5 M32 22 l-2 5" stroke-width="2"/>`,
+        rainbow: '<path d="M6 28 A18 18 0 0 1 42 28"/><path d="M11.5 28 A12.5 12.5 0 0 1 36.5 28" opacity=".75"/><path class="h" d="M17 28 A7 7 0 0 1 31 28" opacity=".55"/>',
+      };
+      return svg('i-help weather-' + arg, bodies[arg] || bodies.sun);
+    }
+
     if (kind === 'help') {
       const bodies = {
         target: '<circle cx="22" cy="17" r="12"/><circle cx="22" cy="17" r="6.5"/><circle class="h" cx="22" cy="17" r="2.2" fill="currentColor" stroke="none"/><path class="h" d="M40 3 L24.5 14.5 M35 3 h5 v5"/>',

@@ -87,7 +87,7 @@
     const revealed = !q || !!(state.revealedQ || {})[state.current];
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate,
-      reactions: config.reactions, index: state.current, total: Q.length,
+      reactions: config.reactions, ticker: config.ticker || [], index: state.current, total: Q.length,
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
