@@ -251,51 +251,59 @@
   },
   "roadmap": {
     "title": "The road ahead",
-    "subtitle": "Busy months ahead, and we take them on together. Final dates to be confirmed.",
+    "subtitle": "Peak season, mapped: the higher the mountain, the busier we are. Final dates to be confirmed.",
+    "style": "peak",
     "source": "Workload is indicative · dates TBD",
-    "workloadLabel": "Workload",
+    "workloadLabel": "Team workload",
+    "overview": "Peak season, mapped",
     "steps": [
       {
         "type": "start",
         "when": "Today",
         "label": "We're here",
         "note": "One team, ready to go",
-        "load": 60
+        "load": 60,
+        "month": "Dec"
       },
       {
         "type": "level",
         "when": "December · TBD",
         "label": "DR2",
         "note": "Second dress rehearsal",
-        "load": 75
+        "load": 75,
+        "month": "Dec"
       },
       {
         "type": "rest",
         "when": "Late December",
         "label": "Christmas",
         "note": "Laptops closed, batteries recharged",
-        "load": 20
+        "load": 20,
+        "month": "Dec"
       },
       {
         "type": "level",
         "when": "Early January · TBD",
         "label": "Year-end close",
         "note": "Closing a record year",
-        "load": 90
+        "load": 90,
+        "month": "Jan"
       },
       {
         "type": "level",
         "when": "January · TBD",
         "label": "SOX controls",
         "note": "Controls tested, evidence ready",
-        "load": 85
+        "load": 85,
+        "month": "Jan"
       },
       {
         "type": "level",
         "when": "Jan – Feb · TBD",
         "label": "Annual report",
         "note": "Telling our record-year story",
-        "load": 85
+        "load": 85,
+        "month": "Jan"
       },
       {
         "type": "level",
@@ -303,6 +311,7 @@
         "label": "Ramp-down",
         "note": "Closing out the old system",
         "load": 90,
+        "month": "Jan",
         "group": "ERP migration"
       },
       {
@@ -311,6 +320,7 @@
         "label": "Cutover",
         "note": "The big switch-over",
         "load": 100,
+        "month": "Feb",
         "group": "ERP migration"
       },
       {
@@ -319,6 +329,7 @@
         "label": "Ramp-up",
         "note": "Live in the new system",
         "load": 95,
+        "month": "Feb",
         "group": "ERP migration"
       },
       {
@@ -327,6 +338,7 @@
         "label": "Hypercare",
         "note": "Extra support as it settles",
         "load": 75,
+        "month": "Feb",
         "group": "ERP migration"
       },
       {
@@ -334,7 +346,8 @@
         "when": "Spring · TBD",
         "label": "Peak conquered!",
         "note": "Celebrate together",
-        "load": 40
+        "load": 40,
+        "month": "Mar"
       }
     ]
   },

@@ -569,11 +569,20 @@
     }
     function buildRoadmap(s) {
       const R = s.roadmap || {};
-      $('titleblock').innerHTML = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
+      const head = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
+      $('titleblock').innerHTML = R.style === 'road' ? head : `
+        <div class="pk-head">
+          <div>${head}</div>
+          <div class="pk-hud st" style="--i:1" id="pkHud">
+            <div class="pk-hud-k">${esc(R.workloadLabel || 'Workload')}</div>
+            <div class="pk-hud-m"><span class="pk-seg">${'<i></i>'.repeat(5)}</span><b id="pkWord">&nbsp;</b></div>
+            <div class="pk-hud-now" id="pkNow">&nbsp;</div>
+          </div>
+        </div>`;
       $('content').innerHTML = `<div class="card roadmap st" style="--i:0"><div class="road-box" id="road"></div></div>`;
       $('source').textContent = R.source || 'Next few months';
       $('ticker').innerHTML = (R.steps || []).map(st => `<span>${esc(st.label)}: ${esc(st.when || '')}</span>`).join('');
-      requestAnimationFrame(() => drawRoad(R));
+      requestAnimationFrame(() => drawRoadmap(R));
     }
     function drawRoad(R) {
       const box = $('road'), steps = (R && R.steps) || [];
@@ -732,6 +741,244 @@
       if (lens.length) later(startWalk, 1700);
     }
 
+    // ---------- ROADMAP (default style "peak"): the season as a mountain range whose height is the workload ----------
+    // The mountains rise, the camera zooms in and follows a light climbing the ridge from milestone to milestone,
+    // each milestone plants a flag, and the camera pulls back to show the whole range. H skips to the end.
+    let skipRoad = null;
+    const loadBars = v => v >= 90 ? 5 : v >= 75 ? 4 : v >= 55 ? 3 : v >= 35 ? 2 : 1;
+    function drawPeak(R) {
+      const box = $('road'), steps = (R && R.steps) || [];
+      skipRoad = null;
+      if (!box || !steps.length) return;
+      const token = (drawPeak.token = (drawPeak.token || 0) + 1);
+      const W = box.clientWidth, H = box.clientHeight, u = U(), n = steps.length;
+      const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+      const loads = steps.map(st => cl(typeof st.load === 'number' ? st.load : 50, 0, 100));
+      const x0 = u * 5, x1 = W - u * 5, gap = n > 1 ? (x1 - x0) / (n - 1) : 0;
+      const xs = steps.map((_, i) => n > 1 ? x0 + gap * i : W / 2);
+      const lw = Math.max(u * 8, Math.min(u * 12.5, gap * 2 - u * .8));
+      const levels = steps.map((_, i) => steps.slice(0, i + 1).filter(x => (x.type || 'level') === 'level').length);
+      const glyph = (st, i) => st.type === 'start' ? '<b>GO</b>'
+        : st.type === 'rest' ? icon('help:snow')
+        : st.type === 'boss' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21 V3.5 M6 4 H18 L15 8 L18 12 H6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+        : st.type === 'finish' ? icon('help:trophy')
+        : `<b>${levels[i]}</b>`;
+      box.classList.add('pk');
+      box.innerHTML = `
+        <div class="pk-world" id="pkWorld">
+          <svg class="pk-svg" id="pkSvg" viewBox="0 0 ${W} ${H}" aria-hidden="true"></svg>
+          ${steps.map((st, i) => `<div class="pk-pin ${st.type || 'level'}" id="pkPin${i}"><div class="dot">${glyph(st, i)}</div></div>`).join('')}
+          ${steps.map((st, i) => `
+            <div class="pk-lab ${st.type || 'level'}" id="pkLab${i}" style="width:${lw}px;--c:${st.type === 'boss' ? 'var(--gold)' : LANES[i % LANES.length]}">
+              <span class="when">${esc(st.when || '')}</span>
+              <b>${esc(st.label)}</b>
+              ${st.note ? `<span class="snote"><span>${esc(st.note)}</span></span>` : ''}
+            </div>`).join('')}
+          <div class="pk-climber" id="pkClimber"><div class="say" id="say"></div><i></i></div>
+        </div>`;
+
+      // ---- geometry: the labels decide how tall the mountains may be ----
+      const labs = steps.map((_, i) => $('pkLab' + i)), lh = labs.map(l => l.offsetHeight), maxH = Math.max(...lh);
+      const rulerH = u * 2.4, base = H - rulerH, pole = u * 2.2, lgap = u * .6, mR = u * 1.3;
+      const low = base - u * 3.2;
+      const noteH = u * 1.6;   // the note that unfolds on the label in focus
+      const skyTop = Math.min(low - u * 6, u * .6 + noteH + maxH * 2 + lgap + pole + mR + u * 1.4);
+      const yOf = v => low - (v / 100) * (low - skyTop);
+      const curve = smoothCurve(xs, loads);
+      const valAt = x => n < 2 ? loads[0] : x < x0 ? loads[0] * (.5 + .5 * Math.max(0, x) / x0) : x > x1 ? loads[n - 1] * (.5 + .5 * Math.max(0, W - x) / (W - x1)) : curve(x);
+      // rocky detail between milestones (zero at each milestone, so the values stay exact)
+      const detail = x => {
+        if (!gap) return 0;
+        const k = Math.sin(Math.PI * (x - x0) / gap) ** 2, q = x / u;
+        return k * u * ((1 - Math.abs(Math.sin(q * .55))) * 1.5 + (1 - Math.abs(Math.sin(q * 1.6 + 1))) * .6 - .75);
+      };
+      const ridgeY = x => yOf(valAt(x)) - detail(x);
+      const sample = (f, a, b, stepPx) => { const p = []; for (let x = a; x < b; x += stepPx) p.push([x, f(x)]); p.push([b, f(b)]); return p; };
+      const toPath = p => p.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+      const ridge = toPath(sample(ridgeY, 0, W, 3));
+      const area = `${ridge} L${W} ${base} L0 ${base} Z`;
+      const backRidge = (lift, ph, amp) => toPath(sample(x => yOf(cl(valAt(cl(x, 0, W)) * .6 + 30 + amp * Math.sin(x / W * 6.3 + ph) + amp * .5 * Math.sin(x / W * 15 + ph * 2), 0, 100)) - lift, -W * .3, W * 1.3, 8)) + ` L${W * 1.3} ${base} L${-W * .3} ${base} Z`;
+      const summit = loads.indexOf(Math.max(...loads));
+
+      // month bands on the ground, and highlighted stretches such as the ERP migration
+      const runs = key => {
+        const out = [];
+        steps.forEach((st, i) => {
+          const v = st[key]; if (!v) return;
+          const g = out[out.length - 1];
+          if (g && g.label === v && g.last === i - 1) g.last = i; else out.push({ label: v, first: i, last: i });
+        });
+        return out.map(g => ({ ...g, a: Math.max(0, xs[g.first] - gap / 2), b: Math.min(W, xs[g.last] + gap / 2) }));
+      };
+      const months = runs('month'), zones = runs('group');
+
+      // labels float clear of the ridge and the markers beneath them, and stack above a left neighbour they would hit
+      const lefts = xs.map(x => cl(x - lw / 2, u * .3, W - lw - u * .3));
+      const highest = (a, b) => { let m = Infinity; for (let x = a; x <= b; x += 4) m = Math.min(m, ridgeY(x)); return m; };
+      const bottoms = [];
+      steps.forEach((_, i) => {
+        let b = Math.min(ridgeY(xs[i]) - mR - pole, highest(lefts[i], lefts[i] + lw) - u * 1.1);
+        xs.forEach((x, j) => { if (j !== i && x + mR > lefts[i] && x - mR < lefts[i] + lw) b = Math.min(b, ridgeY(x) - mR - u * .6); });
+        const j = i - 1;
+        if (j >= 0 && lefts[i] < lefts[j] + lw + u * .4) {
+          const pb = bottoms[j], pt = pb - lh[j];
+          if (b - lh[i] < pb + lgap && b > pt - lgap) b = pt - lgap;
+        }
+        bottoms.push(Math.max(lh[i] + noteH + u * .4, b));
+      });
+      labs.forEach((l, i) => { l.style.left = lefts[i] + 'px'; l.style.top = bottoms[i] + 'px'; });
+      steps.forEach((_, i) => { const p = $('pkPin' + i).style; p.left = xs[i] + 'px'; p.top = ridgeY(xs[i]) + 'px'; });
+
+      $('pkSvg').innerHTML = `
+        <defs>
+          <linearGradient id="pkBody" x1="0" y1="${skyTop}" x2="0" y2="${base}" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#2a3fd6"/><stop offset=".55" stop-color="#151085"/><stop offset="1" stop-color="#0b0848"/>
+          </linearGradient>
+          <linearGradient id="pkSnow" x1="0" y1="${yOf(100) - u}" x2="0" y2="${yOf(68)}" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="pkLit" x1="0" y1="${yOf(100)}" x2="0" y2="${yOf(20)}" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffc400"/><stop offset=".35" stop-color="#ffe08a"/><stop offset=".6" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
+          </linearGradient>
+          <linearGradient id="pkZone">
+            <stop offset="0" stop-color="#ffc400" stop-opacity="0"/><stop offset=".18" stop-color="#ffc400" stop-opacity=".22"/>
+            <stop offset=".82" stop-color="#ffc400" stop-opacity=".22"/><stop offset="1" stop-color="#ffc400" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="pkGlow"><stop offset="0" stop-color="#ffc400" stop-opacity=".45"/><stop offset="1" stop-color="#ffc400" stop-opacity="0"/></radialGradient>
+          <clipPath id="pkBodyClip"><path d="${area}"/></clipPath>
+          <clipPath id="pkLitClip"><rect id="pkLitRect" x="0" y="0" width="0" height="${H}"/></clipPath>
+        </defs>
+        <circle class="pk-glow" id="pkGlow" cx="${xs[summit]}" cy="${ridgeY(xs[summit])}" r="${u * 16}" fill="url(#pkGlow)"/>
+        <g class="pk-back" id="pkBack">
+          <path class="pk-far" d="${backRidge(u * 1, 1.7, 16)}" style="transform-origin:0 ${base}px"/>
+          <path class="pk-mid" d="${backRidge(-u * 1.5, 4.1, 12)}" style="transform-origin:0 ${base}px"/>
+        </g>
+        <g class="pk-terrain" style="transform-origin:0 ${base}px">
+          <path class="pk-body" d="${area}"/>
+          <path class="pk-snowcap" d="${area}"/>
+          <g clip-path="url(#pkBodyClip)">
+            ${zones.map((z, k) => `<rect class="pk-zone" id="pkZone${k}" x="${z.a}" y="${skyTop - u}" width="${z.b - z.a}" height="${base - skyTop + u}"/>`).join('')}
+          </g>
+          ${zones.map((z, k) => `<text class="pk-zone-t" id="pkZoneT${k}" x="${(z.a + z.b) / 2}" y="${base - u * 1}" font-size="${u * .85}">${esc(z.label.toUpperCase())}</text>`).join('')}
+          <path class="pk-ridge" d="${ridge}"/>
+          <path class="pk-ridge-lit" d="${ridge}" clip-path="url(#pkLitClip)"/>
+        </g>
+        ${steps.map((_, i) => `<line class="pk-pole" id="pkPole${i}" pathLength="1" x1="${xs[i]}" x2="${xs[i]}" y1="${ridgeY(xs[i]) - mR}" y2="${bottoms[i]}"/>`).join('')}
+        <rect class="pk-ground" x="${-W * .3}" y="${base}" width="${W * 1.6}" height="${rulerH + u}"/>
+        ${months.map((m, k) => `
+          <g class="pk-month" id="pkMonth${k}">
+            ${m.first ? `<line x1="${m.a}" x2="${m.a}" y1="${base + u * .4}" y2="${H - u * .4}"/>` : ''}
+            <text x="${(m.a + m.b) / 2}" y="${base + rulerH * .62}" font-size="${u * .8}">${esc(m.label.toUpperCase())}</text>
+          </g>`).join('')}`;
+
+      // ---- camera ----
+      const world = $('pkWorld'), climber = $('pkClimber'), say = $('say'), litRect = $('pkLitRect'), back = $('pkBack');
+      const Z = 1.4;
+      const cam = { x: W / 2, y: H / 2, z: 1 }, aim = { x: W / 2, y: H / 2, z: 1 };
+      const focusY = i => (bottoms[i] - lh[i] - noteH + ridgeY(xs[i]) + mR) / 2;
+      const apply = () => {
+        const z = cam.z, tx = cl(W / 2 - cam.x * z, W - W * z, 0), ty = cl(H / 2 - cam.y * z, H - H * z, 0);
+        world.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${z.toFixed(4)})`;
+        back.setAttribute('transform', `translate(${((cam.x - W / 2) * .3 * (z - 1) / (Z - 1)).toFixed(2)} 0)`);
+      };
+      let lastT = performance.now();
+      const frame = t => {
+        if (token !== drawPeak.token || !world.isConnected) return;
+        const k = 1 - Math.exp(-Math.min(.05, (t - lastT) / 1000) * 3.2);
+        lastT = t;
+        cam.x += (aim.x - cam.x) * k; cam.y += (aim.y - cam.y) * k; cam.z += (aim.z - cam.z) * k;
+        apply();
+        requestAnimationFrame(frame);
+      };
+
+      // ---- workload meter next to the title ----
+      const hudBars = [...document.querySelectorAll('#pkHud .pk-seg i')], hudWord = $('pkWord'), hudNow = $('pkNow');
+      let shownBars = -1;
+      const meter = v => {
+        const b = loadBars(v);
+        if (b === shownBars) return;
+        shownBars = b;
+        hudBars.forEach((el, k) => el.classList.toggle('on', k < b));
+        if (hudWord) { hudWord.textContent = loadWord(v); hudWord.classList.toggle('hot', b === 5); }
+      };
+      const placeClimber = x => {
+        climber.style.transform = `translate(${x}px, ${ridgeY(x)}px)`;
+        litRect.setAttribute('width', Math.max(0, x));
+        meter(valAt(x));
+      };
+
+      // ---- the climb ----
+      const lightGroup = (list, prefix, i) => list.forEach((g, k) => { if (g.first === i) { $(prefix + k).classList.add('on'); const t = $(prefix + 'T' + k); if (t) t.classList.add('on'); } });
+      const reach = i => {
+        const st = steps[i];
+        $('pkPin' + i).classList.add('reached');
+        $('pkPole' + i).classList.add('on');
+        labs.forEach((l, k) => l.classList.toggle('focus', k === i));
+        labs[i].classList.add('on');
+        lightGroup(months, 'pkMonth', i);
+        lightGroup(zones, 'pkZone', i);
+        if (hudNow) hudNow.innerHTML = `<span>${esc(st.when || '')}</span> ${esc(st.label)}`;
+        const line = st.say || SAY[st.type];
+        if (line) { say.textContent = line; say.classList.remove('on'); void say.offsetWidth; say.classList.add('on'); }
+        if (st.type === 'rest') snow.setIntensity(2.6);
+        if (i === summit) $('pkGlow').classList.add('on');
+        if (st.type === 'boss') { $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake'); flashLights(); pulse.spike(1); }
+        else if (st.type === 'finish') { climber.classList.add('arrived'); confetti.burst('cannons'); flashLights(); pulse.spike(1); }
+        else pulse.spike(.6);
+      };
+      const dwell = i => steps[i].type === 'boss' ? 2100 : (steps[i].say || SAY[steps[i].type]) ? 1700 : 1150;
+      const overview = () => {
+        aim.x = W / 2; aim.y = H / 2; aim.z = 1;
+        world.classList.remove('touring');
+        labs.forEach(l => l.classList.remove('focus'));
+        steps.forEach((_, i) => { labs[i].classList.add('on'); $('pkPin' + i).classList.add('reached'); $('pkPole' + i).classList.add('on'); });
+        if (hudNow) hudNow.textContent = R.overview || 'The whole road ahead';
+      };
+      const travel = i => {
+        if (token !== drawPeak.token) return;
+        const a = xs[i], b = xs[i + 1], fa = focusY(i), fb = focusY(i + 1), t0 = performance.now(), dur = 950;
+        if (steps[i].type === 'rest') snow.setIntensity(.8);
+        const step = t => {
+          if (token !== drawPeak.token || !world.isConnected) return;
+          const k = Math.min(1, (t - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          const x = a + (b - a) * e;
+          placeClimber(x);
+          aim.x = x; aim.y = fa + (fb - fa) * e;
+          if (k < 1) return requestAnimationFrame(step);
+          reach(i + 1);
+          if (i + 2 < n) at(() => travel(i + 1), dwell(i + 1));
+          else at(overview, 2300);
+        };
+        requestAnimationFrame(step);
+      };
+      const finish = () => {
+        drawPeak.token++;
+        box.classList.remove('rise');
+        world.classList.add('shown');
+        placeClimber(xs[n - 1]);
+        climber.classList.add('arrived');
+        months.forEach((_, k) => $('pkMonth' + k).classList.add('on'));
+        zones.forEach((_, k) => { $('pkZone' + k).classList.add('on'); $('pkZoneT' + k).classList.add('on'); });
+        $('pkGlow').classList.add('on');
+        cam.x = aim.x = W / 2; cam.y = aim.y = H / 2; cam.z = aim.z = 1;
+        overview(); apply();
+        snow.setIntensity(.8);
+      };
+      skipRoad = finish;
+
+      const at = (fn, ms) => later(() => token === drawPeak.token && fn(), ms);
+      placeClimber(xs[0]);
+      apply();
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return finish();
+      box.classList.add('rise');
+      requestAnimationFrame(frame);
+      at(() => world.classList.add('shown'), 900);
+      at(() => { world.classList.add('touring'); aim.x = xs[0]; aim.y = focusY(0); aim.z = Z; }, 1400);
+      at(() => reach(0), 1900);
+      if (n > 1) at(() => travel(0), 1900 + dwell(0)); else at(overview, 3000);
+    }
+    const drawRoadmap = R => ((R && R.style) === 'road' ? drawRoad : drawPeak)(R || {});
+
     // ---------- FINALE: yes we can! ----------
     function buildFinale(s) {
       const F = s.finale || {};
@@ -795,7 +1042,7 @@
       const k = e.key.toLowerCase();
       if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); control('next'); }
       else if (['arrowleft', 'pageup'].includes(k)) control('prev');
-      else if (k === 'h') control('reveal');
+      else if (k === 'h') { if (latest && latest.stage === 'roadmap') { if (skipRoad) skipRoad(); } else control('reveal'); }
       else if (k === 's') control('snow');
       else if (k === 'u') control('unhide');
       else if (k === 'c') control('clear');
@@ -803,7 +1050,7 @@
     addEventListener('resize', () => {
       if (!latest) return;
       if (latest.stage === 'question') layoutCloud(latest);
-      if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoad(latest.roadmap || {}); }
+      if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoadmap(latest.roadmap); }
     });
     document.fonts && document.fonts.ready.then(() => latest && latest.stage === 'question' && layoutCloud(latest));
 

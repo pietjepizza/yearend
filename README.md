@@ -9,7 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | A winding road with numbered stops. A light travels from today through DR2, Christmas, the year-end close, SOX controls and the annual report to the ERP migration (ramp-down, the cutover as the gold "boss level", ramp-up and hypercare), ending with "Peak conquered!". Underneath, a **workload curve** fills in as the light moves, with a live readout (Calm, Steady, Busy, Very busy, Peak) and an "ERP migration" bracket. |
+| 6 | **The road ahead** | "Peak season, mapped": the season drawn as a mountain range whose height is the workload. Christmas is a valley and the ERP cutover is the summit. The mountains rise, then the camera zooms in and follows a light climbing the ridge. Each milestone (DR2, Christmas, year-end close, SOX controls, annual report, ramp-down, cutover, ramp-up, hypercare) plants a flag with its note, and the cutover summit glows gold. Finally the camera pulls back to show the whole range, with months along the ground and the ERP migration stretch highlighted. A **team workload** meter beside the title follows the climb (Calm, Steady, Busy, Very busy, Peak). Press **H** to skip straight to the full overview. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
@@ -74,7 +74,7 @@ Open the presenter link `/host?key=letmein` on the projector. Phones need to rea
 | --- | --- |
 | → / Space | Next screen (phones follow) |
 | ← | Previous screen |
-| H | Reveal now, or hide again |
+| H | Reveal now, or hide again. On the timeline: skip to the full overview |
 | S | Snow on or off |
 | Click a word | Remove it from the screen |
 | U | Restore removed words |
@@ -116,12 +116,14 @@ Everything is in `questions.json`:
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.
 - **`roadmap.steps`**: the timeline. **The dates are placeholders marked "TBD".** Each step has:
-  - `type`: `start`, `level` (numbered), `rest` (snowflake), `boss` (the gold milestone) or `finish`
-  - `when`, `label` and `note`
-  - `load`: the workload from 0 to 100, which shapes the curve under the road (90 or more reads as "Peak")
-  - `group` (optional): steps in a row with the same group get a bracket under the curve, such as "ERP migration"
+  - `type`: `start`, `level` (numbered), `rest` (snowflake), `boss` (the gold summit flag) or `finish` (trophy)
+  - `when`, `label` and `note`. The note unfolds when the camera reaches the flag.
+  - `load`: the workload from 0 to 100, which sets the height of the mountains (90 or more reads as "Peak")
+  - `month`: the month band along the ground, such as `Jan`
+  - `group` (optional): steps in a row with the same group are highlighted in gold, such as "ERP migration"
   - `say` (optional): a speech bubble when the light reaches the stop
-- **`roadmap.source`** and **`roadmap.workloadLabel`**: the footnote and the label of the workload strip.
+- **`roadmap.style`**: `peak` (the mountain range, the default) or `road` (the earlier winding road with a workload strip).
+- **`roadmap.source`**, **`roadmap.workloadLabel`** and **`roadmap.overview`**: the footnote, the label of the workload meter, and its caption once the whole range is shown.
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
   - `title`, `context` and `wordPrompt`
