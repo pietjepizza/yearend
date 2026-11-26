@@ -22,15 +22,229 @@
     "Audit trail confirms: you were here",
     "Outlook 2027: strong buy"
   ],
+  "show": [
+    {
+      "type": "title",
+      "nav": "Title",
+      "kicker": "Finance Operations",
+      "title": "Year-End All-Hands 2026",
+      "subtitle": "Closing a record year, together",
+      "meta": "[Date] · [Location]"
+    },
+    {
+      "type": "lobby",
+      "nav": "Join"
+    },
+    {
+      "type": "agenda",
+      "nav": "Agenda",
+      "title": "Today's agenda",
+      "items": [
+        {
+          "time": "[10:00]",
+          "title": "Welcome and warm-up",
+          "who": "[Host]",
+          "live": true
+        },
+        {
+          "time": "[10:10]",
+          "title": "2026 in review",
+          "who": "[Speaker]"
+        },
+        {
+          "time": "[10:25]",
+          "title": "Shout-outs",
+          "who": "[Speaker]"
+        },
+        {
+          "time": "[10:35]",
+          "title": "The road ahead: peak season",
+          "who": "[Speaker]",
+          "live": true
+        },
+        {
+          "time": "[10:50]",
+          "title": "Q&A",
+          "who": "Everyone"
+        },
+        {
+          "time": "[11:00]",
+          "title": "Yes we can!",
+          "who": "All of us"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "question": "erp",
+      "nav": "Q1 ERP movie"
+    },
+    {
+      "type": "section",
+      "nav": "01 Review",
+      "number": "01",
+      "title": "2026 in review",
+      "subtitle": "A record year, and how we got there"
+    },
+    {
+      "type": "bullets",
+      "nav": "Highlights",
+      "title": "Highlights of 2026",
+      "subtitle": "[Replace with your own highlights]",
+      "points": [
+        {
+          "icon": "chart:rocket",
+          "title": "Record sales year",
+          "text": "[What made it possible]"
+        },
+        {
+          "icon": "help:target",
+          "title": "[Highlight 2]",
+          "text": "[One line about it]"
+        },
+        {
+          "icon": "help:team",
+          "title": "[Highlight 3]",
+          "text": "[One line about it]"
+        },
+        {
+          "icon": "help:trophy",
+          "title": "[Highlight 4]",
+          "text": "[One line about it]"
+        }
+      ]
+    },
+    {
+      "type": "stats",
+      "nav": "Numbers",
+      "title": "2026 by the numbers",
+      "subtitle": "[Replace XX with the real figures]",
+      "stats": [
+        {
+          "value": "XX",
+          "label": "Invoices processed",
+          "note": "[vs 2025]"
+        },
+        {
+          "value": "XX",
+          "label": "Month-end closes on time",
+          "note": "[out of 12]"
+        },
+        {
+          "value": "XX",
+          "label": "Journal entries booked",
+          "note": "[vs 2025]"
+        },
+        {
+          "value": "XX",
+          "label": "Cups of coffee",
+          "note": "Ahead of forecast"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "question": "energy",
+      "nav": "Q2 Energy"
+    },
+    {
+      "type": "section",
+      "nav": "02 Shout-outs",
+      "number": "02",
+      "title": "Shout-outs",
+      "subtitle": "Thank you for making it happen"
+    },
+    {
+      "type": "shoutouts",
+      "nav": "Thank you",
+      "title": "Thank you!",
+      "subtitle": "[Replace with your own shout-outs]",
+      "people": [
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "nav": "03 Road ahead",
+      "number": "03",
+      "title": "The road ahead",
+      "subtitle": "Peak season: year-end close, annual report, ERP migration"
+    },
+    {
+      "type": "roadmap",
+      "nav": "Timeline"
+    },
+    {
+      "type": "bullets",
+      "nav": "Peak plan",
+      "title": "How we'll get through the peak",
+      "subtitle": "[Replace with your plan]",
+      "points": [
+        {
+          "icon": "help:target",
+          "title": "Clear priorities",
+          "text": "[What comes first, what can wait]"
+        },
+        {
+          "icon": "help:focus",
+          "title": "Protected focus time",
+          "text": "[e.g. meeting-free mornings during the close]"
+        },
+        {
+          "icon": "help:team",
+          "title": "Backing each other up",
+          "text": "[Buddy system or coverage plan]"
+        },
+        {
+          "icon": "help:snow",
+          "title": "A real holiday break",
+          "text": "[Holiday coverage plan]"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "question": "weather",
+      "nav": "Q3 Weather"
+    },
+    {
+      "type": "recap",
+      "nav": "Recap"
+    },
+    {
+      "type": "qa",
+      "nav": "Q&A",
+      "title": "Questions?",
+      "subtitle": "Ask anything. No question is too small, or too big."
+    },
+    {
+      "type": "finale",
+      "nav": "Finale"
+    }
+  ],
   "lobby": {
     "title": "Peak Season Pulse",
     "intro": "Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"
   },
-  "outro": [
-    "recap",
-    "roadmap",
-    "finale"
-  ],
   "recap": {
     "title": "Thank you for your honesty!",
     "subtitle": "Here's what you told us, and what we'll do with it."
@@ -88,6 +302,7 @@
   },
   "questions": [
     {
+      "id": "erp",
       "title": "If the ERP migration were a movie, which one would it be?",
       "wordPrompt": "Your movie tagline in one word (optional)",
       "takeaways": [
@@ -151,6 +366,7 @@
       }
     },
     {
+      "id": "energy",
       "title": "How charged are you for peak season?",
       "context": "Year-end close · annual report · ERP migration",
       "wordPrompt": "What keeps you going? (one word, optional)",
@@ -223,6 +439,7 @@
       "meterLabel": "Team energy"
     },
     {
+      "id": "weather",
       "title": "What's the weather forecast for January?",
       "context": "Your outlook for the start of 2027",
       "wordPrompt": "What will you bring? (one word, optional)",

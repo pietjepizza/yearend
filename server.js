@@ -14,7 +14,8 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
 const QUESTIONS = CONFIG.questions;
 const REACTIONS = CONFIG.reactions || ['👏', '🎉', '🔥', '💙', '😂', '🚀'];
-const LOBBY = -1, SUMMARY = QUESTIONS.length, LAST = Core.lastIndex(CONFIG);
+const LAST = Core.lastIndex(CONFIG);
+const qiNow = () => Core.qiAt(CONFIG, state.current);
 
 function lanAddress() {
   for (const list of Object.values(os.networkInterfaces())) {
@@ -26,11 +27,12 @@ const PUBLIC_URL = (process.env.PUBLIC_URL || `http://${lanAddress()}:${PORT}`).
 
 // ---- state -------------------------------------------------------------
 // responses[questionIndex] = { anonymousDeviceToken: { option, word, ts } }. No names are collected.
-const fresh = () => ({ current: LOBBY, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [] });
+const fresh = () => ({ current: 0, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [] });
 let state = fresh();
 try { state = { ...state, ...JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) }; } catch {}
 for (const r of Object.values(state.responses)) for (const a of Object.values(r || {})) delete a.name;
 state.revealedQ ||= {};
+state.current = Math.max(0, Math.min(LAST, Number(state.current) || 0));
 let saveTimer;
 function save() {
   clearTimeout(saveTimer);
@@ -100,7 +102,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && p === '/api/state') {
     const s = publicState();
     const me = url.searchParams.get('id');
-    s.mine = me && s.stage === 'question' ? (state.responses[state.current] || {})[me] || null : null;
+    s.mine = me && s.stage === 'question' ? (state.responses[s.qi] || {})[me] || null : null;
     return json(res, 200, s);
   }
 
@@ -120,11 +122,12 @@ const server = http.createServer(async (req, res) => {
     try { b = await readBody(req); } catch { return json(res, 400, { error: 'bad json' }); }
     const id = Core.clean(b.id, 64);
     if (!id) return json(res, 400, { error: 'missing id' });
-    if (Number(b.index) !== state.current || state.current < 0 || state.current >= SUMMARY) return json(res, 409, { error: 'question changed' });
-    const q = QUESTIONS[state.current];
+    const qi = qiNow();
+    if (Number(b.index) !== state.current || qi < 0) return json(res, 409, { error: 'question changed' });
+    const q = QUESTIONS[qi];
     if (!q.options.some(o => o.id === b.option)) return json(res, 400, { error: 'unknown option' });
     const answer = { option: b.option, word: Core.clean(b.word, 24), ts: Date.now() };
-    (state.responses[state.current] ||= {})[id] = answer;
+    (state.responses[qi] ||= {})[id] = answer;
     save();
     send(toHosts, publicState({ pop: answer.option }));
     return json(res, 200, { ok: true });
@@ -146,10 +149,11 @@ const server = http.createServer(async (req, res) => {
     if (url.searchParams.get('key') !== HOST_KEY) return json(res, 403, { error: 'wrong host key' });
     const action = p.slice('/api/host/'.length);
     if (action === 'next') Core.enter(CONFIG, state, Math.min(state.current + 1, LAST));
-    else if (action === 'prev') Core.enter(CONFIG, state, Math.max(state.current - 1, LOBBY));
-    else if (action === 'reveal') { state.revealedQ[state.current] = true; state.timerEnd = 0; }
-    else if (action === 'conceal') { delete state.revealedQ[state.current]; state.timerEnd = 0; }
-    else if (action === 'clear') { delete state.responses[state.current]; delete state.revealedQ[state.current]; Core.enter(CONFIG, state, state.current); }
+    else if (action === 'prev') Core.enter(CONFIG, state, Math.max(state.current - 1, 0));
+    else if (action === 'goto') Core.enter(CONFIG, state, Number(url.searchParams.get('word')));
+    else if (action === 'reveal') { if (qiNow() >= 0) state.revealedQ[qiNow()] = true; state.timerEnd = 0; }
+    else if (action === 'conceal') { delete state.revealedQ[qiNow()]; state.timerEnd = 0; }
+    else if (action === 'clear') { if (qiNow() >= 0) { delete state.responses[qiNow()]; delete state.revealedQ[qiNow()]; Core.enter(CONFIG, state, state.current); } }
     else if (action === 'hide') { const w = Core.norm(url.searchParams.get('word')); if (w && !state.hidden.includes(w)) state.hidden.push(w); }
     else if (action === 'unhide') state.hidden = [];
     else if (action === 'reset') state = fresh();

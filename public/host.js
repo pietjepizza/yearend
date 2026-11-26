@@ -106,14 +106,14 @@
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = holidayChip(s.holidayDate);
-      const label = s.stage === 'question' ? `Q${s.index + 1} of ${s.total}` : LABELS[s.stage] || '';
-      $('pager').textContent = label;
+      const label = s.stage === 'question' ? `Q${s.qi + 1} of ${s.total}` : s.nav || LABELS[s.stage] || '';
+      $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
       $('ctlReveal').hidden = s.stage !== 'question';
       $('ctlReveal').textContent = s.revealed ? 'Hide results' : 'Reveal now';
       if (meta.pop) { pulse.spike(1); flashLights(); }
 
-      const v = s.stage === 'question' ? 'q' + s.index : s.stage;
+      const v = s.stage === 'question' || s.stage === 'slide' ? s.stage + s.index : s.stage;
       if (v !== view) {
         const first = view === null;
         view = v;
@@ -133,9 +133,10 @@
       stopTimer(); fireworks.stop();
       $('deck').dataset.stage = s.stage;
       $('ticker').innerHTML = '';
-      const builders = { lobby: buildLobby, question: buildQuestion, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
+      const builders = { lobby: buildLobby, question: buildQuestion, slide: buildSlide, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
       (builders[s.stage] || buildLobby)(s);
-      snow.setIntensity({ lobby: 1, question: .4, recap: 1, roadmap: .8, finale: 1.8 }[s.stage] ?? 1);
+      $('deck').dataset.layout = s.stage === 'slide' ? s.slide.type : '';
+      snow.setIntensity({ lobby: 1, question: .4, slide: .6, recap: 1, roadmap: .8, finale: 1.8 }[s.stage] ?? 1);
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
@@ -202,7 +203,7 @@
       const q = s.question, scored = q.options.some(o => typeof o.score === 'number');
       $('titleblock').innerHTML = `
         <div class="qrow">
-          <div class="qbadge"><b>Q${s.index + 1}</b><span>of ${s.total}</span></div>
+          <div class="qbadge"><b>Q${s.qi + 1}</b><span>of ${s.total}</span></div>
           <div class="qtext"><h1 id="qtitle">${esc(q.title)}</h1>${q.context ? `<div class="ctx">${esc(q.context)}</div>` : ''}</div>
           <div class="timer" id="timer" hidden>
             <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="t-bg" cx="50" cy="50" r="42"/><circle class="t-fg" id="tfg" cx="50" cy="50" r="42" pathLength="100"/></svg>
@@ -425,6 +426,87 @@
         Object.assign(rec.el.style, { opacity: '', fontSize: fs + 'px', transform: `translate(${pos.x}px,${pos.y}px)` });
       });
       for (const [w, rec] of cloudEls) if (!seen.has(w)) { rec.el.remove(); cloudEls.delete(w); }
+    }
+
+    // ---------- SLIDES: the rest of the all-hands deck ----------
+    // Layouts: title, agenda, section, bullets, stats, shoutouts, quote, qa. Text in [brackets] is a placeholder.
+    const ph = t => esc(t).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>');
+    function buildSlide(s) {
+      const sl = s.slide || {}, T2 = $('titleblock'), C = $('content');
+      const head = () => `${bouncy(sl.title || '', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}`;
+      const jokes = s.ticker || [];
+      $('ticker').innerHTML = jokes.map(j => `<span class="joke">${esc(j)}</span>`).join('');
+      $('source').textContent = s.team;
+      if (sl.type === 'title') {
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="s-title">
+          ${sl.kicker ? `<div class="s-kicker">${ph(sl.kicker)}</div>` : ''}
+          ${bouncy(sl.title || '', 'xl')}
+          ${sl.subtitle ? `<p class="s-sub">${ph(sl.subtitle)}</p>` : ''}
+          ${sl.meta ? `<div class="s-meta">${ph(sl.meta)}</div>` : ''}
+        </div>`;
+      } else if (sl.type === 'section') {
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="s-section">
+          <div class="s-num">${esc(sl.number || '')}</div>
+          <div class="s-sec-text">${bouncy(sl.title || '', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}</div>
+          <div class="s-beam"></div>
+        </div>`;
+      } else if (sl.type === 'agenda') {
+        T2.innerHTML = head();
+        C.innerHTML = `<div class="card s-agenda st" style="--i:0"><ol>${(sl.items || []).map((it, k) => `
+          <li style="--k:${k}"><span class="time">${ph(it.time || '')}</span><span class="what"><b>${ph(it.title || '')}</b>${it.who ? `<small>${ph(it.who)}</small>` : ''}</span>${it.live ? '<span class="live-tag">Live poll</span>' : ''}</li>`).join('')}</ol></div>`;
+      } else if (sl.type === 'bullets') {
+        T2.innerHTML = head();
+        const pts = sl.points || [];
+        C.innerHTML = `<div class="s-points" style="--n:${pts.length}">${pts.map((pt, k) => `
+          <div class="card s-point" style="--k:${k};--c:${LANES[k % LANES.length]}">
+            ${pt.icon ? `<div class="s-ico">${orbIcon(LANES[k % LANES.length], pt.icon)}</div>` : ''}
+            <b>${ph(pt.title || '')}</b>${pt.text ? `<p>${ph(pt.text)}</p>` : ''}
+          </div>`).join('')}</div>`;
+      } else if (sl.type === 'stats') {
+        T2.innerHTML = head();
+        const st = sl.stats || [];
+        C.innerHTML = `<div class="s-stats" style="--n:${st.length}">${st.map((x, k) => `
+          <div class="card s-stat" style="--k:${k};--c:${LANES[k % LANES.length]}">
+            <div class="s-val" data-val="${esc(x.value || '')}">${ph(x.value || '')}</div>
+            <div class="s-lab">${ph(x.label || '')}</div>
+            ${x.note ? `<div class="s-note">${ph(x.note)}</div>` : ''}
+          </div>`).join('')}</div>`;
+        // count up numeric values; placeholders such as "XX" stay as they are
+        later(() => C.querySelectorAll('.s-val').forEach((el, k) => {
+          const raw = el.dataset.val, m = raw.match(/^([^\d-]*)(-?[\d.,]+)(.*)$/);
+          if (!m) return;
+          const num = parseFloat(m[2].replace(/,/g, '')), dec = (m[2].split('.')[1] || '').length;
+          if (!isFinite(num)) return;
+          el.dataset.v = 0;
+          setTimeout(() => FX.tween(el, num, v => m[1] + v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + m[3], 1400), k * 250);
+        }), 500);
+      } else if (sl.type === 'shoutouts') {
+        T2.innerHTML = head();
+        const people = sl.people || [];
+        C.innerHTML = `<div class="s-shouts" style="--n:${people.length}">${people.map((p, k) => {
+          const ini = String(p.name || '?').replace(/[\[\]]/g, '').split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase() || '★';
+          return `<div class="card s-shout" style="--k:${k}">
+            <div class="s-avatar">${CROWN}${orbText(LANES[k % LANES.length], ini)}</div>
+            <b>${ph(p.name || '')}</b>${p.team ? `<span class="s-team">${ph(p.team)}</span>` : ''}
+            ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
+          </div>`;
+        }).join('')}</div>`;
+      } else if (sl.type === 'quote') {
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="s-quote"><div class="s-qmark">“</div><blockquote>${ph(sl.quote || '')}</blockquote>${sl.by ? `<div class="s-by">${ph(sl.by)}</div>` : ''}</div>`;
+      } else if (sl.type === 'qa') {
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="s-qa">
+          <div class="s-qa-orbs">${[0, 1, 2, 3, 4].map(k => `<span style="--k:${k}">${orb(LANES[k % LANES.length])}</span>`).join('')}</div>
+          ${bouncy(sl.title || 'Questions?', 'xl')}
+          ${sl.subtitle ? `<p class="s-sub">${ph(sl.subtitle)}</p>` : ''}
+        </div>`;
+      } else {
+        T2.innerHTML = head();
+        C.innerHTML = sl.text ? `<div class="card st" style="--i:0"><p class="s-text">${ph(sl.text)}</p></div>` : '';
+      }
     }
 
     // ---------- RECAP: thank you + what we'll do ----------

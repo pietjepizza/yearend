@@ -43,6 +43,9 @@
   .panel button:hover { background: rgba(255, 255, 255, .18); }
   .panel button:active { transform: scale(.97); }
   .screens button { font-family: var(--display); }
+  .screens button small { font-family: var(--body); font-size: 10px; color: var(--fg-3); margin-right: 6px; }
+  .screens button.k-question { border-color: rgba(95, 184, 255, .55); }
+  .screens button.k-question::after { content: ' ●'; color: var(--sky); font-size: 9px; vertical-align: 2px; }
   .screens button.on { background: var(--blue); border-color: var(--sky); box-shadow: 0 0 14px rgba(95, 184, 255, .45); }
   .panel button.primary { background: var(--sky); color: #05042a; border-color: transparent; }
   .panel button.primary.on { background: var(--gold); }
@@ -89,7 +92,7 @@
 
       <div class="panel">
         <div class="group">
-          <div class="label">Ga naar scherm</div>
+          <div class="label">Ga naar scherm <span style="text-transform:none;letter-spacing:0;font-weight:500">(● = live poll)</span></div>
           <div class="screens" id="screens"></div>
         </div>
         <div class="row">
@@ -174,7 +177,8 @@
   }, 100);
 
   function init() {
-    $('screens').innerHTML = api.stages().map(st => `<button data-i="${st.i}" title="${(st.title || st.label).replace(/"/g, '&quot;')}">${st.label}</button>`).join('');
+    const esc = t => String(t || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    $('screens').innerHTML = api.stages().map(st => `<button data-i="${st.i}" class="k-${st.kind}" title="${esc(st.title || st.label)}"><small>${st.i + 1}</small>${esc(st.label)}</button>`).join('');
     $('screens').onclick = e => { const b = e.target.closest('button'); if (b) api.goto(Number(b.dataset.i)); };
     $('reacts').innerHTML = api.reactions.map(r => `<button aria-label="Stuur ${r}">${r}</button>`).join('');
     $('reacts').onclick = e => {
@@ -187,7 +191,7 @@
   const LABEL = { lobby: 'Lobby', recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' };
   function render(s) {
     state = s;
-    const where = s.stage === 'question' ? `Vraag ${s.index + 1} van ${s.total}` : LABEL[s.stage] || s.stage;
+    const where = s.stage === 'question' ? `Vraag ${s.qi + 1} van ${s.total}` : `Scherm ${s.index + 1}/${s.stepCount}: ${s.nav || LABEL[s.stage] || s.stage}`;
     const bits = [where];
     if (s.stage === 'question') bits.push(s.revealed ? 'onthuld' : 'stemmen loopt', `${s.stats.n} stemmen`);
     bits.push(`${s.connected || 0} spelers verbonden`);

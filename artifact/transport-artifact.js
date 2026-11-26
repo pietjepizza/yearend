@@ -9,6 +9,7 @@
     const sfx = opts.slot ? '-' + opts.slot : '';   // separate identities for several phones in one browser (simulator)
     const Core = root.PulseCore;
     const S = config.questions.length, LAST = Core.lastIndex(config);
+    const qiNow = () => Core.qiAt(config, control.current);
     const store = {
       get(k) { try { return localStorage.getItem(k); } catch { return null; } },
       set(k, v) { try { localStorage.setItem(k, v); } catch {} },
@@ -23,7 +24,7 @@
     if (!me) { me = Core.makePlayer(); store.set('mp-player' + sfx, JSON.stringify(me)); }
     me = Core.cleanPlayer(me);
 
-    const DEFAULT = { current: -1, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
+    const DEFAULT = { current: 0, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
     let control = { ...DEFAULT };
     let votes = {};                // token -> { epoch, answers: { [qi]: { option, word, ts } } }
     let phonesHere = 0, roomPlayers = [], localPhones = new Map();
@@ -75,13 +76,13 @@
     function act(a, word) {
       const c = { ...control, hidden: [...(control.hidden || [])], cleared: { ...(control.cleared || {}) }, revealedQ: { ...(control.revealedQ || {}) } };
       if (a === 'next') Core.enter(config, c, Math.min(c.current + 1, LAST));
-      else if (a === 'prev') Core.enter(config, c, Math.max(c.current - 1, -1));
-      else if (a === 'goto') Core.enter(config, c, Math.max(-1, Math.min(LAST, Number(word) || 0)));
-      else if (a === 'reveal') { c.revealedQ[c.current] = true; c.timerEnd = 0; }
-      else if (a === 'conceal') { delete c.revealedQ[c.current]; c.timerEnd = 0; }
+      else if (a === 'prev') Core.enter(config, c, Math.max(c.current - 1, 0));
+      else if (a === 'goto') Core.enter(config, c, Number(word) || 0);
+      else if (a === 'reveal') { const qi = Core.qiAt(config, c.current); if (qi >= 0) c.revealedQ[qi] = true; c.timerEnd = 0; }
+      else if (a === 'conceal') { delete c.revealedQ[Core.qiAt(config, c.current)]; c.timerEnd = 0; }
       else if (a === 'hide') { const w = Core.norm(word); if (w && !c.hidden.includes(w)) c.hidden.push(w); }
       else if (a === 'unhide') c.hidden = [];
-      else if (a === 'clear') { c.cleared[c.current] = Date.now(); delete c.revealedQ[c.current]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[c.current]; }
+      else if (a === 'clear') { const qi = Core.qiAt(config, c.current); if (qi < 0) return; c.cleared[qi] = Date.now(); delete c.revealedQ[qi]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[qi]; }
       else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
       else return;
       c.rev = (control.rev || 0) + 1;
@@ -92,9 +93,10 @@
 
     // ---------- phone actions ----------
     async function vote(index, option, word) {
-      if (index !== control.current || index < 0 || index >= S) return 'moved';
+      const qi = qiNow();
+      if (index !== control.current || qi < 0) return 'moved';
       if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
-      mine.answers[index] = { option, word: Core.clean(word, 24), ts: Date.now() };
+      mine.answers[qi] = { option, word: Core.clean(word, 24), ts: Date.now() };
       store.set('mp-mine' + sfx, JSON.stringify(mine));
       const body = { epoch: mine.epoch, answers: mine.answers };
       if (db) {
@@ -110,7 +112,8 @@
     }
     function getState() {
       const s = publicState();
-      s.mine = s.stage === 'question' && mine.epoch === control.epoch ? (mine.answers[control.current] && mine.answers[control.current].ts > ((control.cleared || {})[control.current] || 0) ? mine.answers[control.current] : null) : null;
+      const qi = s.qi, a = mine.answers[qi];
+      s.mine = s.stage === 'question' && mine.epoch === control.epoch && a && a.ts > ((control.cleared || {})[qi] || 0) ? a : null;
       return Promise.resolve(s);
     }
 
@@ -119,7 +122,7 @@
       if (!m || typeof m !== 'object') return;
       if (role === 'host') {
         if (m.t === 'vote' && !db && m.v && typeof m.token === 'string') {
-          const prev = votes[m.token], a = m.v.answers && m.v.answers[control.current], pa = prev && prev.answers && prev.answers[control.current];
+          const prev = votes[m.token], a = m.v.answers && m.v.answers[qiNow()], pa = prev && prev.answers && prev.answers[qiNow()];
           votes[m.token] = m.v;
           emit(a && (!pa || pa.ts !== a.ts) ? { pop: a.option } : {});
         }
@@ -163,7 +166,7 @@
               if (ch.type === 'removed') { delete votes[ch.doc.id]; continue; }
               const d = ch.doc.data(), prev = votes[ch.doc.id];
               votes[ch.doc.id] = d;
-              const a = d && d.answers && d.answers[control.current], pa = prev && prev.answers && prev.answers[control.current];
+              const a = d && d.answers && d.answers[qiNow()], pa = prev && prev.answers && prev.answers[qiNow()];
               if (a && d.epoch === control.epoch && (!pa || pa.ts !== a.ts)) pop = a.option;
             }
             emit(pop && !first ? { pop } : {});
@@ -198,8 +201,8 @@
     function simTick() {
       if (!sim) return;
       if (sim.connected < sim.target && Math.random() < .7) { sim.connected += Math.random() < .3 ? 2 : 1; emit(); }
-      const qi = control.current;
-      if (qi >= 0 && qi < S && Math.random() < .62) {
+      const qi = qiNow(), stage = Core.steps(config)[Math.max(0, Math.min(LAST, control.current))].kind;
+      if (qi >= 0 && Math.random() < .62) {
         const q = config.questions[qi];
         const open = [];
         for (let k = 0; k < sim.connected; k++) if (!(sim.answers['bot' + k] || {})[qi]) open.push(k);
@@ -210,8 +213,9 @@
           emit({ pop: option });
         }
       }
-      if (Math.random() < (qi >= S ? .5 : .14)) {
-        const n = 1 + ((Math.random() * (qi >= S ? 4 : 2)) | 0);
+      const party = stage === 'finale' || stage === 'recap';
+      if (Math.random() < (party ? .5 : qi >= 0 ? .14 : .08)) {
+        const n = 1 + ((Math.random() * (party ? 4 : 2)) | 0);
         for (let i = 0; i < n; i++) setTimeout(() => subs.react.forEach(f => f(config.reactions[(Math.random() * config.reactions.length) | 0])), i * 140);
       }
     }

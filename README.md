@@ -71,6 +71,26 @@ Open the presenter link `/host?key=letmein` on the projector. Phones need to rea
 | `HOST_KEY` | random (printed at startup) | Required to control the screen |
 | `DATA_FILE` | `./data.json` | Saved answers |
 
+## The full all-hands deck
+
+The whole meeting runs from this app. `show` in `questions.json` is the running order: every slide, poll and special screen, in sequence. The phones follow along. On ordinary slides they show "Look up!" and people can still send reactions.
+
+| `type` | What it shows | Main fields |
+| --- | --- | --- |
+| `title` | Opening slide | `kicker`, `title`, `subtitle`, `meta` |
+| `lobby` | QR code and players joining | – |
+| `agenda` | Running order (`live: true` marks the live polls) | `title`, `items[{time, title, who, live}]` |
+| `section` | Big numbered divider | `number`, `title`, `subtitle` |
+| `bullets` | Icon cards that build in one by one | `title`, `subtitle`, `points[{icon, title, text}]` |
+| `stats` | Figures that count up | `title`, `subtitle`, `stats[{value, label, note}]` |
+| `shoutouts` | Thank-you cards | `title`, `subtitle`, `people[{name, team, reason}]` |
+| `quote` | A big quote | `quote`, `by` |
+| `qa` | Questions slide | `title`, `subtitle` |
+| `question` | A live poll, by its `id` | `question` |
+| `recap`, `roadmap`, `finale` | The special screens | – |
+
+Every step can have a short `nav` label, which shows in the presenter controls and on the simulator buttons. Text in `[brackets]` is highlighted on screen as a placeholder until you replace it, and "XX" marks figures still to fill in.
+
 ## Edit the content
 
 Everything is in `questions.json`:

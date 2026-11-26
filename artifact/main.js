@@ -22,8 +22,8 @@
       react: r => T.simReact(r),
       setTimer: sec => { config.timer = sec; config.questions.forEach(q => delete q.timer); },
       onState: cb => T.subscribe(cb),
-      stages: () => [{ i: -1, label: 'Lobby' }, ...config.questions.map((q, i) => ({ i, label: 'Q' + (i + 1), title: q.title })),
-        ...(config.outro || ['recap', 'roadmap', 'finale']).map((st, k) => ({ i: config.questions.length + k, label: { recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' }[st] || st }))],
+      stages: () => PulseCore.steps(config).map((st, i) => ({ i, kind: st.kind, label: PulseCore.navLabel(config, st),
+        title: st.kind === 'question' ? config.questions[st.qi].title : st.kind === 'slide' ? st.slide.title : '' })),
       reactions: config.reactions,
     };
   }

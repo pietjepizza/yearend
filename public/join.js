@@ -50,8 +50,8 @@
 
       <section id="wrap" class="done" hidden>
         <div class="hero" id="heroWrap"></div>
-        <h2>Look up!</h2>
-        <p>The results and the road ahead are on the big screen now. Thanks for playing!</p>
+        <h2 id="wrapTitle">Look up!</h2>
+        <p id="wrapText">The results and the road ahead are on the big screen now. Thanks for playing!</p>
         <div class="react">
           <div class="react-h">Give the team some love</div>
           <div class="react-s">Tap as often as you like</div>
@@ -157,11 +157,19 @@
       timer(s.stage === 'question' && !s.revealed ? s.timeLeft : 0, s.timerTotal);
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
       if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
-      if (s.stage !== 'question') { $('step').textContent = 'Done!'; return show('wrap'); }
+      if (s.stage !== 'question') {
+        const sl = s.stage === 'slide' ? s.slide || {} : null;
+        $('step').textContent = sl ? `${s.index + 1} / ${s.stepCount}` : 'Done!';
+        $('wrapTitle').textContent = 'Look up!';
+        $('wrapText').textContent = sl ? `On screen now: ${String(sl.title || s.nav || '').replace(/[\[\]]/g, '')}. The next poll pops up here by itself.` : 'The results and the road ahead are on the big screen now. Thanks for playing!';
+        if (shown === 'wrap' && sl && $('wrap').dataset.k !== String(s.index)) { shown = null; }
+        $('wrap').dataset.k = s.index;
+        return show('wrap');
+      }
 
       const q = s.question;
-      $('step').textContent = `Q${s.index + 1} of ${steps}`;
-      $('qk').textContent = `Question ${s.index + 1}`;
+      $('step').textContent = `Q${s.qi + 1} of ${steps}`;
+      $('qk').textContent = `Question ${s.qi + 1}`;
       $('qt').textContent = q.title;
       $('qctx').hidden = !q.context; $('qctx').textContent = q.context || '';
       $('wordLabel').textContent = q.wordPrompt || 'One word (optional)';

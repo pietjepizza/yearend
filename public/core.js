@@ -1,7 +1,7 @@
 // Shared survey logic, used by the Node server and by the browser-only demo.
 // state = { current, revealedQ: { [questionIndex]: true }, timerEnd, hidden: [word],
 //           responses: { [questionIndex]: { [anonToken]: { option, word, ts } } } }
-// current: -1 = lobby, 0..n-1 = questions, then the outro screens (recap, roadmap, finale by default).
+// current: a position in the running order (see steps()).
 (function (root, factory) {
   const core = factory();
   if (typeof module === 'object' && module.exports) module.exports = core;
@@ -68,26 +68,51 @@
       .sort((a, b) => b.ts - a.ts).slice(0, max).map(a => a.word);
   }
 
-  const outro = config => config.outro || ['recap', 'roadmap', 'finale'];
-  const lastIndex = config => config.questions.length + outro(config).length - 1;
+  // The running order. config.show lists every screen of the all-hands (slides, polls, recap, roadmap,
+  // finale). Without it: lobby, then each question, then the outro screens.
+  // state.current is a position in this list; answers, reveals and clears are keyed by question index (qi).
+  const SPECIAL = ['lobby', 'recap', 'roadmap', 'finale'];
+  const cache = new WeakMap();
+  function steps(config) {
+    if (cache.has(config)) return cache.get(config);
+    const Q = config.questions;
+    const byId = {};
+    Q.forEach((q, i) => { byId[q.id || String(i)] = i; });
+    const list = Array.isArray(config.show)
+      ? config.show.map(st => st.type === 'question' ? { kind: 'question', qi: st.question in byId ? byId[st.question] : Number(st.question), nav: st.nav }
+        : SPECIAL.includes(st.type) ? { kind: st.type, nav: st.nav }
+        : { kind: 'slide', slide: st, nav: st.nav })
+      : [{ kind: 'lobby' }, ...Q.map((q, i) => ({ kind: 'question', qi: i })), ...(config.outro || ['recap', 'roadmap', 'finale']).map(k => ({ kind: k }))];
+    const out = list.filter(st => st.kind !== 'question' || Q[st.qi]);
+    cache.set(config, out);
+    return out;
+  }
+  const lastIndex = config => steps(config).length - 1;
+  const clampIndex = (config, i) => Math.max(0, Math.min(lastIndex(config), Number(i) || 0));
+  const stepAt = (config, i) => steps(config)[clampIndex(config, i)];
+  const qiAt = (config, i) => { const st = stepAt(config, i); return st && st.kind === 'question' ? st.qi : -1; };
+  const navLabel = (config, st) => st.nav || (st.kind === 'question' ? 'Q' + (st.qi + 1)
+    : st.kind === 'slide' ? (st.slide.title || st.slide.type) : { lobby: 'Lobby', recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' }[st.kind]);
 
   // Timer: entering an unrevealed question starts a countdown (state.timerEnd); revealedQ marks revealed questions.
   const timerMs = (config, q) => 1000 * (q && q.timer != null ? q.timer : (config.timer || 0));
   function enter(config, state, index, now = Date.now()) {
-    state.current = index;
-    const q = config.questions[index];
-    const revealed = !!(state.revealedQ || {})[index];
+    state.current = clampIndex(config, index);
+    const qi = qiAt(config, state.current), q = config.questions[qi];
+    const revealed = !!(state.revealedQ || {})[qi];
     state.timerEnd = q && !revealed && timerMs(config, q) ? now + timerMs(config, q) : 0;
   }
 
   function publicState(config, state, extra = {}) {
-    const Q = config.questions;
+    const Q = config.questions, S = steps(config);
     const now = extra.now || Date.now();
-    const q = Q[state.current];
-    const revealed = !q || !!(state.revealedQ || {})[state.current];
+    const index = clampIndex(config, state.current);
+    const step = S[index], qi = step.kind === 'question' ? step.qi : -1, q = Q[qi];
+    const revealed = !q || !!(state.revealedQ || {})[qi];
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate,
-      reactions: config.reactions, ticker: config.ticker || [], index: state.current, total: Q.length,
+      reactions: config.reactions, ticker: config.ticker || [],
+      index, qi, total: Q.length, stepCount: S.length, nav: navLabel(config, step),
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
@@ -95,18 +120,18 @@
     };
     delete base.now;
     const participants = new Set(Object.values(state.responses || {}).flatMap(r => Object.keys(r || {}))).size;
-    if (state.current < 0) return { ...base, stage: 'lobby', lobby: config.lobby, participants };
-    if (state.current >= Q.length) {
-      const stage = outro(config)[Math.min(state.current - Q.length, outro(config).length - 1)];
+    if (step.kind === 'lobby') return { ...base, stage: 'lobby', lobby: config.lobby, participants };
+    if (step.kind === 'slide') return { ...base, stage: 'slide', slide: step.slide, participants };
+    if (step.kind !== 'question') {
       const items = Q.map((q, i) => ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) }));
-      return { ...base, stage, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
+      return { ...base, stage: step.kind, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
     }
     return {
       ...base, stage: 'question', question: q,
-      ...analyse(q, state.responses[state.current], state.hidden),
-      recent: recentWords(state.responses[state.current], state.hidden),
+      ...analyse(q, state.responses[qi], state.hidden),
+      recent: recentWords(state.responses[qi], state.hidden),
     };
   }
 
-  return { norm, clean, analyse, publicState, enter, lastIndex, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
+  return { norm, clean, analyse, publicState, enter, steps, lastIndex, qiAt, navLabel, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
 });
