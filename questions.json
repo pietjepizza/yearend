@@ -2,6 +2,11 @@
   "team": "Finance Operations",
   "event": "Year-End All-Hands 2026",
   "holidayDate": "2026-12-24",
+  "countdown": {
+    "date": "2027-01-04",
+    "label": "year-end close",
+    "after": "Year-end close: we've got this!"
+  },
   "timer": 25,
   "reactions": [
     "👏",

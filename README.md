@@ -112,6 +112,7 @@ Every step can have a short `nav` label, which shows in the presenter controls a
 
 Everything is in `questions.json`:
 
+- **`countdown`**: the chip at the top right, counting the days to `date` (now the year-end close on Monday 4 January 2027) with its `label`. `after` is the text once the date has passed.
 - **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.

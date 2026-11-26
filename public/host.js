@@ -83,12 +83,16 @@
     }
     function flashLights() { const l = $('lights'); l.classList.remove('flash'); void l.offsetWidth; l.classList.add('flash'); }
 
-    function holidayChip(dateStr) {
-      if (!dateStr) return '';
+    // The countdown chip in the top bar: days to the date in config.countdown (falls back to the holiday break).
+    const CAL = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10 H20.5 M8 3 V7 M16 3 V7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="7" y="13" width="4" height="4" rx="1" fill="currentColor"/></svg>';
+    function countdownChip(s) {
+      const c = s.countdown || (s.holidayDate ? { date: s.holidayDate, label: 'the holiday break' } : null);
+      if (!c || !c.date) return '';
       const today = new Date(); today.setHours(0, 0, 0, 0);
-      const d = Math.round((day(dateStr) - today.getTime()) / DAY);
-      const txt = d > 1 ? `${d} days to the holiday break` : d === 1 ? 'Holiday break tomorrow!' : d === 0 ? 'Holiday break starts today!' : 'Happy holidays!';
-      return `${icon('help:snow')}<span>${txt}</span>`;
+      const d = Math.round((day(c.date) - today.getTime()) / DAY);
+      const what = c.label || 'the big day', What = what.charAt(0).toUpperCase() + what.slice(1);
+      const txt = d > 1 ? `${d} days to ${what}` : d === 1 ? `${What} starts tomorrow!` : d === 0 ? `${What} starts today!` : (c.after || `${What} is under way`);
+      return `${c.date === s.holidayDate ? icon('help:snow') : CAL}<span>${esc(txt)}</span>`;
     }
 
     // Big bouncy title: each letter its own colour, bouncing in a wave.
@@ -105,7 +109,7 @@
       latest = s;
       $('team').textContent = s.team;
       $('event').textContent = s.event;
-      $('holiday').innerHTML = holidayChip(s.holidayDate);
+      $('holiday').innerHTML = countdownChip(s);
       const label = s.stage === 'question' ? `Q${s.qi + 1} of ${s.total}` : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;

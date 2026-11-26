@@ -110,7 +110,7 @@
     const step = S[index], qi = step.kind === 'question' ? step.qi : -1, q = Q[qi];
     const revealed = !q || !!(state.revealedQ || {})[qi];
     const base = {
-      team: config.team, event: config.event, holidayDate: config.holidayDate,
+      team: config.team, event: config.event, holidayDate: config.holidayDate, countdown: config.countdown,
       reactions: config.reactions, ticker: config.ticker || [],
       index, qi, total: Q.length, stepCount: S.length, nav: navLabel(config, step),
       revealed,
