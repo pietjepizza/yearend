@@ -260,7 +260,6 @@
     "style": "gantt",
     "start": "2026-12-01",
     "end": "2027-03-15",
-    "sweepSeconds": 12,
     "source": "Indicative dates · TBD",
     "workloadLabel": "Team workload",
     "peakLabel": "Peak",

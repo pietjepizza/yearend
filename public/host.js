@@ -140,7 +140,7 @@
       const builders = { lobby: buildLobby, question: buildQuestion, slide: buildSlide, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
       (builders[s.stage] || buildLobby)(s);
       $('deck').dataset.layout = s.stage === 'slide' ? s.slide.type : '';
-      snow.setIntensity({ lobby: 1, question: .4, slide: .6, recap: 1, roadmap: .8, finale: 1.8 }[s.stage] ?? 1);
+      snow.setIntensity({ lobby: 1, question: .4, slide: .6, recap: 1, roadmap: (s.roadmap && s.roadmap.style) === 'peak' ? .8 : .3, finale: 1.8 }[s.stage] ?? 1);
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
@@ -574,7 +574,7 @@
     function buildRoadmap(s) {
       const R = s.roadmap || {};
       const head = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
-      $('titleblock').innerHTML = R.style === 'road' ? head : `
+      $('titleblock').innerHTML = R.style !== 'peak' ? head : `
         <div class="pk-head">
           <div>${head}</div>
           <div class="pk-hud st" style="--i:1" id="pkHud">
@@ -586,10 +586,7 @@
       $('content').innerHTML = `<div class="card roadmap st" style="--i:0"><div class="road-box" id="road"></div></div>`;
       $('source').textContent = R.source || 'Next few months';
       const gantt = !R.style || R.style === 'gantt';
-      const span = it => it.date ? fmtDay(day(it.date)) : `${fmtDay(day(it.start))} – ${fmtDay(day(it.end))}`;
-      $('ticker').innerHTML = gantt
-        ? (R.rows || []).flatMap(r => (r.items || []).map(it => `<span>${esc((r.items.length > 1 ? it.label : r.label) || r.label)}: ${esc(it.when || span(it))}</span>`)).join('')
-        : (R.steps || []).map(st => `<span>${esc(st.label)}: ${esc(st.when || '')}</span>`).join('');
+      $('ticker').innerHTML = gantt ? '' : (R.steps || []).map(st => `<span>${esc(st.label)}: ${esc(st.when || '')}</span>`).join('');
       requestAnimationFrame(() => drawRoadmap(R));
     }
     function drawRoad(R) {
@@ -985,33 +982,33 @@
       at(() => reach(0), 1900);
       if (n > 1) at(() => travel(0), 1900 + dwell(0)); else at(overview, 3000);
     }
-    // ---------- ROADMAP (default style "gantt"): a real timeline of overlapping workstreams, with the workload beneath ----------
-    // A playhead sweeps through the months: bars draw in as it passes, milestones pop with their callouts, the
-    // workload chart fills in underneath, and it slows down for the cutover. H skips to the end.
+    // ---------- ROADMAP (default style "gantt"): a clean timeline of overlapping workstreams, with the workload beneath ----------
+    // Thin flat bars on a month axis, three quiet markers (today, the holiday break, the gold cutover), and one workload
+    // line underneath. On entry the bars grow in from left to right and the workload line draws along. H skips to the end.
     const fmtDay = t => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     function drawGantt(R) {
       const box = $('road'), rows = (R && R.rows) || [];
       skipRoad = null;
       if (!box || !rows.length || !R.start || !R.end) return;
-      const token = (drawGantt.token = (drawGantt.token || 0) + 1);
-      const at = (fn, ms) => later(() => token === drawGantt.token && fn(), ms);
       const W = box.clientWidth, H = box.clientHeight, u = U();
       const cl = (v, a, b) => Math.max(a, Math.min(b, v));
       const t0 = day(R.start), t1 = day(R.end), span = t1 - t0;
-      const cx0 = u * 12.5, cx1 = W - u * 1.2;
+      const cx0 = u * 11, cx1 = W - u * 1;
       const X = t => cx0 + (cl(t, t0, t1) - t0) / span * (cx1 - cx0);
-      const T = x => t0 + (x - cx0) / (cx1 - cx0) * span;
-      const headH = u * 4.8, axisH = u * 2.2, gapH = u * 1.4;
-      const rowH = cl((H - headH - axisH - gapH - u * 9) / rows.length, u * 3, u * 4.6);
+      const sweep = x => (.25 + 1.6 * (x - cx0) / (cx1 - cx0)).toFixed(2) + 's';   // entry delay: left to right
+      const headH = u * 4.4, gap = u * 1.6, loadH = Math.max(u * 6.5, H * .22);
+      const rowH = cl((H - headH - gap - loadH) / rows.length, u * 3.2, u * 5.2);
       const rowsTop = headH, rowsBot = headH + rowH * rows.length;
-      const loadTop = rowsBot + gapH, loadBot = H - axisH;
-      const ly0 = loadTop + u * 2.4, ly1 = loadBot - u * .3;
+      const loadTop = rowsBot + gap, loadBot = H - u * .4;
+      const ly0 = loadTop + u * 1.6, ly1 = loadBot;
       const yOf = v => ly1 - v / 100 * (ly1 - ly0);
+      const barY = ri => rowsTop + rowH * ri + rowH * .58;   // centre line of a row's bars
+      const barH = u * .85;
 
       // ---- the workload: every active workstream adds its weight, the holiday break damps it ----
       const items = rows.flatMap((r, ri) => (r.items || []).map(it => {
         const a = day(it.start || it.date), b = it.end ? day(it.end) : a + DAY;
-        return { ...it, ri, a, b, mid: (a + b) / 2, color: it.key ? 'var(--gold)' : (r.color || LANES[ri % LANES.length]) };
+        return { ...it, ri, a, b, mid: (a + b) / 2 };
       }));
       const hol = R.holiday ? { a: day(R.holiday.start), b: day(R.holiday.end) } : null;
       const rawAt = t => {
@@ -1034,161 +1031,55 @@
       pts.push([cx1, yOf(curve(cx1))]);
       const line = pts.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
       const peakT = days[vals.indexOf(100)];
-      const lowT = hol ? days.filter(t => t >= hol.a && t < hol.b).reduce((m, t) => (curve(X(t)) < curve(X(m)) ? t : m), hol.a) : null;
 
-      // ---- grid ----
-      const months = [], weeks = [];
+      // ---- grid and markers ----
+      const months = [];
       for (let m = new Date(t0); m.getTime() < t1; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) months.push(Math.max(t0, new Date(m.getFullYear(), m.getMonth(), 1).getTime()));
-      for (let t = t0; t < t1; t += DAY) if (new Date(t).getDay() === 1) weeks.push(t);
       const today = R.today ? day(R.today) : new Date(new Date().toDateString()).getTime();
       const marks = [];
-      if (today >= t0 && today <= t1) marks.push({ cls: 'today', x: X(today), html: 'Today' });
-      if (hol) marks.push({ cls: 'hol', x: (X(hol.a) + X(hol.b)) / 2, html: `${icon('help:snow')}${esc(R.holiday.label || 'Holiday break')}`, t: hol.a });
-      items.forEach((it, k) => { if (it.key) marks.push({ cls: 'key', x: X(it.mid), html: `${esc(it.label)}${it.when ? ` <small>${esc(it.when)}</small>` : ''}`, t: it.a, k }); });
-      const rowName = r => esc(r.label || '');
+      if (today >= t0 && today <= t1) marks.push({ cls: 'today', x: X(today), text: 'Today' });
+      if (hol) marks.push({ cls: 'hol', x: (X(hol.a) + X(hol.b)) / 2, text: R.holiday.label || 'Holiday break' });
+      items.forEach(it => { if (it.key) marks.push({ cls: 'key', x: X(it.mid), text: it.label + (it.when ? ` · ${it.when}` : '') }); });
       box.classList.add('gt');
+      box.classList.remove('done');
       box.innerHTML = `
         <svg class="gt-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
           <defs>
-            <linearGradient id="gtFill" x1="0" y1="${ly0}" x2="0" y2="${ly1}" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#ffc400" stop-opacity=".55"/><stop offset=".45" stop-color="#5fb8ff" stop-opacity=".35"/><stop offset="1" stop-color="#3b6fff" stop-opacity=".05"/>
-            </linearGradient>
             <linearGradient id="gtStroke" x1="0" y1="${ly0}" x2="0" y2="${ly1}" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#ffc400"/><stop offset=".45" stop-color="#ffe08a"/><stop offset=".7" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
+              <stop offset="0" stop-color="#ffc400"/><stop offset=".5" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
             </linearGradient>
-            <clipPath id="gtClip"><rect id="gtClipRect" x="0" y="0" width="${cx0}" height="${H}"/></clipPath>
+            <linearGradient id="gtFill" x1="0" y1="${ly0}" x2="0" y2="${ly1}" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#8fd3ff" stop-opacity=".16"/><stop offset="1" stop-color="#8fd3ff" stop-opacity="0"/>
+            </linearGradient>
           </defs>
-          ${rows.map((_, i) => i % 2 ? '' : `<rect class="gt-stripe" x="0" y="${rowsTop + rowH * i}" width="${W}" height="${rowH}"/>`).join('')}
-          ${weeks.map(t => `<line class="gt-week" x1="${X(t)}" x2="${X(t)}" y1="${rowsTop}" y2="${rowsBot}"/>`).join('')}
-          ${months.map(t => `<line class="gt-mline" x1="${X(t)}" x2="${X(t)}" y1="${headH * .5}" y2="${loadBot}"/>`).join('')}
-          ${hol ? `<rect class="gt-hol" id="gtHol" x="${X(hol.a)}" y="${headH * .5}" width="${X(hol.b) - X(hol.a)}" height="${loadBot - headH * .5}"/>` : ''}
-          ${[100, 60, 20].map(v => `<line class="gt-lgrid" x1="${cx0}" x2="${cx1}" y1="${yOf(v)}" y2="${yOf(v)}"/>`).join('')}
-          <line class="gt-axis" x1="${cx0}" x2="${cx1}" y1="${loadBot}" y2="${loadBot}"/>
-          ${marks.map((m, k) => `<line class="gt-mk-line ${m.cls}" id="gtML${k}" x1="${m.x}" x2="${m.x}" y1="${u * 2}" y2="${loadBot}"/>`).join('')}
-          <path class="gt-ghost" d="${line}"/>
-          <g clip-path="url(#gtClip)">
-            <path class="gt-area" d="${line} L${cx1} ${ly1} L${cx0} ${ly1} Z"/>
-            <path class="gt-line" d="${line}"/>
-          </g>
-          <path class="gt-shimmer" id="gtShimmer" pathLength="100" d="${line}"/>
+          ${hol ? `<rect class="gt-hol" x="${X(hol.a)}" y="${rowsTop - u * .4}" width="${X(hol.b) - X(hol.a)}" height="${loadBot - rowsTop + u * .4}"/>` : ''}
+          ${months.map(t => `<line class="gt-mline" x1="${X(t)}" x2="${X(t)}" y1="${headH - u * 2}" y2="${loadBot}"/>`).join('')}
+          <line class="gt-sep" x1="0" x2="${W}" y1="${rowsBot + gap / 2}" y2="${rowsBot + gap / 2}"/>
+          <path class="gt-area" d="${line} L${cx1} ${ly1} L${cx0} ${ly1} Z"/>
+          <path class="gt-line" pathLength="1" d="${line}"/>
+          ${marks.map(m => `<line class="gt-mk-line ${m.cls}" style="--d:${sweep(m.x)}" x1="${m.x}" x2="${m.x}" y1="${u * 1.5}" y2="${loadBot}"/>`).join('')}
         </svg>
-        ${months.map((t, k) => `<div class="gt-mon" style="left:${X(t)}px;top:${headH * .5}px;--k:${k}"><b>${new Date(t).toLocaleDateString('en-GB', { month: 'short' })}</b> ${new Date(t).getFullYear()}</div>`).join('')}
-        ${marks.map((m, k) => `<div class="gt-mk ${m.cls}" id="gtMK${k}" style="left:${m.x}px">${m.html}</div>`).join('')}
-        ${rows.map((r, i) => `
-          <div class="gt-rlab" style="top:${rowsTop + rowH * i}px;height:${rowH}px;--c:${r.color || LANES[i % LANES.length]};--k:${i}">
-            <i></i><span><b>${rowName(r)}</b>${r.note ? `<small>${esc(r.note)}</small>` : ''}</span>
-          </div>`).join('')}
-        <div class="gt-items" id="gtItems">
-          ${items.map((it, k) => it.type === 'milestone' ? `
-            <div class="gt-ms ${it.key ? 'key' : ''}" id="gtI${k}" style="left:${X(it.mid)}px;top:${rowsTop + rowH * (it.ri + .5)}px;--c:${it.color}">
-              <i></i>${it.key ? '' : `<span><b>${esc(it.label)}</b>${it.note ? ` · ${esc(it.note)}` : ''}</span>`}
-            </div>` : `
-            <div class="gt-bar ${it.fade ? 'fade' : ''} ${it.key ? 'key' : ''}" id="gtI${k}" style="left:${X(it.a)}px;width:${Math.max(u * .6, X(it.b) - X(it.a))}px;top:${rowsTop + rowH * (it.ri + .2)}px;height:${rowH * .6}px;--c:${it.color}">
-              <span>${esc(it.label || '')}</span>
-            </div>`).join('')}
-        </div>
-        <div class="gt-ylab" style="top:${loadTop}px">${esc(R.workloadLabel || 'Workload')}</div>
-        ${[[100, 'Peak'], [60, 'Busy'], [20, 'Calm']].map(([v, w]) => `<div class="gt-lv" style="top:${yOf(v)}px">${w}</div>`).join('')}
-        <div class="gt-call peak" id="gtPeak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>
-        ${lowT != null ? `<div class="gt-call low" id="gtLow" style="left:${X(lowT)}px;top:${yOf(curve(X(lowT)))}px"><span>${esc(R.holiday.callout || 'Recharge')}</span></div>` : ''}
-        <div class="gt-play" id="gtPlay" style="top:${headH * .5}px;height:${loadBot - headH * .5}px"><i></i><span id="gtDate"></span></div>
-        <div class="gt-dot" id="gtDot"></div>`;
+        ${months.map(t => `<div class="gt-mon" style="left:${X(t)}px;top:${headH - u * 1.9}px">${new Date(t).toLocaleDateString('en-GB', { month: 'short' })}</div>`).join('')}
+        ${marks.map((m, k) => `<div class="gt-mk ${m.cls}" id="gtMK${k}" style="left:${m.x}px;--d:${sweep(m.x)}">${esc(m.text)}</div>`).join('')}
+        ${rows.map((r, i) => `<div class="gt-rlab" style="top:${barY(i)}px">${esc(r.label || '')}</div>`).join('')}
+        ${items.map(it => it.type === 'milestone' ? `
+          <div class="gt-ms ${it.key ? 'key' : ''}" style="left:${X(it.mid)}px;top:${barY(it.ri)}px;--d:${sweep(X(it.mid))}"><i></i>${it.key ? '' : `<span>${esc(it.label)}</span>`}</div>` : `
+          <div class="gt-bar ${it.fade ? 'fade' : ''}" style="left:${X(it.a)}px;width:${Math.max(u * .6, X(it.b) - X(it.a))}px;top:${barY(it.ri) - barH / 2}px;height:${barH}px;--d:${sweep(X(it.a))}"></div>
+          <div class="gt-blab" style="left:${X(it.a)}px;top:${barY(it.ri) - barH / 2 - u * .3}px;--d:${sweep(X(it.a))}">${esc(it.label || '')}</div>`).join('')}
+        <div class="gt-rlab wl" style="top:${(ly0 + ly1) / 2}px">${esc(R.workloadLabel || 'Workload')}</div>
+        <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>`;
 
-      // a bar label that does not fit inside its bar moves just left of the bar when there is room there,
-      // otherwise it is dropped (the ticker still lists it)
-      items.forEach((it, k) => {
-        const el = $('gtI' + k), sp = el.querySelector('.gt-bar > span');
-        if (!sp || sp.scrollWidth <= el.clientWidth - 2) return;
-        const need = sp.scrollWidth + u * .6;
-        const prevEnd = Math.max(cx0, ...items.filter((o, j) => j !== k && o.ri === it.ri && o.a < it.a).map(o => o.type === 'milestone' ? X(o.mid) + u * 14 : X(o.b)));
-        sp.remove();
-        if (X(it.a) - need < prevEnd) return;
-        el.insertAdjacentHTML('afterend', `<div class="gt-out" id="gtO${k}" style="right:${W - X(it.a) + u * .4}px;top:${rowsTop + rowH * (it.ri + .5)}px">${esc(it.label)}</div>`);
-      });
-      // header callouts: keep them apart
+      // keep the marker labels apart
       let edge = -Infinity;
       marks.forEach((m, k) => {
         const el = $('gtMK' + k), w = el.offsetWidth;
-        let left = cl(m.x - w / 2, Math.max(cx0 - u * 2, edge + u * .4), W - w);
+        const left = cl(m.x - w / 2, Math.max(0, edge + u * .8), W - w);
         el.style.left = left + 'px';
-        el.style.setProperty('--tip', (m.x - left) + 'px');
         edge = left + w;
       });
-
-      // ---- the sweep ----
-      const items$ = items.map((_, k) => $('gtI' + k)), clip = $('gtClipRect'), play = $('gtPlay'), dot = $('gtDot'), dateEl = $('gtDate');
-      const hudBars = [...document.querySelectorAll('#pkHud .pk-seg i')], hudWord = $('pkWord'), hudNow = $('pkNow');
-      let shownBars = -1, shownNow = '', inHol = false;
-      const seen = new Set();
-      const meter = (v, now) => {
-        const b = loadBars(v);
-        if (b !== shownBars) {
-          shownBars = b;
-          hudBars.forEach((el, k) => el.classList.toggle('on', k < b));
-          if (hudWord) { hudWord.textContent = loadWord(v); hudWord.classList.toggle('hot', b === 5); }
-        }
-        if (hudNow && now !== shownNow) { shownNow = now; hudNow.innerHTML = now; }
-      };
-      const activeAt = t => {
-        if (hol && t >= hol.a && t < hol.b) return esc(R.holiday.label || 'Holiday break');
-        const names = rows.filter((r, ri) => items.some(it => it.ri === ri && (it.type === 'milestone' ? Math.abs(t - it.mid) < DAY * 2 : t >= it.a && t < it.b))).map(rowName);
-        return names.length ? names.join(' · ') : 'Business as usual';
-      };
-      const marksAt = (x, k) => { const mk = $('gtMK' + k), ml = $('gtML' + k); if (mk && !mk.classList.contains('on') && (marks[k].cls === 'today' || x >= marks[k].x - u)) { mk.classList.add('on'); ml.classList.add('on'); } };
-      const update = x => {
-        const t = T(x), v = curve(x);
-        clip.setAttribute('width', x);
-        play.style.transform = `translateX(${x}px)`;
-        dot.style.transform = `translate(${x}px, ${yOf(v)}px)`;
-        dateEl.textContent = fmtDay(t);
-        meter(v, `<span>${fmtDay(t)}</span> ${activeAt(t)}`);
-        $('gtItems').style.clipPath = `inset(0 ${Math.max(0, W - x)}px 0 0)`;
-        items.forEach((it, k) => {
-          if (seen.has(k) || X(it.a) > x) return;
-          seen.add(k);
-          items$[k].classList.add('on');
-          const out = $('gtO' + k); if (out) out.classList.add('on');
-          if (it.key) { $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake'); flashLights(); pulse.spike(1); }
-          else if (it.type === 'milestone') pulse.spike(.7);
-        });
-        marks.forEach((_, k) => marksAt(x, k));
-        const nowHol = !!(hol && t >= hol.a && t < hol.b);
-        if (nowHol !== inHol) { inHol = nowHol; snow.setIntensity(nowHol ? 2.6 : .8); if (nowHol) $('gtHol').classList.add('on'); }
-        if (x >= X(peakT)) $('gtPeak').classList.add('on');
-        if (lowT != null && x >= X(lowT)) $('gtLow').classList.add('on');
-      };
-      const done = () => {
-        drawGantt.token++;
-        update(cx1);
-        items$.forEach(el => el.classList.add('on'));
-        box.querySelectorAll('.gt-out').forEach(el => el.classList.add('on'));
-        marks.forEach((_, k) => { $('gtMK' + k).classList.add('on'); $('gtML' + k).classList.add('on'); });
-        if (hol) $('gtHol').classList.add('on');
-        $('gtPeak').classList.add('on');
-        if (lowT != null) $('gtLow').classList.add('on');
-        $('gtItems').style.clipPath = 'none';
-        box.classList.add('done');
-        snow.setIntensity(.8);
-        meter(100, `${esc(R.peakLabel || 'Peak')} around <span>${fmtDay(peakT)}</span>`);
-      };
+      const done = () => box.classList.add('done');
       skipRoad = done;
-      update(cx0);
-      marks.forEach((m, k) => { if (m.cls === 'today') marksAt(cx0, k); });
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
-      box.classList.add('intro');
-      const speed = (cx1 - cx0) / ((R.sweepSeconds || 12) * 1000);
-      const keyXs = items.filter(it => it.key).map(it => X(it.mid));
-      let x = cx0, last = 0;
-      const tick = now => {
-        if (token !== drawGantt.token || !box.isConnected) return;
-        const dt = last ? Math.min(50, now - last) : 0;
-        last = now;
-        const slow = keyXs.reduce((m, kx) => Math.min(m, 1 - .72 * Math.exp(-(((x - kx) / (u * 3.5)) ** 2))), 1);
-        x = Math.min(cx1, x + speed * slow * dt);
-        update(x);
-        if (x < cx1) requestAnimationFrame(tick); else at(done, 400);
-      };
-      at(() => { play.classList.add('on'); dot.classList.add('on'); requestAnimationFrame(tick); }, 1300);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) done();
     }
 
     const drawRoadmap = R => ({ road: drawRoad, peak: drawPeak }[(R && R.style)] || drawGantt)(R || {});

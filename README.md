@@ -9,7 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | A real timeline: a Gantt chart of the overlapping workstreams (year-end close, SOX controls, annual report, and the ERP migration from DR2 through ramp-down, cutover and ramp-up to hypercare) on a date axis from December to March. A playhead sweeps through the months: bars draw in, milestones pop, and callouts mark today, the Christmas break and the cutover (a gold line). It slows down for the cutover. Underneath, a separate **team workload** chart fills in as it goes, with "Recharge" and "Peak" callouts. It is worked out from how the workstreams overlap. The meter beside the title follows the playhead. Press **H** to skip to the end. |
+| 6 | **The road ahead** | A clean timeline: thin bars on a December to March axis for the year-end close, SOX controls, the annual report and the ERP migration (DR2, ramp-down, the gold cutover, ramp-up and hypercare). Three quiet markers show today, the Christmas break and the cutover. Underneath, one **team workload** line, worked out from how the workstreams overlap, marks the peak. On entry the bars grow in from left to right and the workload line draws along, in about three seconds. Press **H** to skip the animation. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
@@ -74,7 +74,7 @@ Open the presenter link `/host?key=letmein` on the projector. Phones need to rea
 | --- | --- |
 | → / Space | Next screen (phones follow) |
 | ← | Previous screen |
-| H | Reveal now, or hide again. On the timeline: skip to the end |
+| H | Reveal now, or hide again. On the timeline: skip the animation |
 | S | Snow on or off |
 | Click a word | Remove it from the screen |
 | U | Restore removed words |
@@ -123,8 +123,7 @@ Everything is in `questions.json`:
     - a bar: `type: "bar"`, `label`, `start`, `end`, plus `fade: true` to let it trail off (hypercare), or
     - a milestone: `type: "milestone"`, `label`, `date` and `note`. With `key: true` it becomes the gold cutover line with a callout at the top, which can use `when` for its date text.
   - `weight` on any item: how much it adds to the workload (default 1). The workload chart adds up whatever is active each day, on top of `baseLoad` (default 0.6), smooths it, and scales the busiest day to "Peak".
-  - `sweepSeconds`: how long the sweep takes (default 12)
-  - `workloadLabel`, `peakLabel` and `source`: labels and the footnote
+  - `workloadLabel`, `peakLabel` and `source`: the workload label, the peak label and the footnote
   - `style`: `gantt` (the default), `peak` (the mountain range) or `road` (the winding road). The other two styles use `steps` instead of `rows`, with `type`, `when`, `label`, `note`, `load` (0 to 100), `month`, `group` and `say`.
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
 - **Each question** has:
