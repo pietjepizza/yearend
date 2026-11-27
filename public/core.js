@@ -87,6 +87,20 @@
       }))
       : [{ kind: 'lobby' }, ...Q.map((q, i) => ({ kind: 'question', qi: i })), ...(config.outro || ['recap', 'roadmap', 'finale']).map(k => ({ kind: k }))];
     const out = list.filter(st => st.kind !== 'question' || Q[st.qi]);
+    // Chapters for the bar at the top: the opening is "Welcome", every section starts a chapter (its short
+    // nav label without the number), the recap starts "Wrap-up". Any step can start one with "chapter".
+    // The extra check-in steps are not part of the chapter bar.
+    const names = [];
+    out.forEach((st, i) => {
+      if (st.extra) { st.chapter = -1; return; }
+      const own = st.kind === 'slide' ? st.slide.chapter : (config.show || [])[i] && config.show[i].chapter;
+      const name = own || (i === 0 ? 'Welcome'
+        : st.kind === 'slide' && st.slide.type === 'section' ? String(st.nav || st.slide.title || '').replace(/^\s*\d+\s*/, '') || st.slide.title
+        : st.kind === 'recap' && !names.includes('Wrap-up') ? 'Wrap-up' : '');
+      if (name) names.push(name);
+      st.chapter = Math.max(0, names.length - 1);
+    });
+    out.chapters = names;
     cache.set(config, out);
     return out;
   }
@@ -160,6 +174,7 @@
       index, qi, total: Q.filter(x => groupOf(x) === 'main').length, stepCount: S.length, nav: navLabel(config, step),
       qn: num.qn, qtotal: num.qtotal, group: num.group, extra: step.extra,
       notes: step.notes || '', next: nextStep ? navLabel(config, nextStep) : '',
+      chapters: S.chapters || [], chapter: step.chapter ?? -1,
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),

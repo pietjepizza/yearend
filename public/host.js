@@ -25,7 +25,7 @@
       <span class="tag" id="team"></span>
       <span class="event" id="event"></span>
       <canvas class="pulse" id="pulse" aria-hidden="true"></canvas>
-      <span class="spacer"></span>
+      <nav class="chapters" id="chapters" aria-label="Chapters"></nav>
       <span class="holiday" id="holiday"></span>
       <span class="live"><i></i>LIVE</span>
     </div>
@@ -113,6 +113,7 @@
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = countdownChip(s);
+      renderChapters(s);
       const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
@@ -134,16 +135,31 @@
       if (!transitioning) paint(s, meta);
     }
 
+    // the chapter bar at the top: where we are in the all-hands
+    let chapKey = '';
+    function renderChapters(s) {
+      const list = s.chapters || [], cur = s.chapter ?? -1;
+      const key = list.join('|') + ':' + cur;
+      if (key === chapKey) return;
+      chapKey = key;
+      $('chapters').innerHTML = cur < 0 ? (s.extra ? '<span class="ch on">February check-in</span>' : '')
+        : list.map((n, i) => `<span class="ch ${i < cur ? 'done' : i === cur ? 'on' : ''}" ${i === cur ? 'aria-current="step"' : ''}>${esc(n)}</span>`).join('');
+    }
+
     function build(s) {
       timers.forEach(clearTimeout); timers = [];
-      cloudEls.clear(); lastN = null; lastTicker = ''; cardsKey = ''; titleKey = ''; revealedPrev = null; fresh = true;
+      cloudEls.clear(); lastN = null; lastTicker = ''; cardsKey = ''; titleKey = ''; revealedPrev = null; fresh = true; rankKey = '';
       stopTimer(); fireworks.stop();
       $('deck').dataset.stage = s.stage;
       $('ticker').innerHTML = '';
       const builders = { lobby: buildLobby, question: buildQuestion, slide: buildSlide, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
       (builders[s.stage] || buildLobby)(s);
       $('deck').dataset.layout = s.stage === 'slide' ? s.slide.type : '';
-      snow.setIntensity({ lobby: 1, question: .4, slide: .6, recap: 1, roadmap: (s.roadmap && s.roadmap.style) === 'peak' ? .8 : .3, finale: 1.8 }[s.stage] ?? 1);
+      // festive screens (opening, sections, joining, the award, the finale) get the full effects; the rest stays calm
+      const layout = s.stage === 'slide' ? (s.slide || {}).type : '';
+      const festive = s.stage === 'lobby' || s.stage === 'finale' || ['title', 'section'].includes(layout) || (s.stage === 'question' && s.question.type === 'award');
+      $('deck').dataset.mood = festive ? 'festive' : 'calm';
+      snow.setIntensity(festive ? ({ lobby: 1, finale: 1.8 }[s.stage] ?? .9) : s.stage === 'recap' ? .5 : (s.roadmap && s.roadmap.style) === 'peak' && s.stage === 'roadmap' ? .8 : .15);
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
@@ -341,6 +357,10 @@
         lane.classList.toggle('top', n > 0 && lane.dataset.id === s.stats.topId);
       });
       FX.tween($('k-n'), n);
+      // after the reveal the race turns into a ranked bar chart (a moment later, so the race result lands first)
+      if (!s.revealed || !n) rankResults(null);
+      else if (revealedPrev === false) later(() => latest && latest.revealed && rankResults(latest), 1300);
+      else rankResults(s);
       if ($('needle')) {
         if (s.revealed && s.stats.avg != null) { $('needle').style.setProperty('--a', ((s.stats.avg - 1) / 4 * 180 - 90).toFixed(1) + 'deg'); FX.tween($('k-avg'), s.stats.avg, v => v.toFixed(1)); }
         else $('k-avg').textContent = '?';
@@ -506,6 +526,26 @@
       revealedPrev = s.revealed;
     }
 
+    let rankKey = '';
+    function rankResults(s) {
+      const race = $('race');
+      if (!race) return;
+      const key = s ? JSON.stringify(s.counts) : '';
+      if (key === rankKey) return;
+      rankKey = key;
+      race.classList.toggle('ranked', !!s);
+      race.querySelector('.card-h b').textContent = s ? 'Results' : 'The race';
+      const box = race.querySelector('.lanes'), lanes = [...box.children];
+      const before = new Map(lanes.map(l => [l, l.getBoundingClientRect().top]));
+      const pos = l => Number(l.style.getPropertyValue('--i')) || 0;
+      const order = s ? [...lanes].sort((a, b) => (s.counts[b.dataset.id] || 0) - (s.counts[a.dataset.id] || 0) || pos(a) - pos(b)) : [...lanes].sort((a, b) => pos(a) - pos(b));
+      order.forEach(l => box.appendChild(l));
+      order.forEach(l => {
+        const dy = before.get(l) - l.getBoundingClientRect().top;
+        if (dy) l.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 750, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      });
+    }
+
     function hop(id) {
       const lane = document.querySelector(`.lane[data-id="${CSS.escape(id)}"]`);
       if (!lane) return;
@@ -621,7 +661,8 @@
     function buildSlide(s) {
       const sl = s.slide || {}, T2 = $('titleblock'), C = $('content');
       const head = () => `${bouncy(sl.title || '', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}`;
-      const jokes = s.ticker || [];
+      // the light-hearted ticker runs on opening and section slides; content slides stay quiet
+      const jokes = ['title', 'section'].includes(sl.type) ? s.ticker || [] : [];
       $('ticker').innerHTML = jokes.map(j => `<span class="joke">${esc(j)}</span>`).join('');
       $('source').textContent = s.team;
       if (sl.type === 'title') {
