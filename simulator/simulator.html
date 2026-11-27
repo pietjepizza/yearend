@@ -191,7 +191,7 @@
   const LABEL = { lobby: 'Lobby', recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' };
   function render(s) {
     state = s;
-    const where = s.stage === 'question' ? `Vraag ${s.qi + 1} van ${s.total}` : `Scherm ${s.index + 1}/${s.stepCount}: ${s.nav || LABEL[s.stage] || s.stage}`;
+    const where = s.stage === 'question' ? (s.question && s.question.type === 'award' ? 'Award-stemming' : `Vraag ${s.qi + 1} van ${s.total}`) : `Scherm ${s.index + 1}/${s.stepCount}: ${s.nav || LABEL[s.stage] || s.stage}`;
     const bits = [where];
     if (s.stage === 'question') bits.push(s.revealed ? 'onthuld' : 'stemmen loopt', `${s.stats.n} stemmen`);
     bits.push(`${s.connected || 0} spelers verbonden`);

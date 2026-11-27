@@ -63,17 +63,23 @@
         },
         {
           "time": "[10:35]",
+          "title": "Improvement Award",
+          "who": "Three nominees, your vote",
+          "live": true
+        },
+        {
+          "time": "[10:55]",
           "title": "The road ahead: peak season",
           "who": "[Speaker]",
           "live": true
         },
         {
-          "time": "[10:50]",
+          "time": "[11:10]",
           "title": "Q&A",
           "who": "Everyone"
         },
         {
-          "time": "[11:00]",
+          "time": "[11:20]",
           "title": "Yes we can!",
           "who": "All of us"
         }
@@ -189,8 +195,27 @@
     },
     {
       "type": "section",
-      "nav": "03 Road ahead",
+      "nav": "03 Award",
       "number": "03",
+      "title": "Improvement Award",
+      "subtitle": "Three improvements. One winner. Your vote."
+    },
+    {
+      "type": "nominees",
+      "nav": "Nominees",
+      "question": "award",
+      "title": "Meet the nominees",
+      "subtitle": "Each shares their improvement. Then you vote."
+    },
+    {
+      "type": "question",
+      "question": "award",
+      "nav": "Award vote"
+    },
+    {
+      "type": "section",
+      "nav": "04 Road ahead",
+      "number": "04",
       "title": "The road ahead",
       "subtitle": "DR2, FDM testing, the financial close, SOX, the annual report and the S/4HANA go-live"
     },
@@ -256,7 +281,7 @@
   },
   "roadmap": {
     "title": "The road ahead",
-    "subtitle": "Key dates of peak season, and how busy it gets.",
+    "subtitle": "A demanding stretch with a lot to deliver. We get through it together.",
     "style": "gantt",
     "start": "2026-12-01",
     "end": "2027-02-21",
@@ -308,7 +333,6 @@
       },
       {
         "label": "FDM",
-        "note": "Flexible delivery model",
         "items": [
           {
             "type": "bar",
@@ -472,7 +496,9 @@
         "load": 40,
         "month": "Mar"
       }
-    ]
+    ],
+    "peakZoneLabel": "Peak weeks",
+    "peakZoneNote": "look out for each other"
   },
   "finale": {
     "lines": [
@@ -690,6 +716,44 @@
           "humour",
           "coffee"
         ]
+      }
+    },
+    {
+      "id": "award",
+      "type": "award",
+      "title": "Which improvement wins the award?",
+      "context": "Three improvements, one winner. Vote for the one that impressed you most.",
+      "timer": 0,
+      "noWord": true,
+      "prize": "[Prize]",
+      "winnerText": "And the Improvement Award goes to… {winner}!",
+      "options": [
+        {
+          "id": "n1",
+          "label": "[Nominee 1]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        },
+        {
+          "id": "n2",
+          "label": "[Nominee 2]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        },
+        {
+          "id": "n3",
+          "label": "[Nominee 3]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        }
+      ],
+      "demo": {
+        "weights": [
+          13,
+          10,
+          8
+        ],
+        "words": []
       }
     }
   ],

@@ -9,6 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
+| – | **Improvement Award** | Three nominees share an improvement idea or a successful implementation, shown on a "Meet the nominees" slide. Then everyone votes on their phone. The result stays secret, with only the number of votes showing. On the reveal, a spotlight jumps between the three cards, slows down and lands on the winner: "WINNER!", confetti, fireworks and the prize. Phones show the winner too, and a tie is announced as a tie. |
 | 6 | **The road ahead** | A clean timeline from December to February in four rows: **ERP · S/4HANA** (DR2 finalization and ramp-up on 17–18 Dec, the blackout and cutover from 29 Jan to 1 Feb, the go-live on 1 Feb, then ramp-up and hypercare to 15 Feb), **FDM** (UAT before Christmas, end-to-end testing in January), **Close & reporting** (standard cost prices on 1 Jan, the financial close on 5–6 Jan, the internal annual report deadline on 14 Jan, quarterly results on 27 Jan) and **Controls** (the SOX execution deadline on 19 Jan, disclosure controls on 25 Jan). The Christmas break is shaded, and the go-live is a gold line. Underneath, one **team workload** line, worked out from how everything overlaps, marks the peak. On entry the bars grow in from left to right and the workload line draws along, in about three seconds. Press **H** to skip the animation. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
@@ -103,6 +104,7 @@ The whole meeting runs from this app. `show` in `questions.json` is the running 
 | `shoutouts` | Thank-you cards | `title`, `subtitle`, `people[{name, team, reason}]` |
 | `quote` | A big quote | `quote`, `by` |
 | `qa` | Questions slide | `title`, `subtitle` |
+| `nominees` | The award nominees as large cards, read from the award vote it names | `title`, `subtitle`, `question` (the award's `id`) |
 | `question` | A live poll, by its `id` | `question` |
 | `recap`, `roadmap`, `finale` | The special screens | – |
 
@@ -125,8 +127,15 @@ Everything is in `questions.json`:
     - Every item shows its dates next to its label. `when` replaces that date text, for example "before Christmas".
   - `weight` on any item: how much it adds to the workload (default 1). The workload chart adds up whatever is active each day, on top of `baseLoad` (default 0.6), smooths it, and scales the busiest day to "Peak".
   - `workloadLabel`, `peakLabel` and `source`: the workload label, the peak label and the footnote
+  - `peakZone` (default 55): the workload level above which the weeks around the peak are shaded gold as the **peak weeks**, labelled with `peakZoneLabel` and `peakZoneNote` ("look out for each other")
+  - `stats` (optional): the figures beside the title. By default these are the number of key moments (`{items}`), the weeks to the go-live (`{weeks}`, counted from today) and "1 team".
   - `style`: `gantt` (the default), `peak` (the mountain range) or `road` (the winding road). The other two styles use `steps` instead of `rows`, with `type`, `when`, `label`, `note`, `load` (0 to 100), `month`, `group` and `say`.
 - **`finale`**: the rally `lines`, the big `title` and the `thanks`.
+- **The Improvement Award** is the question with `type: "award"` (id `award`). Fill in:
+  - `options`: the three nominees, each with `label` (name), `team` and `idea` (one or two lines)
+  - `prize`: what the winner takes home
+  - `title`, `context` and `winnerText` (`{winner}` is replaced by the name)
+  - It has no countdown (`timer: 0`) and no word field (`noWord: true`). The presenter reveals the winner with **H** or "Reveal now". It is left out of the recap and the "Q1 of 3" numbering.
 - **Each question** has:
   - `title`, `context` and `wordPrompt`
   - `takeaways`: the upbeat headline, picked by outcome

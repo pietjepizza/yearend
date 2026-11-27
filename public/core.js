@@ -112,7 +112,7 @@
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate, countdown: config.countdown,
       reactions: config.reactions, ticker: config.ticker || [],
-      index, qi, total: Q.length, stepCount: S.length, nav: navLabel(config, step),
+      index, qi, total: Q.filter(x => x.type !== 'award').length, stepCount: S.length, nav: navLabel(config, step),
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
@@ -121,9 +121,13 @@
     delete base.now;
     const participants = new Set(Object.values(state.responses || {}).flatMap(r => Object.keys(r || {}))).size;
     if (step.kind === 'lobby') return { ...base, stage: 'lobby', lobby: config.lobby, participants };
-    if (step.kind === 'slide') return { ...base, stage: 'slide', slide: step.slide, participants };
+    if (step.kind === 'slide') {
+      // a "nominees" slide shows the candidates of the award vote it names
+      const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, participants };
+    }
     if (step.kind !== 'question') {
-      const items = Q.map((q, i) => ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) }));
+      const items = Q.map((q, i) => q.type === 'award' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
       return { ...base, stage: step.kind, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
     }
     return {

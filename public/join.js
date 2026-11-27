@@ -167,9 +167,20 @@
         return show('wrap');
       }
 
-      const q = s.question;
-      $('step').textContent = `Q${s.qi + 1} of ${steps}`;
-      $('qk').textContent = `Question ${s.qi + 1}`;
+      const q = s.question, award = q.type === 'award';
+      if (award && s.revealed) {
+        // the winner is out: show it on the phone too
+        const best = Math.max(0, ...Object.values(s.counts || {}));
+        const names = best ? q.options.filter(o => (s.counts[o.id] || 0) === best).map(o => String(o.label).replace(/[\[\]]/g, '')) : [];
+        $('step').textContent = 'Award';
+        $('wrapTitle').textContent = !names.length ? 'Look up!' : names.length > 1 ? "It's a tie!" : 'We have a winner!';
+        $('wrapText').textContent = names.length ? `The Improvement Award goes to ${names.join(' and ')}. Give them a cheer!` : 'The winner is on the big screen now. Give them a cheer!';
+        if ($('wrap').dataset.k !== 'aw' + s.index) { $('wrap').dataset.k = 'aw' + s.index; shown = null; }
+        return show('wrap');
+      }
+      $('step').textContent = award ? 'Award' : `Q${s.qi + 1} of ${steps}`;
+      $('qk').textContent = award ? 'Improvement Award' : `Question ${s.qi + 1}`;
+      $('wordField').hidden = !!q.noWord;
       $('qt').textContent = q.title;
       $('qctx').hidden = !q.context; $('qctx').textContent = q.context || '';
       $('wordLabel').textContent = q.wordPrompt || 'One word (optional)';
@@ -181,8 +192,9 @@
           const b = document.createElement('button');
           b.className = 'opt st'; b.style.setProperty('--i', i + 2); b.style.setProperty('--c', LANES[i % LANES.length]); b.dataset.id = o.id;
           b.setAttribute('role', 'radio');
-          b.innerHTML = `${orbIcon(LANES[i % LANES.length], o.icon)}<span class="l"></span><span class="radio"></span>`;
-          b.querySelector('.l').textContent = o.label;
+          b.innerHTML = `${o.icon ? orbIcon(LANES[i % LANES.length], o.icon) : orbText(LANES[i % LANES.length], String(i + 1))}<span class="l"></span><span class="radio"></span>`;
+          b.querySelector('.l').textContent = String(o.label).replace(/[\[\]]/g, '');
+          if (o.team || o.idea) { const sm = document.createElement('small'); sm.textContent = String(o.team || o.idea).replace(/[\[\]]/g, ''); b.querySelector('.l').appendChild(sm); }
           b.onclick = () => {
             choice = o.id; markChoice();
             $('send').disabled = false; $('err').hidden = true;
@@ -196,8 +208,8 @@
 
       if (s.mine && !editing) {
         const i = q.options.findIndex(x => x.id === s.mine.option), o = q.options[i];
-        $('chosen').innerHTML = o ? `${orbIcon(LANES[i % LANES.length], o.icon)}<span></span>` : '';
-        if (o) $('chosen').lastChild.textContent = o.label + (s.mine.word ? ` · “${s.mine.word}”` : '');
+        $('chosen').innerHTML = o ? `${o.icon ? orbIcon(LANES[i % LANES.length], o.icon) : orbText(LANES[i % LANES.length], String(i + 1))}<span></span>` : '';
+        if (o) $('chosen').lastChild.textContent = String(o.label).replace(/[\[\]]/g, '') + (s.mine.word ? ` · “${s.mine.word}”` : '');
         show('done');
       } else show('pick');
     }

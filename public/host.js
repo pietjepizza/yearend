@@ -110,7 +110,7 @@
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = countdownChip(s);
-      const label = s.stage === 'question' ? `Q${s.qi + 1} of ${s.total}` : s.nav || LABELS[s.stage] || '';
+      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : `Q${s.qi + 1} of ${s.total}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
       $('ctlReveal').hidden = s.stage !== 'question';
@@ -204,6 +204,7 @@
 
     // ---------- QUESTION ----------
     function buildQuestion(s) {
+      if (s.question.type === 'award') return buildAward(s);
       const q = s.question, scored = q.options.some(o => typeof o.score === 'number');
       $('titleblock').innerHTML = `
         <div class="qrow">
@@ -266,6 +267,7 @@
     }
 
     function paintQuestion(s, meta) {
+      if (s.question.type === 'award') return paintAward(s, meta);
       const q = s.question, n = s.stats.n;
       $('body').classList.toggle('concealed', !s.revealed);
       $('race').classList.toggle('racing', !s.revealed);
@@ -321,6 +323,134 @@
         if (hit) { FX.toast($('toast'), `🎉 ${hit} votes and counting!`); confetti.burst('top'); }
       }
       lastN = n;
+    }
+
+    // ---------- AWARD: three nominees, a secret vote, a drumroll reveal ----------
+    const TROPHY = icon('help:trophy');
+    const nomineeCard = (o, k, extra = '') => `
+      <div class="card aw-card" data-id="${esc(o.id)}" style="--k:${k};--c:${LANES[k % LANES.length]}">
+        <span class="aw-num" aria-hidden="true">${k + 1}</span>
+        <div class="aw-top">${orbText(LANES[k % LANES.length], String(k + 1))}<div class="aw-name"><b>${ph(o.label || '')}</b>${o.team ? `<span>${ph(o.team)}</span>` : ''}</div></div>
+        ${o.idea ? `<p class="aw-idea">${ph(o.idea)}</p>` : ''}
+        ${extra}
+      </div>`;
+    let rolling = false;
+    function buildAward(s) {
+      const q = s.question;
+      $('titleblock').innerHTML = `
+        <div class="qrow">
+          <div class="qbadge award"><span class="aw-ico">${TROPHY}</span><span>Award</span></div>
+          <div class="qtext"><h1 id="qtitle">${esc(q.title)}</h1>${q.context ? `<div class="ctx">${esc(q.context)}</div>` : ''}</div>
+          <div class="timer" id="timer" hidden>
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="t-bg" cx="50" cy="50" r="42"/><circle class="t-fg" id="tfg" cx="50" cy="50" r="42" pathLength="100"/></svg>
+            <b id="tnum">25</b>
+          </div>
+        </div>
+        <div class="banner" id="banner"></div>`;
+      $('content').innerHTML = `
+        <div class="aw" id="aw">
+          <div class="aw-cards" style="--n:${q.options.length}">
+            ${q.options.map((o, k) => nomineeCard(o, k, `
+              <div class="aw-res"><div class="aw-bar"><i></i></div><span class="aw-pct">?</span></div>
+              <div class="aw-ribbon">${TROPHY}<span>Winner${q.prize ? ` · ${ph(q.prize)}` : ''}</span></div>`)).join('')}
+          </div>
+          <div class="card aw-foot st" style="--i:4">
+            <div class="qr" id="awQr">${T.qrHtml()}</div>
+            <div class="aw-count"><b id="k-n" data-v="0">0</b><span>votes in</span></div>
+            <div class="aw-prize">${TROPHY}<div><small>The winner takes home</small><b>${ph(q.prize || '[Prize]')}</b></div></div>
+          </div>
+        </div>`;
+      $('source').textContent = 'Improvement Award';
+      $('ticker').innerHTML = (s.ticker || []).map(j => `<span class="joke">${esc(j)}</span>`).join('');
+      rolling = false;
+    }
+    const winnersOf = s => {
+      const best = Math.max(0, ...Object.values(s.counts));
+      return best ? s.question.options.filter(o => (s.counts[o.id] || 0) === best).map(o => o.id) : [];
+    };
+    function showAwardResult(s) {
+      const n = s.stats.n, wins = winnersOf(s), q = s.question;
+      $('aw').classList.add('aw-out');
+      document.querySelectorAll('.aw-card').forEach(card => {
+        const c = s.counts[card.dataset.id] || 0, pct = n ? Math.round(100 * c / n) : 0;
+        card.classList.remove('aw-spot');
+        card.classList.toggle('aw-win', wins.includes(card.dataset.id));
+        card.classList.toggle('aw-lose', wins.length > 0 && !wins.includes(card.dataset.id));
+        card.querySelector('.aw-bar i').style.width = pct + '%';
+        FX.tween(card.querySelector('.aw-pct'), pct, v => Math.round(v) + '%');
+      });
+      const names = q.options.filter(o => wins.includes(o.id)).map(o => String(o.label).replace(/[\[\]]/g, ''));
+      const b = $('banner');
+      const html = !names.length ? 'No votes yet' : names.length > 1 ? emphasise(`It's a tie: “${names.join('” and “')}”!`)
+        : emphasise((q.winnerText || 'And the Improvement Award goes to… {winner}!').replace('{winner}', `“${names[0]}”`));
+      if (b.dataset.k === html && b.classList.contains('result')) return;   // same winner: leave the banner be
+      b.dataset.k = html;
+      b.className = 'banner result';
+      b.innerHTML = html;
+      FX.splitWords(b, 45);
+      b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+    }
+    function clearAwardResult() {
+      $('aw').classList.remove('aw-out');
+      document.querySelectorAll('.aw-card').forEach(card => {
+        card.classList.remove('aw-win', 'aw-lose', 'aw-spot');
+        card.querySelector('.aw-bar i').style.width = '0%';
+        card.querySelector('.aw-pct').textContent = '?';
+        card.querySelector('.aw-pct').dataset.v = 0;
+      });
+    }
+    // The drumroll: a spotlight jumps between the nominees, slows down and lands on the winner.
+    function drumroll() {
+      const cards = [...document.querySelectorAll('.aw-card')];
+      const s0 = latest, wins = winnersOf(s0);
+      if (!cards.length || !wins.length) { showAwardResult(s0); return; }
+      rolling = true;
+      const b = $('banner');
+      b.className = 'banner hint'; b.textContent = 'And the winner is…';
+      b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+      const target = cards.findIndex(c => c.dataset.id === wins[0]);
+      const hops = cards.length * 4 + ((target - (cards.length * 4) % cards.length) + cards.length) % cards.length;
+      let i = 0, k = 0;
+      const step = () => {
+        if (!rolling || !$('aw')) return;
+        cards.forEach((c, j) => c.classList.toggle('aw-spot', j === i));
+        pulse.spike(.4);
+        if (k >= hops) {
+          rolling = false;
+          later(() => {
+            cardsKey = JSON.stringify(latest.counts);
+            showAwardResult(latest);
+            slam(wins.length > 1 ? "IT'S A TIE!" : 'WINNER!'); flashLights();
+            $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+            later(() => { confetti.burst('cannons'); flashLights(); fireworks.start(); }, 500);
+            later(() => fireworks.stop(), 6500);
+          }, 650);
+          return;
+        }
+        i = (i + 1) % cards.length; k++;
+        later(step, 70 + 380 * Math.pow(k / hops, 2.2));
+      };
+      later(step, 600);
+    }
+    function paintAward(s, meta) {
+      const n = s.stats.n;
+      FX.tween($('k-n'), n);
+      if (meta.pop) { const c = $('k-n').parentElement; c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+      $('awQr').parentElement.classList.toggle('call', n < 3);
+      if (!s.revealed) {
+        if (rolling) rolling = false;
+        cardsKey = '';
+        if (revealedPrev !== false) {
+          clearAwardResult();
+          const b = $('banner');
+          b.className = 'banner hint';
+          b.textContent = n ? 'Votes are coming in… the result stays secret until the reveal!' : 'Scan the code and vote for the improvement that impressed you most';
+          b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+        } else if (n && $('banner').textContent.startsWith('Scan')) $('banner').textContent = 'Votes are coming in… the result stays secret until the reveal!';
+      } else if (revealedPrev === false) drumroll();
+      else if (!rolling && cardsKey !== JSON.stringify(s.counts)) { cardsKey = JSON.stringify(s.counts); showAwardResult(s); }
+      stopTimer(false);
+      revealedPrev = s.revealed;
     }
 
     function hop(id) {
@@ -497,6 +627,11 @@
             ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
           </div>`;
         }).join('')}</div>`;
+      } else if (sl.type === 'nominees') {
+        T2.innerHTML = head();
+        const list = s.nominees || [];
+        C.innerHTML = `<div class="aw nominees"><div class="aw-cards" style="--n:${list.length}">${list.map((o, k) => nomineeCard(o, k)).join('')}</div></div>`;
+        $('source').textContent = 'Improvement Award';
       } else if (sl.type === 'quote') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-quote"><div class="s-qmark">“</div><blockquote>${ph(sl.quote || '')}</blockquote>${sl.by ? `<div class="s-by">${ph(sl.by)}</div>` : ''}</div>`;
@@ -574,7 +709,11 @@
     function buildRoadmap(s) {
       const R = s.roadmap || {};
       const head = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
-      $('titleblock').innerHTML = R.style !== 'peak' ? head : `
+      $('titleblock').innerHTML = R.style === 'road' ? head : (!R.style || R.style === 'gantt') ? `
+        <div class="pk-head">
+          <div>${head}</div>
+          <div class="gt-stats st" style="--i:1" id="gtStats"></div>
+        </div>` : `
         <div class="pk-head">
           <div>${head}</div>
           <div class="pk-hud st" style="--i:1" id="pkHud">
@@ -1031,6 +1170,22 @@
       pts.push([cx1, yOf(curve(cx1))]);
       const line = pts.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
       const peakT = days[vals.indexOf(100)];
+      // the peak weeks: the stretch around the peak where the workload stays high
+      const pk = vals.indexOf(100), thr = R.peakZone ?? 55;
+      let z0 = pk, z1 = pk;
+      while (z0 > 0 && vals[z0 - 1] >= thr) z0--;
+      while (z1 < vals.length - 1 && vals[z1 + 1] >= thr) z1++;
+      const zone = { a: days[z0], b: days[z1] + DAY };
+
+      // ---- the numbers beside the title: how much, how soon, who ----
+      const keyMs = items.find(it => it.key && it.type === 'milestone');
+      const todayT = R.today ? day(R.today) : new Date(new Date().toDateString()).getTime();
+      const weeks = keyMs ? Math.round((keyMs.a - todayT) / (7 * DAY)) : 0;
+      const stats = (R.stats || [{ value: '{items}', label: 'key moments' }, { value: '{weeks}', label: `weeks to ${keyMs ? keyMs.label.split(' ')[0].toLowerCase() : 'go'}` }, { value: '1', label: 'team' }])
+        .map(st => ({ ...st, value: String(st.value).replace('{items}', items.length).replace('{weeks}', weeks) }))
+        .filter(st => !/^-|^0$/.test(st.value));
+      if ($('gtStats')) $('gtStats').innerHTML = stats.map((st, k) => `<div style="--k:${k}"><b data-v="0">${esc(st.value)}</b><span>${esc(st.label)}</span></div>`).join('');
+      if ($('gtStats')) $('gtStats').querySelectorAll('b').forEach((el, k) => { const v = Number(el.textContent); if (v > 1) { el.textContent = '0'; later(() => FX.tween(el, v, x => Math.round(x), 1200), 500 + k * 200); } });
 
       // ---- grid and markers ----
       const months = [];
@@ -1054,9 +1209,18 @@
               <stop offset="0" stop-color="#ffc400"/><stop offset=".5" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
             </linearGradient>
             <linearGradient id="gtFill" x1="0" y1="${ly0}" x2="0" y2="${ly1}" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#8fd3ff" stop-opacity=".16"/><stop offset="1" stop-color="#8fd3ff" stop-opacity="0"/>
+              <stop offset="0" stop-color="#ffc400" stop-opacity=".32"/><stop offset=".45" stop-color="#8fd3ff" stop-opacity=".16"/><stop offset="1" stop-color="#5fb8ff" stop-opacity=".02"/>
             </linearGradient>
           </defs>
+          <linearGradient id="gtZone" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#ffc400" stop-opacity="0"/><stop offset=".08" stop-color="#ffc400" stop-opacity=".13"/>
+            <stop offset=".92" stop-color="#ffc400" stop-opacity=".13"/><stop offset="1" stop-color="#ffc400" stop-opacity="0"/>
+          </linearGradient>
+          <g class="gt-zone">
+            <rect x="${X(zone.a) - u * 1.5}" y="${rowsTop - u * .4}" width="${X(zone.b) - X(zone.a) + u * 3}" height="${loadBot - rowsTop + u * .4}" fill="url(#gtZone)"/>
+            <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${rowsTop - u * .4}" y2="${rowsTop - u * .4}"/>
+            <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${loadBot}" y2="${loadBot}"/>
+          </g>
           ${hol ? `<rect class="gt-hol" x="${X(hol.a)}" y="${rowsTop - u * .4}" width="${X(hol.b) - X(hol.a)}" height="${loadBot - rowsTop + u * .4}"/>` : ''}
           ${months.map(t => `<line class="gt-mline" x1="${X(t)}" x2="${X(t)}" y1="${headH - u * 2}" y2="${loadBot}"/>`).join('')}
           <line class="gt-sep" x1="0" x2="${W}" y1="${rowsBot + gap / 2}" y2="${rowsBot + gap / 2}"/>
@@ -1073,7 +1237,8 @@
         ${items.map((it, k) => it.key && it.type === 'milestone' ? '' : `
           <div class="gt-blab ${it.key ? 'key' : ''}" id="gtL${k}" style="left:${it.type === 'milestone' ? X(it.mid) - u * .45 : X(it.a)}px;--d:${sweep(X(it.a))}"><b>${esc(it.label || '')}</b> ${esc(it.when || when(it))}</div>`).join('')}
         <div class="gt-rlab wl" style="top:${(ly0 + ly1) / 2}px">${esc(R.workloadLabel || 'Workload')}</div>
-        <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>`;
+        <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>
+        <div class="gt-zlab" style="left:${X(zone.a)}px;top:${loadTop + u * .1}px"><b>${esc(R.peakZoneLabel || 'Peak weeks')}</b> ${fmtDay(zone.a)} – ${fmtDay(zone.b - DAY)}${R.peakZoneNote ? ` · ${esc(R.peakZoneNote)}` : ''}</div>`;
 
       // item labels: above the bar when the lane is free, otherwise below it; keep them inside the box
       rows.forEach((_, ri) => {

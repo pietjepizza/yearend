@@ -838,7 +838,17 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .gt-mline { stroke: rgba(255, 255, 255, .12); stroke-width: 1; }
 .gt-sep { stroke: rgba(255, 255, 255, .1); stroke-width: 1; }
 .gt-area { fill: url(#gtFill); animation: fadein .8s ease both 1.6s; }
-.gt-line { fill: none; stroke: url(#gtStroke); stroke-width: calc(var(--u) * .2); stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: gtdraw 2s linear both .25s; }
+.gt-zone { animation: fadein 1s ease both 1.4s, gtbreathe 4s ease-in-out 2.4s infinite; }
+@keyframes gtbreathe { 50% { opacity: .65; } }
+.gt-zedge { stroke: var(--gold); stroke-width: 2; opacity: .7; }
+.gt-zlab { position: absolute; white-space: nowrap; font-size: calc(var(--u) * .8); color: rgba(255, 224, 138, .8); animation: fadein .6s ease both 1.8s; }
+.gt-zlab b { font-family: var(--display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-right: .3em; }
+.gt-stats { flex: none; display: flex; gap: calc(var(--u) * 2.6); }
+.gt-stats div { display: flex; flex-direction: column; align-items: flex-start; }
+.gt-stats b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 3.4); line-height: 1; }
+.gt-stats span { font-size: calc(var(--u) * .9); color: var(--fg-2); margin-top: .3em; white-space: nowrap; }
+.gt-stats div:last-child b { color: var(--gold); }
+.gt-line { fill: none; stroke: url(#gtStroke); stroke-width: calc(var(--u) * .26); stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: gtdraw 2s linear both .25s; }
 @keyframes gtdraw { from { stroke-dashoffset: 1; } }
 .gt-mk-line { stroke-width: 1; animation: fadein .5s ease both var(--d); }
 .gt-mk-line.today { stroke: rgba(255, 255, 255, .55); }
@@ -869,6 +879,56 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .gt-peak::before { content: ''; position: absolute; left: calc(var(--u) * -.35); top: calc(var(--u) * -.35); width: calc(var(--u) * .7); height: calc(var(--u) * .7); border-radius: 50%; background: var(--gold); }
 .gt-peak span { position: absolute; left: 0; bottom: calc(var(--u) * .6); transform: translateX(-50%); white-space: nowrap; font-weight: 600; font-size: calc(var(--u) * .8); color: var(--gold); text-shadow: 0 0 4px #110b6e, 0 0 8px #110b6e; }
 .gt.done * { animation: none !important; }
+
+/* ---------- Improvement Award: nominee cards, secret vote, drumroll reveal ---------- */
+.aw { flex: 1; display: flex; flex-direction: column; gap: calc(var(--u) * 1.4); min-height: 0; }
+.aw-cards { flex: 1; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: calc(var(--u) * 1.6); align-items: stretch; min-height: 0; }
+.aw-card { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: calc(var(--u) * 1); padding: calc(var(--u) * 1.6); border-top: 3px solid var(--c); transition: transform .35s var(--spring), opacity .5s, box-shadow .3s, border-color .3s, filter .5s; }
+.entering .aw-card { animation: rise .7s var(--ease) both; animation-delay: calc(var(--k) * 140ms + .2s); }
+.aw-top { display: flex; align-items: center; gap: calc(var(--u) * 1); }
+.aw-top .orb { width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); flex: none; }
+.aw-name { display: flex; flex-direction: column; min-width: 0; }
+.aw-name b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.9); line-height: 1.1; }
+.aw-name span { font-weight: 600; font-size: calc(var(--u) * 1); color: var(--sky); margin-top: .2em; }
+.aw-idea { margin: 0; font-size: calc(var(--u) * 1.15); line-height: 1.45; color: var(--fg-2); }
+.aw-res { margin-top: auto; display: flex; align-items: center; gap: calc(var(--u) * .9); }
+.aw-bar { flex: 1; height: calc(var(--u) * .7); border-radius: 999px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.aw-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--c); transition: width 1.4s var(--ease); }
+.aw-pct { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.6); min-width: 3.2ch; text-align: right; color: var(--fg-3); }
+.aw.aw-out .aw-pct { color: var(--fg); }
+.aw-ribbon { display: none; align-items: center; gap: .5em; align-self: flex-start; background: var(--gold); color: #1d1300; border-radius: 999px; padding: .2em .9em .2em .5em; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.05); }
+.aw-ribbon .ico { width: 1.5em; height: auto; }
+.aw-card.aw-spot { transform: translateY(calc(var(--u) * -.6)) scale(1.03); border-color: #fff; box-shadow: 0 0 calc(var(--u) * 3) rgba(143, 211, 255, .6), 0 calc(var(--u) * 1) calc(var(--u) * 3) rgba(0, 0, 20, .35); }
+.aw-card.aw-win { transform: translateY(calc(var(--u) * -.8)) scale(1.04); border-color: var(--gold); box-shadow: 0 0 calc(var(--u) * 3.5) rgba(255, 196, 0, .55), 0 calc(var(--u) * 1) calc(var(--u) * 3) rgba(0, 0, 20, .35); animation: awwin 2.4s ease-in-out 1s infinite; }
+.aw-card.aw-win .aw-ribbon { display: inline-flex; animation: chipin .5s var(--spring) both .2s; }
+.aw-card.aw-win .aw-bar i { background: var(--gold); }
+.aw-card.aw-lose { opacity: .55; filter: saturate(.6); }
+@keyframes awwin { 50% { box-shadow: 0 0 calc(var(--u) * 5) rgba(255, 196, 0, .75), 0 calc(var(--u) * 1) calc(var(--u) * 3) rgba(0, 0, 20, .35); } }
+.aw-foot { flex: none; display: flex; align-items: center; gap: calc(var(--u) * 2); padding: calc(var(--u) * .9) calc(var(--u) * 1.4); }
+.aw-foot .qr { width: calc(var(--u) * 7); flex: none; background: #fff; border-radius: calc(var(--u) * .6); padding: calc(var(--u) * .35); }
+.aw-foot .qr svg { display: block; width: 100%; height: auto; }
+.aw-count { display: flex; align-items: baseline; gap: .5em; }
+.aw-count b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 3); line-height: 1; }
+.aw-count span { font-size: calc(var(--u) * 1.1); color: var(--fg-2); }
+.aw-count.bump b { animation: grow .45s var(--ease); }
+.aw-prize { margin-left: auto; display: flex; align-items: center; gap: calc(var(--u) * 1); }
+.aw-prize .ico { width: calc(var(--u) * 3.4); height: auto; color: var(--gold); }
+.aw-prize small { display: block; font-size: calc(var(--u) * .9); color: var(--fg-3); }
+.aw-prize b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.7); color: var(--gold); }
+.qbadge.award { background: linear-gradient(160deg, #ffd34d, #c99400); color: #1d1300; }
+.qbadge.award .aw-ico .ico { width: calc(var(--u) * 2.6); height: auto; }
+.aw-num { position: absolute; right: calc(var(--u) * .6); bottom: calc(var(--u) * -3.2); font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 16); line-height: 1; color: var(--c); opacity: .09; pointer-events: none; }
+.aw-card > :not(.aw-num) { position: relative; }
+.nominees .aw-cards { align-items: center; }
+.nominees .aw-card { min-height: 70%; justify-content: center; padding: calc(var(--u) * 2.4); gap: calc(var(--u) * 1.4); }
+.nominees .aw-top .orb { width: calc(var(--u) * 5.6); height: calc(var(--u) * 5.6); }
+.nominees .aw-name b { font-size: calc(var(--u) * 2.4); }
+.nominees .aw-name span { font-size: calc(var(--u) * 1.2); }
+.nominees .aw-idea { font-size: calc(var(--u) * 1.5); }
+.nominees .aw-num { font-size: calc(var(--u) * 20); bottom: calc(var(--u) * -4); }
+.qbadge.award span { color: #1d1300; }
+.qbadge.award .aw-ico { display: grid; place-items: center; }
+.opt .l small { display: block; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--fg-2); margin-top: 2px; }
 
 </style>
 <div id="app"></div>
@@ -989,7 +1049,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate, countdown: config.countdown,
       reactions: config.reactions, ticker: config.ticker || [],
-      index, qi, total: Q.length, stepCount: S.length, nav: navLabel(config, step),
+      index, qi, total: Q.filter(x => x.type !== 'award').length, stepCount: S.length, nav: navLabel(config, step),
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
@@ -998,9 +1058,13 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     delete base.now;
     const participants = new Set(Object.values(state.responses || {}).flatMap(r => Object.keys(r || {}))).size;
     if (step.kind === 'lobby') return { ...base, stage: 'lobby', lobby: config.lobby, participants };
-    if (step.kind === 'slide') return { ...base, stage: 'slide', slide: step.slide, participants };
+    if (step.kind === 'slide') {
+      // a "nominees" slide shows the candidates of the award vote it names
+      const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, participants };
+    }
     if (step.kind !== 'question') {
-      const items = Q.map((q, i) => ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) }));
+      const items = Q.map((q, i) => q.type === 'award' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
       return { ...base, stage: step.kind, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
     }
     return {
@@ -1450,7 +1514,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = countdownChip(s);
-      const label = s.stage === 'question' ? `Q${s.qi + 1} of ${s.total}` : s.nav || LABELS[s.stage] || '';
+      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : `Q${s.qi + 1} of ${s.total}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
       $('ctlReveal').hidden = s.stage !== 'question';
@@ -1544,6 +1608,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
     // ---------- QUESTION ----------
     function buildQuestion(s) {
+      if (s.question.type === 'award') return buildAward(s);
       const q = s.question, scored = q.options.some(o => typeof o.score === 'number');
       $('titleblock').innerHTML = `
         <div class="qrow">
@@ -1606,6 +1671,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     }
 
     function paintQuestion(s, meta) {
+      if (s.question.type === 'award') return paintAward(s, meta);
       const q = s.question, n = s.stats.n;
       $('body').classList.toggle('concealed', !s.revealed);
       $('race').classList.toggle('racing', !s.revealed);
@@ -1661,6 +1727,134 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         if (hit) { FX.toast($('toast'), `🎉 ${hit} votes and counting!`); confetti.burst('top'); }
       }
       lastN = n;
+    }
+
+    // ---------- AWARD: three nominees, a secret vote, a drumroll reveal ----------
+    const TROPHY = icon('help:trophy');
+    const nomineeCard = (o, k, extra = '') => `
+      <div class="card aw-card" data-id="${esc(o.id)}" style="--k:${k};--c:${LANES[k % LANES.length]}">
+        <span class="aw-num" aria-hidden="true">${k + 1}</span>
+        <div class="aw-top">${orbText(LANES[k % LANES.length], String(k + 1))}<div class="aw-name"><b>${ph(o.label || '')}</b>${o.team ? `<span>${ph(o.team)}</span>` : ''}</div></div>
+        ${o.idea ? `<p class="aw-idea">${ph(o.idea)}</p>` : ''}
+        ${extra}
+      </div>`;
+    let rolling = false;
+    function buildAward(s) {
+      const q = s.question;
+      $('titleblock').innerHTML = `
+        <div class="qrow">
+          <div class="qbadge award"><span class="aw-ico">${TROPHY}</span><span>Award</span></div>
+          <div class="qtext"><h1 id="qtitle">${esc(q.title)}</h1>${q.context ? `<div class="ctx">${esc(q.context)}</div>` : ''}</div>
+          <div class="timer" id="timer" hidden>
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="t-bg" cx="50" cy="50" r="42"/><circle class="t-fg" id="tfg" cx="50" cy="50" r="42" pathLength="100"/></svg>
+            <b id="tnum">25</b>
+          </div>
+        </div>
+        <div class="banner" id="banner"></div>`;
+      $('content').innerHTML = `
+        <div class="aw" id="aw">
+          <div class="aw-cards" style="--n:${q.options.length}">
+            ${q.options.map((o, k) => nomineeCard(o, k, `
+              <div class="aw-res"><div class="aw-bar"><i></i></div><span class="aw-pct">?</span></div>
+              <div class="aw-ribbon">${TROPHY}<span>Winner${q.prize ? ` · ${ph(q.prize)}` : ''}</span></div>`)).join('')}
+          </div>
+          <div class="card aw-foot st" style="--i:4">
+            <div class="qr" id="awQr">${T.qrHtml()}</div>
+            <div class="aw-count"><b id="k-n" data-v="0">0</b><span>votes in</span></div>
+            <div class="aw-prize">${TROPHY}<div><small>The winner takes home</small><b>${ph(q.prize || '[Prize]')}</b></div></div>
+          </div>
+        </div>`;
+      $('source').textContent = 'Improvement Award';
+      $('ticker').innerHTML = (s.ticker || []).map(j => `<span class="joke">${esc(j)}</span>`).join('');
+      rolling = false;
+    }
+    const winnersOf = s => {
+      const best = Math.max(0, ...Object.values(s.counts));
+      return best ? s.question.options.filter(o => (s.counts[o.id] || 0) === best).map(o => o.id) : [];
+    };
+    function showAwardResult(s) {
+      const n = s.stats.n, wins = winnersOf(s), q = s.question;
+      $('aw').classList.add('aw-out');
+      document.querySelectorAll('.aw-card').forEach(card => {
+        const c = s.counts[card.dataset.id] || 0, pct = n ? Math.round(100 * c / n) : 0;
+        card.classList.remove('aw-spot');
+        card.classList.toggle('aw-win', wins.includes(card.dataset.id));
+        card.classList.toggle('aw-lose', wins.length > 0 && !wins.includes(card.dataset.id));
+        card.querySelector('.aw-bar i').style.width = pct + '%';
+        FX.tween(card.querySelector('.aw-pct'), pct, v => Math.round(v) + '%');
+      });
+      const names = q.options.filter(o => wins.includes(o.id)).map(o => String(o.label).replace(/[\[\]]/g, ''));
+      const b = $('banner');
+      const html = !names.length ? 'No votes yet' : names.length > 1 ? emphasise(`It's a tie: “${names.join('” and “')}”!`)
+        : emphasise((q.winnerText || 'And the Improvement Award goes to… {winner}!').replace('{winner}', `“${names[0]}”`));
+      if (b.dataset.k === html && b.classList.contains('result')) return;   // same winner: leave the banner be
+      b.dataset.k = html;
+      b.className = 'banner result';
+      b.innerHTML = html;
+      FX.splitWords(b, 45);
+      b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+    }
+    function clearAwardResult() {
+      $('aw').classList.remove('aw-out');
+      document.querySelectorAll('.aw-card').forEach(card => {
+        card.classList.remove('aw-win', 'aw-lose', 'aw-spot');
+        card.querySelector('.aw-bar i').style.width = '0%';
+        card.querySelector('.aw-pct').textContent = '?';
+        card.querySelector('.aw-pct').dataset.v = 0;
+      });
+    }
+    // The drumroll: a spotlight jumps between the nominees, slows down and lands on the winner.
+    function drumroll() {
+      const cards = [...document.querySelectorAll('.aw-card')];
+      const s0 = latest, wins = winnersOf(s0);
+      if (!cards.length || !wins.length) { showAwardResult(s0); return; }
+      rolling = true;
+      const b = $('banner');
+      b.className = 'banner hint'; b.textContent = 'And the winner is…';
+      b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+      const target = cards.findIndex(c => c.dataset.id === wins[0]);
+      const hops = cards.length * 4 + ((target - (cards.length * 4) % cards.length) + cards.length) % cards.length;
+      let i = 0, k = 0;
+      const step = () => {
+        if (!rolling || !$('aw')) return;
+        cards.forEach((c, j) => c.classList.toggle('aw-spot', j === i));
+        pulse.spike(.4);
+        if (k >= hops) {
+          rolling = false;
+          later(() => {
+            cardsKey = JSON.stringify(latest.counts);
+            showAwardResult(latest);
+            slam(wins.length > 1 ? "IT'S A TIE!" : 'WINNER!'); flashLights();
+            $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+            later(() => { confetti.burst('cannons'); flashLights(); fireworks.start(); }, 500);
+            later(() => fireworks.stop(), 6500);
+          }, 650);
+          return;
+        }
+        i = (i + 1) % cards.length; k++;
+        later(step, 70 + 380 * Math.pow(k / hops, 2.2));
+      };
+      later(step, 600);
+    }
+    function paintAward(s, meta) {
+      const n = s.stats.n;
+      FX.tween($('k-n'), n);
+      if (meta.pop) { const c = $('k-n').parentElement; c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+      $('awQr').parentElement.classList.toggle('call', n < 3);
+      if (!s.revealed) {
+        if (rolling) rolling = false;
+        cardsKey = '';
+        if (revealedPrev !== false) {
+          clearAwardResult();
+          const b = $('banner');
+          b.className = 'banner hint';
+          b.textContent = n ? 'Votes are coming in… the result stays secret until the reveal!' : 'Scan the code and vote for the improvement that impressed you most';
+          b.classList.remove('in'); void b.offsetWidth; b.classList.add('in');
+        } else if (n && $('banner').textContent.startsWith('Scan')) $('banner').textContent = 'Votes are coming in… the result stays secret until the reveal!';
+      } else if (revealedPrev === false) drumroll();
+      else if (!rolling && cardsKey !== JSON.stringify(s.counts)) { cardsKey = JSON.stringify(s.counts); showAwardResult(s); }
+      stopTimer(false);
+      revealedPrev = s.revealed;
     }
 
     function hop(id) {
@@ -1837,6 +2031,11 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
             ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
           </div>`;
         }).join('')}</div>`;
+      } else if (sl.type === 'nominees') {
+        T2.innerHTML = head();
+        const list = s.nominees || [];
+        C.innerHTML = `<div class="aw nominees"><div class="aw-cards" style="--n:${list.length}">${list.map((o, k) => nomineeCard(o, k)).join('')}</div></div>`;
+        $('source').textContent = 'Improvement Award';
       } else if (sl.type === 'quote') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-quote"><div class="s-qmark">“</div><blockquote>${ph(sl.quote || '')}</blockquote>${sl.by ? `<div class="s-by">${ph(sl.by)}</div>` : ''}</div>`;
@@ -1914,7 +2113,11 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     function buildRoadmap(s) {
       const R = s.roadmap || {};
       const head = `${bouncy(R.title || 'The road ahead', 'mid')}<p class="sub">${esc(R.subtitle || '')}</p>`;
-      $('titleblock').innerHTML = R.style !== 'peak' ? head : `
+      $('titleblock').innerHTML = R.style === 'road' ? head : (!R.style || R.style === 'gantt') ? `
+        <div class="pk-head">
+          <div>${head}</div>
+          <div class="gt-stats st" style="--i:1" id="gtStats"></div>
+        </div>` : `
         <div class="pk-head">
           <div>${head}</div>
           <div class="pk-hud st" style="--i:1" id="pkHud">
@@ -2371,6 +2574,22 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       pts.push([cx1, yOf(curve(cx1))]);
       const line = pts.map(([x, y], k) => `${k ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
       const peakT = days[vals.indexOf(100)];
+      // the peak weeks: the stretch around the peak where the workload stays high
+      const pk = vals.indexOf(100), thr = R.peakZone ?? 55;
+      let z0 = pk, z1 = pk;
+      while (z0 > 0 && vals[z0 - 1] >= thr) z0--;
+      while (z1 < vals.length - 1 && vals[z1 + 1] >= thr) z1++;
+      const zone = { a: days[z0], b: days[z1] + DAY };
+
+      // ---- the numbers beside the title: how much, how soon, who ----
+      const keyMs = items.find(it => it.key && it.type === 'milestone');
+      const todayT = R.today ? day(R.today) : new Date(new Date().toDateString()).getTime();
+      const weeks = keyMs ? Math.round((keyMs.a - todayT) / (7 * DAY)) : 0;
+      const stats = (R.stats || [{ value: '{items}', label: 'key moments' }, { value: '{weeks}', label: `weeks to ${keyMs ? keyMs.label.split(' ')[0].toLowerCase() : 'go'}` }, { value: '1', label: 'team' }])
+        .map(st => ({ ...st, value: String(st.value).replace('{items}', items.length).replace('{weeks}', weeks) }))
+        .filter(st => !/^-|^0$/.test(st.value));
+      if ($('gtStats')) $('gtStats').innerHTML = stats.map((st, k) => `<div style="--k:${k}"><b data-v="0">${esc(st.value)}</b><span>${esc(st.label)}</span></div>`).join('');
+      if ($('gtStats')) $('gtStats').querySelectorAll('b').forEach((el, k) => { const v = Number(el.textContent); if (v > 1) { el.textContent = '0'; later(() => FX.tween(el, v, x => Math.round(x), 1200), 500 + k * 200); } });
 
       // ---- grid and markers ----
       const months = [];
@@ -2394,9 +2613,18 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
               <stop offset="0" stop-color="#ffc400"/><stop offset=".5" stop-color="#8fd3ff"/><stop offset="1" stop-color="#5fb8ff"/>
             </linearGradient>
             <linearGradient id="gtFill" x1="0" y1="${ly0}" x2="0" y2="${ly1}" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#8fd3ff" stop-opacity=".16"/><stop offset="1" stop-color="#8fd3ff" stop-opacity="0"/>
+              <stop offset="0" stop-color="#ffc400" stop-opacity=".32"/><stop offset=".45" stop-color="#8fd3ff" stop-opacity=".16"/><stop offset="1" stop-color="#5fb8ff" stop-opacity=".02"/>
             </linearGradient>
           </defs>
+          <linearGradient id="gtZone" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#ffc400" stop-opacity="0"/><stop offset=".08" stop-color="#ffc400" stop-opacity=".13"/>
+            <stop offset=".92" stop-color="#ffc400" stop-opacity=".13"/><stop offset="1" stop-color="#ffc400" stop-opacity="0"/>
+          </linearGradient>
+          <g class="gt-zone">
+            <rect x="${X(zone.a) - u * 1.5}" y="${rowsTop - u * .4}" width="${X(zone.b) - X(zone.a) + u * 3}" height="${loadBot - rowsTop + u * .4}" fill="url(#gtZone)"/>
+            <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${rowsTop - u * .4}" y2="${rowsTop - u * .4}"/>
+            <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${loadBot}" y2="${loadBot}"/>
+          </g>
           ${hol ? `<rect class="gt-hol" x="${X(hol.a)}" y="${rowsTop - u * .4}" width="${X(hol.b) - X(hol.a)}" height="${loadBot - rowsTop + u * .4}"/>` : ''}
           ${months.map(t => `<line class="gt-mline" x1="${X(t)}" x2="${X(t)}" y1="${headH - u * 2}" y2="${loadBot}"/>`).join('')}
           <line class="gt-sep" x1="0" x2="${W}" y1="${rowsBot + gap / 2}" y2="${rowsBot + gap / 2}"/>
@@ -2413,7 +2641,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         ${items.map((it, k) => it.key && it.type === 'milestone' ? '' : `
           <div class="gt-blab ${it.key ? 'key' : ''}" id="gtL${k}" style="left:${it.type === 'milestone' ? X(it.mid) - u * .45 : X(it.a)}px;--d:${sweep(X(it.a))}"><b>${esc(it.label || '')}</b> ${esc(it.when || when(it))}</div>`).join('')}
         <div class="gt-rlab wl" style="top:${(ly0 + ly1) / 2}px">${esc(R.workloadLabel || 'Workload')}</div>
-        <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>`;
+        <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>
+        <div class="gt-zlab" style="left:${X(zone.a)}px;top:${loadTop + u * .1}px"><b>${esc(R.peakZoneLabel || 'Peak weeks')}</b> ${fmtDay(zone.a)} – ${fmtDay(zone.b - DAY)}${R.peakZoneNote ? ` · ${esc(R.peakZoneNote)}` : ''}</div>`;
 
       // item labels: above the bar when the lane is free, otherwise below it; keep them inside the box
       rows.forEach((_, ri) => {
@@ -2710,9 +2939,20 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         return show('wrap');
       }
 
-      const q = s.question;
-      $('step').textContent = `Q${s.qi + 1} of ${steps}`;
-      $('qk').textContent = `Question ${s.qi + 1}`;
+      const q = s.question, award = q.type === 'award';
+      if (award && s.revealed) {
+        // the winner is out: show it on the phone too
+        const best = Math.max(0, ...Object.values(s.counts || {}));
+        const names = best ? q.options.filter(o => (s.counts[o.id] || 0) === best).map(o => String(o.label).replace(/[\[\]]/g, '')) : [];
+        $('step').textContent = 'Award';
+        $('wrapTitle').textContent = !names.length ? 'Look up!' : names.length > 1 ? "It's a tie!" : 'We have a winner!';
+        $('wrapText').textContent = names.length ? `The Improvement Award goes to ${names.join(' and ')}. Give them a cheer!` : 'The winner is on the big screen now. Give them a cheer!';
+        if ($('wrap').dataset.k !== 'aw' + s.index) { $('wrap').dataset.k = 'aw' + s.index; shown = null; }
+        return show('wrap');
+      }
+      $('step').textContent = award ? 'Award' : `Q${s.qi + 1} of ${steps}`;
+      $('qk').textContent = award ? 'Improvement Award' : `Question ${s.qi + 1}`;
+      $('wordField').hidden = !!q.noWord;
       $('qt').textContent = q.title;
       $('qctx').hidden = !q.context; $('qctx').textContent = q.context || '';
       $('wordLabel').textContent = q.wordPrompt || 'One word (optional)';
@@ -2724,8 +2964,9 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
           const b = document.createElement('button');
           b.className = 'opt st'; b.style.setProperty('--i', i + 2); b.style.setProperty('--c', LANES[i % LANES.length]); b.dataset.id = o.id;
           b.setAttribute('role', 'radio');
-          b.innerHTML = `${orbIcon(LANES[i % LANES.length], o.icon)}<span class="l"></span><span class="radio"></span>`;
-          b.querySelector('.l').textContent = o.label;
+          b.innerHTML = `${o.icon ? orbIcon(LANES[i % LANES.length], o.icon) : orbText(LANES[i % LANES.length], String(i + 1))}<span class="l"></span><span class="radio"></span>`;
+          b.querySelector('.l').textContent = String(o.label).replace(/[\[\]]/g, '');
+          if (o.team || o.idea) { const sm = document.createElement('small'); sm.textContent = String(o.team || o.idea).replace(/[\[\]]/g, ''); b.querySelector('.l').appendChild(sm); }
           b.onclick = () => {
             choice = o.id; markChoice();
             $('send').disabled = false; $('err').hidden = true;
@@ -2739,8 +2980,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
       if (s.mine && !editing) {
         const i = q.options.findIndex(x => x.id === s.mine.option), o = q.options[i];
-        $('chosen').innerHTML = o ? `${orbIcon(LANES[i % LANES.length], o.icon)}<span></span>` : '';
-        if (o) $('chosen').lastChild.textContent = o.label + (s.mine.word ? ` · “${s.mine.word}”` : '');
+        $('chosen').innerHTML = o ? `${o.icon ? orbIcon(LANES[i % LANES.length], o.icon) : orbText(LANES[i % LANES.length], String(i + 1))}<span></span>` : '';
+        if (o) $('chosen').lastChild.textContent = String(o.label).replace(/[\[\]]/g, '') + (s.mine.word ? ` · “${s.mine.word}”` : '');
         show('done');
       } else show('pick');
     }
@@ -2782,7 +3023,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
-<script>window.PULSE_CONFIG = {"team":"Finance Operations","event":"Year-End All-Hands 2026","holidayDate":"2026-12-24","countdown":{"date":"2027-01-04","label":"year-end close","after":"Year-end close: we've got this!"},"timer":25,"reactions":["👏","🎉","🔥","💪","😂","🚀"],"ticker":["Reconciling the audience… 98% matched","Applying holiday accruals…","Rounding difference detected: within tolerance","Coffee consumption: ahead of forecast","Loading final_FINAL_v3.xlsx…","Meetings that could have been an email: in line with guidance","Variance analysis: vibes are up","Audit trail confirms: you were here","Outlook 2027: strong buy"],"show":[{"type":"title","nav":"Title","kicker":"Finance Operations","title":"Year-End All-Hands 2026","subtitle":"Closing a record year, together","meta":"[Date] · [Location]"},{"type":"lobby","nav":"Join"},{"type":"agenda","nav":"Agenda","title":"Today's agenda","items":[{"time":"[10:00]","title":"Welcome and warm-up","who":"[Host]","live":true},{"time":"[10:10]","title":"2026 in review","who":"[Speaker]"},{"time":"[10:25]","title":"Shout-outs","who":"[Speaker]"},{"time":"[10:35]","title":"The road ahead: peak season","who":"[Speaker]","live":true},{"time":"[10:50]","title":"Q&A","who":"Everyone"},{"time":"[11:00]","title":"Yes we can!","who":"All of us"}]},{"type":"question","question":"erp","nav":"Q1 ERP movie"},{"type":"section","nav":"01 Review","number":"01","title":"2026 in review","subtitle":"A record year, and how we got there"},{"type":"bullets","nav":"Highlights","title":"Highlights of 2026","subtitle":"[Replace with your own highlights]","points":[{"icon":"chart:rocket","title":"Record sales year","text":"[What made it possible]"},{"icon":"help:target","title":"[Highlight 2]","text":"[One line about it]"},{"icon":"help:team","title":"[Highlight 3]","text":"[One line about it]"},{"icon":"help:trophy","title":"[Highlight 4]","text":"[One line about it]"}]},{"type":"stats","nav":"Numbers","title":"2026 by the numbers","subtitle":"[Replace XX with the real figures]","stats":[{"value":"XX","label":"Invoices processed","note":"[vs 2025]"},{"value":"XX","label":"Month-end closes on time","note":"[out of 12]"},{"value":"XX","label":"Journal entries booked","note":"[vs 2025]"},{"value":"XX","label":"Cups of coffee","note":"Ahead of forecast"}]},{"type":"question","question":"energy","nav":"Q2 Energy"},{"type":"section","nav":"02 Shout-outs","number":"02","title":"Shout-outs","subtitle":"Thank you for making it happen"},{"type":"shoutouts","nav":"Thank you","title":"Thank you!","subtitle":"[Replace with your own shout-outs]","people":[{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"}]},{"type":"section","nav":"03 Road ahead","number":"03","title":"The road ahead","subtitle":"DR2, FDM testing, the financial close, SOX, the annual report and the S/4HANA go-live"},{"type":"roadmap","nav":"Timeline"},{"type":"bullets","nav":"Peak plan","title":"How we'll get through the peak","subtitle":"[Replace with your plan]","points":[{"icon":"help:target","title":"Clear priorities","text":"[What comes first, what can wait]"},{"icon":"help:focus","title":"Protected focus time","text":"[e.g. meeting-free mornings during the close]"},{"icon":"help:team","title":"Backing each other up","text":"[Buddy system or coverage plan]"},{"icon":"help:snow","title":"A real holiday break","text":"[Holiday coverage plan]"}]},{"type":"question","question":"weather","nav":"Q3 Weather"},{"type":"recap","nav":"Recap"},{"type":"qa","nav":"Q&A","title":"Questions?","subtitle":"Ask anything. No question is too small, or too big."},{"type":"finale","nav":"Finale"}],"lobby":{"title":"Peak Season Pulse","intro":"Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"},"recap":{"title":"Thank you for your honesty!","subtitle":"Here's what you told us, and what we'll do with it."},"roadmap":{"title":"The road ahead","subtitle":"Key dates of peak season, and how busy it gets.","style":"gantt","start":"2026-12-01","end":"2027-02-21","source":"Planning as of today · FDM UAT dates TBD","workloadLabel":"Team workload","peakLabel":"Peak","holiday":{"label":"Christmas break","start":"2026-12-24","end":"2027-01-03","factor":0.35},"rows":[{"label":"ERP · S/4HANA","items":[{"type":"bar","label":"DR2 finalization & ramp-up","start":"2026-12-17","end":"2026-12-18","weight":1.2},{"type":"bar","key":true,"label":"Blackout & cutover","start":"2027-01-29","end":"2027-01-31","when":"29 Jan – 1 Feb","weight":1.6},{"type":"milestone","key":true,"label":"Go-live S/4HANA","date":"2027-02-01","weight":1},{"type":"bar","label":"Ramp-up & hypercare","start":"2027-02-01","end":"2027-02-15","weight":1.2,"fade":true}]},{"label":"FDM","note":"Flexible delivery model","items":[{"type":"bar","label":"UAT testing","start":"2026-12-07","end":"2026-12-23","when":"before Christmas","weight":0.8},{"type":"bar","label":"End-to-end testing","start":"2027-01-04","end":"2027-01-22","when":"Jan, to week 3","weight":0.8}]},{"label":"Close & reporting","items":[{"type":"milestone","label":"Standard cost prices","date":"2027-01-01","weight":0.5},{"type":"bar","label":"Financial close 2026","start":"2027-01-05","end":"2027-01-06","weight":1.6},{"type":"milestone","label":"Annual report deadline","date":"2027-01-14","when":"14 Jan, internal","weight":1},{"type":"milestone","label":"Quarterly results","date":"2027-01-27","weight":0.9}]},{"label":"Controls","items":[{"type":"milestone","label":"SOX execution deadline","date":"2027-01-19","weight":0.9},{"type":"milestone","label":"Disclosure controls deadline","date":"2027-01-25","when":"25 Jan, annual report","weight":0.8}]}],"overview":"Peak season, mapped","steps":[{"type":"start","when":"Today","label":"We're here","note":"One team, ready to go","load":60,"month":"Dec"},{"type":"level","when":"December · TBD","label":"DR2","note":"Second dress rehearsal","load":75,"month":"Dec"},{"type":"rest","when":"Late December","label":"Christmas","note":"Laptops closed, batteries recharged","load":20,"month":"Dec"},{"type":"level","when":"Early January · TBD","label":"Year-end close","note":"Closing a record year","load":90,"month":"Jan"},{"type":"level","when":"January · TBD","label":"SOX controls","note":"Controls tested, evidence ready","load":85,"month":"Jan"},{"type":"level","when":"Jan – Feb · TBD","label":"Annual report","note":"Telling our record-year story","load":85,"month":"Jan"},{"type":"level","when":"End of January · TBD","label":"Ramp-down","note":"Closing out the old system","load":90,"month":"Jan","group":"ERP migration"},{"type":"boss","when":"End Jan / early Feb · TBD","label":"Cutover","note":"The big switch-over","load":100,"month":"Feb","group":"ERP migration"},{"type":"level","when":"Early February · TBD","label":"Ramp-up","note":"Live in the new system","load":95,"month":"Feb","group":"ERP migration"},{"type":"level","when":"February onwards","label":"Hypercare","note":"Extra support as it settles","load":75,"month":"Feb","group":"ERP migration"},{"type":"finish","when":"Spring · TBD","label":"Peak conquered!","note":"Celebrate together","load":40,"month":"Mar"}]},"finale":{"lines":["Record year? Delivered.","Peak season? Bring it on.","One team. Together."],"title":"YES WE CAN!","thanks":"Happy holidays, Finance Operations!"},"questions":[{"id":"erp","title":"If the ERP migration were a movie, which one would it be?","wordPrompt":"Your movie tagline in one word (optional)","takeaways":[{"text":"ERP migration, the movie: “{top}”. Popcorn ready!"}],"pledge":"Celebrate every ERP milestone together, popcorn included","options":[{"id":"mission","label":"Mission: Impossible","icon":"movie:mission","note":"…made possible!"},{"id":"oceans","label":"Ocean's Eleven","icon":"movie:heist","note":"Great team, perfect plan"},{"id":"rings","label":"The Lord of the Rings","icon":"movie:quest","note":"Long road, happy ending"},{"id":"fast","label":"Fast & Furious","icon":"movie:race","note":"Family. And deadlines."},{"id":"toy","label":"Toy Story","icon":"movie:toy","note":"To go-live and beyond!"}],"demo":{"weights":[12,9,8,5,7],"words":["epic","teamwork","sequel","blockbuster","thriller","popcorn","plot-twist","heroes","adventure","epic"]}},{"id":"energy","title":"How charged are you for peak season?","context":"Year-end close · annual report · ERP migration","wordPrompt":"What keeps you going? (one word, optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% are charged for the peak. Bring it on!"},{"minTopBox":35,"text":"Charging up nicely. We'll pace the peak together"},{"text":"Recharge first, then we go, and we go together"}],"pledge":"Protect the holiday break: laptops closed, batteries recharged","options":[{"id":"full","label":"Fully charged, bring it on!","icon":"battery:100","score":5,"note":"Let's gooo!"},{"id":"ready","label":"Charged and ready","icon":"battery:70","score":4,"note":"Ready to roll!"},{"id":"charging","label":"Charging up","icon":"battery:35","score":3,"note":"Almost there!"},{"id":"holiday","label":"Recharging over the holidays","icon":"battery:10","score":2,"note":"Holiday approved ✓"}],"demo":{"weights":[8,14,9,5],"words":["coffee","team","holiday","coffee","family","music","team","sports","chocolate","sleep","coffee","colleagues"]},"meterLabel":"Team energy"},{"id":"weather","title":"What's the weather forecast for January?","context":"Your outlook for the start of 2027","wordPrompt":"What will you bring? (one word, optional)","meterLabel":"Team forecast","takeaways":[{"minTopBox":60,"text":"{topBox}% expect sunshine. Sunglasses on!"},{"minTopBox":35,"text":"Mixed forecast, and we've got umbrellas for everyone"},{"text":"Storm first, rainbow after. We'll weather it together"}],"pledge":"Short weekly check-ins, so nobody gets caught in the rain","options":[{"id":"sunny","label":"Sunny, bring it on","icon":"weather:sun","score":5,"note":"Sunglasses on!"},{"id":"mostly","label":"Mostly sunny, some deadlines","icon":"weather:partly","score":4,"note":"Light jacket weather"},{"id":"showers","label":"Showers, but we brought umbrellas","icon":"weather:rain","score":3,"note":"Umbrellas ready!"},{"id":"rainbow","label":"Storm first, rainbow after","icon":"weather:rainbow","score":2,"note":"Rainbow incoming!"}],"demo":{"weights":[7,15,9,6],"words":["umbrella","coffee","optimism","snacks","sunglasses","energy","patience","teamwork","humour","coffee"]}}],"spareQuestions":[{"title":"How are you feeling right now?","wordPrompt":"One word for your mood (optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% feel positive or energised. What a team!"},{"minTopBox":35,"text":"Honest answers, strong team. Thank you!"},{"text":"Thanks for being honest. Now let's look after each other"}],"pledge":"Short weekly check-ins through the peak, so nobody runs on empty","options":[{"id":"energised","label":"Energised","icon":"signal:5","score":5,"note":"Unstoppable!"},{"id":"positive","label":"Positive","icon":"signal:4","score":4,"note":"Love that energy!"},{"id":"steady","label":"Steady","icon":"signal:3","score":3,"note":"Rock solid!"},{"id":"stretched","label":"Stretched","icon":"signal:2","score":2,"note":"We've got your back"},{"id":"recharge","label":"Need a recharge","icon":"signal:1","score":1,"note":"Rest is part of the plan"}],"demo":{"weights":[5,11,7,6,2],"words":["proud","busy","grateful","tired","focused","proud","excited","busy","relieved","hectic","happy","proud","festive","stretched","motivated"]}},{"title":"If 2026 were a share price, what would the chart look like?","wordPrompt":"Describe 2026 in one word (optional)","takeaways":[{"text":"2026 in one chart: “{top}”. What a year!"}],"pledge":"Celebrate the record year together, because we earned it","options":[{"id":"rocket","label":"Exponential growth","icon":"chart:rocket","note":"To the moon!"},{"id":"bull","label":"Steady bull run","icon":"chart:bull","note":"Textbook growth!"},{"id":"volatile","label":"Volatile, but up","icon":"chart:volatile","note":"Up is up!"},{"id":"recovery","label":"Dip and recovery","icon":"chart:recovery","note":"Comeback kids!"},{"id":"sideways","label":"Building the base","icon":"chart:sideways","note":"Ready to break out!"}],"demo":{"weights":[8,7,12,4,2],"words":["record","intense","growth","rollercoaster","busy","record","wild","solid","intense","rewarding","record","fast"]}},{"title":"What will make us unstoppable through the peak?","context":"Your top picks go straight into our plan","wordPrompt":"Your own idea? (one word, optional)","takeaways":[{"text":"Power-up #1: “{top}”. Let's make it happen!"}],"pledge":"Your #1 power-up goes into our peak plan, starting next week","options":[{"id":"priorities","label":"Clear priorities","icon":"help:target","note":"Focus mode: ON"},{"id":"focus","label":"Protected focus time","icon":"help:focus","note":"Do not disturb!"},{"id":"backup","label":"Backing each other up","icon":"help:team","note":"Team power!"},{"id":"wins","label":"Celebrating every win","icon":"help:trophy","note":"Cake incoming!"},{"id":"break","label":"A real holiday break","icon":"help:snow","note":"Laptops closed ✓"}],"demo":{"weights":[9,11,6,4,8],"words":["clarity","templates","automation","patience","pizza","documentation","training","clarity","headcount","cake"]}}]}; window.PULSE_JOIN_URL = "https://pietjepizza.github.io/yearend/phone.html";</script>
+<script>window.PULSE_CONFIG = {"team":"Finance Operations","event":"Year-End All-Hands 2026","holidayDate":"2026-12-24","countdown":{"date":"2027-01-04","label":"year-end close","after":"Year-end close: we've got this!"},"timer":25,"reactions":["👏","🎉","🔥","💪","😂","🚀"],"ticker":["Reconciling the audience… 98% matched","Applying holiday accruals…","Rounding difference detected: within tolerance","Coffee consumption: ahead of forecast","Loading final_FINAL_v3.xlsx…","Meetings that could have been an email: in line with guidance","Variance analysis: vibes are up","Audit trail confirms: you were here","Outlook 2027: strong buy"],"show":[{"type":"title","nav":"Title","kicker":"Finance Operations","title":"Year-End All-Hands 2026","subtitle":"Closing a record year, together","meta":"[Date] · [Location]"},{"type":"lobby","nav":"Join"},{"type":"agenda","nav":"Agenda","title":"Today's agenda","items":[{"time":"[10:00]","title":"Welcome and warm-up","who":"[Host]","live":true},{"time":"[10:10]","title":"2026 in review","who":"[Speaker]"},{"time":"[10:25]","title":"Shout-outs","who":"[Speaker]"},{"time":"[10:35]","title":"Improvement Award","who":"Three nominees, your vote","live":true},{"time":"[10:55]","title":"The road ahead: peak season","who":"[Speaker]","live":true},{"time":"[11:10]","title":"Q&A","who":"Everyone"},{"time":"[11:20]","title":"Yes we can!","who":"All of us"}]},{"type":"question","question":"erp","nav":"Q1 ERP movie"},{"type":"section","nav":"01 Review","number":"01","title":"2026 in review","subtitle":"A record year, and how we got there"},{"type":"bullets","nav":"Highlights","title":"Highlights of 2026","subtitle":"[Replace with your own highlights]","points":[{"icon":"chart:rocket","title":"Record sales year","text":"[What made it possible]"},{"icon":"help:target","title":"[Highlight 2]","text":"[One line about it]"},{"icon":"help:team","title":"[Highlight 3]","text":"[One line about it]"},{"icon":"help:trophy","title":"[Highlight 4]","text":"[One line about it]"}]},{"type":"stats","nav":"Numbers","title":"2026 by the numbers","subtitle":"[Replace XX with the real figures]","stats":[{"value":"XX","label":"Invoices processed","note":"[vs 2025]"},{"value":"XX","label":"Month-end closes on time","note":"[out of 12]"},{"value":"XX","label":"Journal entries booked","note":"[vs 2025]"},{"value":"XX","label":"Cups of coffee","note":"Ahead of forecast"}]},{"type":"question","question":"energy","nav":"Q2 Energy"},{"type":"section","nav":"02 Shout-outs","number":"02","title":"Shout-outs","subtitle":"Thank you for making it happen"},{"type":"shoutouts","nav":"Thank you","title":"Thank you!","subtitle":"[Replace with your own shout-outs]","people":[{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"}]},{"type":"section","nav":"03 Award","number":"03","title":"Improvement Award","subtitle":"Three improvements. One winner. Your vote."},{"type":"nominees","nav":"Nominees","question":"award","title":"Meet the nominees","subtitle":"Each shares their improvement. Then you vote."},{"type":"question","question":"award","nav":"Award vote"},{"type":"section","nav":"04 Road ahead","number":"04","title":"The road ahead","subtitle":"DR2, FDM testing, the financial close, SOX, the annual report and the S/4HANA go-live"},{"type":"roadmap","nav":"Timeline"},{"type":"bullets","nav":"Peak plan","title":"How we'll get through the peak","subtitle":"[Replace with your plan]","points":[{"icon":"help:target","title":"Clear priorities","text":"[What comes first, what can wait]"},{"icon":"help:focus","title":"Protected focus time","text":"[e.g. meeting-free mornings during the close]"},{"icon":"help:team","title":"Backing each other up","text":"[Buddy system or coverage plan]"},{"icon":"help:snow","title":"A real holiday break","text":"[Holiday coverage plan]"}]},{"type":"question","question":"weather","nav":"Q3 Weather"},{"type":"recap","nav":"Recap"},{"type":"qa","nav":"Q&A","title":"Questions?","subtitle":"Ask anything. No question is too small, or too big."},{"type":"finale","nav":"Finale"}],"lobby":{"title":"Peak Season Pulse","intro":"Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"},"recap":{"title":"Thank you for your honesty!","subtitle":"Here's what you told us, and what we'll do with it."},"roadmap":{"title":"The road ahead","subtitle":"A demanding stretch with a lot to deliver. We get through it together.","style":"gantt","start":"2026-12-01","end":"2027-02-21","source":"Planning as of today · FDM UAT dates TBD","workloadLabel":"Team workload","peakLabel":"Peak","holiday":{"label":"Christmas break","start":"2026-12-24","end":"2027-01-03","factor":0.35},"rows":[{"label":"ERP · S/4HANA","items":[{"type":"bar","label":"DR2 finalization & ramp-up","start":"2026-12-17","end":"2026-12-18","weight":1.2},{"type":"bar","key":true,"label":"Blackout & cutover","start":"2027-01-29","end":"2027-01-31","when":"29 Jan – 1 Feb","weight":1.6},{"type":"milestone","key":true,"label":"Go-live S/4HANA","date":"2027-02-01","weight":1},{"type":"bar","label":"Ramp-up & hypercare","start":"2027-02-01","end":"2027-02-15","weight":1.2,"fade":true}]},{"label":"FDM","items":[{"type":"bar","label":"UAT testing","start":"2026-12-07","end":"2026-12-23","when":"before Christmas","weight":0.8},{"type":"bar","label":"End-to-end testing","start":"2027-01-04","end":"2027-01-22","when":"Jan, to week 3","weight":0.8}]},{"label":"Close & reporting","items":[{"type":"milestone","label":"Standard cost prices","date":"2027-01-01","weight":0.5},{"type":"bar","label":"Financial close 2026","start":"2027-01-05","end":"2027-01-06","weight":1.6},{"type":"milestone","label":"Annual report deadline","date":"2027-01-14","when":"14 Jan, internal","weight":1},{"type":"milestone","label":"Quarterly results","date":"2027-01-27","weight":0.9}]},{"label":"Controls","items":[{"type":"milestone","label":"SOX execution deadline","date":"2027-01-19","weight":0.9},{"type":"milestone","label":"Disclosure controls deadline","date":"2027-01-25","when":"25 Jan, annual report","weight":0.8}]}],"overview":"Peak season, mapped","steps":[{"type":"start","when":"Today","label":"We're here","note":"One team, ready to go","load":60,"month":"Dec"},{"type":"level","when":"December · TBD","label":"DR2","note":"Second dress rehearsal","load":75,"month":"Dec"},{"type":"rest","when":"Late December","label":"Christmas","note":"Laptops closed, batteries recharged","load":20,"month":"Dec"},{"type":"level","when":"Early January · TBD","label":"Year-end close","note":"Closing a record year","load":90,"month":"Jan"},{"type":"level","when":"January · TBD","label":"SOX controls","note":"Controls tested, evidence ready","load":85,"month":"Jan"},{"type":"level","when":"Jan – Feb · TBD","label":"Annual report","note":"Telling our record-year story","load":85,"month":"Jan"},{"type":"level","when":"End of January · TBD","label":"Ramp-down","note":"Closing out the old system","load":90,"month":"Jan","group":"ERP migration"},{"type":"boss","when":"End Jan / early Feb · TBD","label":"Cutover","note":"The big switch-over","load":100,"month":"Feb","group":"ERP migration"},{"type":"level","when":"Early February · TBD","label":"Ramp-up","note":"Live in the new system","load":95,"month":"Feb","group":"ERP migration"},{"type":"level","when":"February onwards","label":"Hypercare","note":"Extra support as it settles","load":75,"month":"Feb","group":"ERP migration"},{"type":"finish","when":"Spring · TBD","label":"Peak conquered!","note":"Celebrate together","load":40,"month":"Mar"}],"peakZoneLabel":"Peak weeks","peakZoneNote":"look out for each other"},"finale":{"lines":["Record year? Delivered.","Peak season? Bring it on.","One team. Together."],"title":"YES WE CAN!","thanks":"Happy holidays, Finance Operations!"},"questions":[{"id":"erp","title":"If the ERP migration were a movie, which one would it be?","wordPrompt":"Your movie tagline in one word (optional)","takeaways":[{"text":"ERP migration, the movie: “{top}”. Popcorn ready!"}],"pledge":"Celebrate every ERP milestone together, popcorn included","options":[{"id":"mission","label":"Mission: Impossible","icon":"movie:mission","note":"…made possible!"},{"id":"oceans","label":"Ocean's Eleven","icon":"movie:heist","note":"Great team, perfect plan"},{"id":"rings","label":"The Lord of the Rings","icon":"movie:quest","note":"Long road, happy ending"},{"id":"fast","label":"Fast & Furious","icon":"movie:race","note":"Family. And deadlines."},{"id":"toy","label":"Toy Story","icon":"movie:toy","note":"To go-live and beyond!"}],"demo":{"weights":[12,9,8,5,7],"words":["epic","teamwork","sequel","blockbuster","thriller","popcorn","plot-twist","heroes","adventure","epic"]}},{"id":"energy","title":"How charged are you for peak season?","context":"Year-end close · annual report · ERP migration","wordPrompt":"What keeps you going? (one word, optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% are charged for the peak. Bring it on!"},{"minTopBox":35,"text":"Charging up nicely. We'll pace the peak together"},{"text":"Recharge first, then we go, and we go together"}],"pledge":"Protect the holiday break: laptops closed, batteries recharged","options":[{"id":"full","label":"Fully charged, bring it on!","icon":"battery:100","score":5,"note":"Let's gooo!"},{"id":"ready","label":"Charged and ready","icon":"battery:70","score":4,"note":"Ready to roll!"},{"id":"charging","label":"Charging up","icon":"battery:35","score":3,"note":"Almost there!"},{"id":"holiday","label":"Recharging over the holidays","icon":"battery:10","score":2,"note":"Holiday approved ✓"}],"demo":{"weights":[8,14,9,5],"words":["coffee","team","holiday","coffee","family","music","team","sports","chocolate","sleep","coffee","colleagues"]},"meterLabel":"Team energy"},{"id":"weather","title":"What's the weather forecast for January?","context":"Your outlook for the start of 2027","wordPrompt":"What will you bring? (one word, optional)","meterLabel":"Team forecast","takeaways":[{"minTopBox":60,"text":"{topBox}% expect sunshine. Sunglasses on!"},{"minTopBox":35,"text":"Mixed forecast, and we've got umbrellas for everyone"},{"text":"Storm first, rainbow after. We'll weather it together"}],"pledge":"Short weekly check-ins, so nobody gets caught in the rain","options":[{"id":"sunny","label":"Sunny, bring it on","icon":"weather:sun","score":5,"note":"Sunglasses on!"},{"id":"mostly","label":"Mostly sunny, some deadlines","icon":"weather:partly","score":4,"note":"Light jacket weather"},{"id":"showers","label":"Showers, but we brought umbrellas","icon":"weather:rain","score":3,"note":"Umbrellas ready!"},{"id":"rainbow","label":"Storm first, rainbow after","icon":"weather:rainbow","score":2,"note":"Rainbow incoming!"}],"demo":{"weights":[7,15,9,6],"words":["umbrella","coffee","optimism","snacks","sunglasses","energy","patience","teamwork","humour","coffee"]}},{"id":"award","type":"award","title":"Which improvement wins the award?","context":"Three improvements, one winner. Vote for the one that impressed you most.","timer":0,"noWord":true,"prize":"[Prize]","winnerText":"And the Improvement Award goes to… {winner}!","options":[{"id":"n1","label":"[Nominee 1]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"},{"id":"n2","label":"[Nominee 2]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"},{"id":"n3","label":"[Nominee 3]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"}],"demo":{"weights":[13,10,8],"words":[]}}],"spareQuestions":[{"title":"How are you feeling right now?","wordPrompt":"One word for your mood (optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% feel positive or energised. What a team!"},{"minTopBox":35,"text":"Honest answers, strong team. Thank you!"},{"text":"Thanks for being honest. Now let's look after each other"}],"pledge":"Short weekly check-ins through the peak, so nobody runs on empty","options":[{"id":"energised","label":"Energised","icon":"signal:5","score":5,"note":"Unstoppable!"},{"id":"positive","label":"Positive","icon":"signal:4","score":4,"note":"Love that energy!"},{"id":"steady","label":"Steady","icon":"signal:3","score":3,"note":"Rock solid!"},{"id":"stretched","label":"Stretched","icon":"signal:2","score":2,"note":"We've got your back"},{"id":"recharge","label":"Need a recharge","icon":"signal:1","score":1,"note":"Rest is part of the plan"}],"demo":{"weights":[5,11,7,6,2],"words":["proud","busy","grateful","tired","focused","proud","excited","busy","relieved","hectic","happy","proud","festive","stretched","motivated"]}},{"title":"If 2026 were a share price, what would the chart look like?","wordPrompt":"Describe 2026 in one word (optional)","takeaways":[{"text":"2026 in one chart: “{top}”. What a year!"}],"pledge":"Celebrate the record year together, because we earned it","options":[{"id":"rocket","label":"Exponential growth","icon":"chart:rocket","note":"To the moon!"},{"id":"bull","label":"Steady bull run","icon":"chart:bull","note":"Textbook growth!"},{"id":"volatile","label":"Volatile, but up","icon":"chart:volatile","note":"Up is up!"},{"id":"recovery","label":"Dip and recovery","icon":"chart:recovery","note":"Comeback kids!"},{"id":"sideways","label":"Building the base","icon":"chart:sideways","note":"Ready to break out!"}],"demo":{"weights":[8,7,12,4,2],"words":["record","intense","growth","rollercoaster","busy","record","wild","solid","intense","rewarding","record","fast"]}},{"title":"What will make us unstoppable through the peak?","context":"Your top picks go straight into our plan","wordPrompt":"Your own idea? (one word, optional)","takeaways":[{"text":"Power-up #1: “{top}”. Let's make it happen!"}],"pledge":"Your #1 power-up goes into our peak plan, starting next week","options":[{"id":"priorities","label":"Clear priorities","icon":"help:target","note":"Focus mode: ON"},{"id":"focus","label":"Protected focus time","icon":"help:focus","note":"Do not disturb!"},{"id":"backup","label":"Backing each other up","icon":"help:team","note":"Team power!"},{"id":"wins","label":"Celebrating every win","icon":"help:trophy","note":"Cake incoming!"},{"id":"break","label":"A real holiday break","icon":"help:snow","note":"Laptops closed ✓"}],"demo":{"weights":[9,11,6,4,8],"words":["clarity","templates","automation","patience","pizza","documentation","training","clarity","headcount","cake"]}}]}; window.PULSE_JOIN_URL = "https://pietjepizza.github.io/yearend/phone.html";</script>
 <script>
 // Transport for the claude.ai test build.
 // - Presenter state lives in the shared `db` document live/state (only editors can change it).
