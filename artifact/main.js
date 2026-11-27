@@ -51,7 +51,7 @@
   }
 
   const inline = (SIM && SIM.config) || window.PULSE_CONFIG;
-  if (inline) start(inline);
+  if (inline) start(inline, { qr: SIM && SIM.qr });
   else if (LIVE && window.PulseLock) {
     if (isPhone) PulseLock.phone({ url: LIVE.url, anon: LIVE.key, el: app }).then(data => start(data.config));
     else PulseLock.presenter({ url: LIVE.url, anon: LIVE.key, el: app, what: isNotes ? 'presenter view' : 'presenter screen' })

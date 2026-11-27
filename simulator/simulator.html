@@ -142,11 +142,11 @@
 <script>
 // On the public website the content is not in this page: window.PULSE_SIM_LOCK makes the simulator ask for the
 // presenter key first and load the content from Supabase. In the private test build the content is inlined.
-function bootSimulator(CONFIG) {
+function bootSimulator(CONFIG, QR) {
   const $ = id => document.getElementById(id);
   const APP = JSON.parse($('app-src').textContent);
   const frameDoc = sim => '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><script>window.SIM=' +
-    JSON.stringify(CONFIG ? { ...sim, config: CONFIG } : sim).replace(/</g, '\\u003c') + '<\/script>' + APP + '</body></html>';
+    JSON.stringify(CONFIG ? { ...sim, config: CONFIG, qr: QR || '' } : sim).replace(/</g, '\\u003c') + '<\/script>' + APP + '</body></html>';
 
   // --- presenter + phones ---
   $('hostFrame').srcdoc = frameDoc({ role: 'host' });
@@ -250,6 +250,6 @@ function bootSimulator(CONFIG) {
   const layer = document.createElement('div');
   layer.style.cssText = 'position:fixed;inset:0;z-index:999;overflow:auto';
   document.body.appendChild(layer);
-  PulseLock.presenter({ url: L.url, anon: L.key, el: layer, what: 'simulator' }).then(({ data }) => { layer.remove(); bootSimulator(data.config); });
+  PulseLock.presenter({ url: L.url, anon: L.key, el: layer, what: 'simulator' }).then(({ data }) => { layer.remove(); bootSimulator(data.config, data.qr); });
 })();
 </script>
