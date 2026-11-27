@@ -997,17 +997,17 @@
       const X = t => cx0 + (cl(t, t0, t1) - t0) / span * (cx1 - cx0);
       const sweep = x => (.25 + 1.6 * (x - cx0) / (cx1 - cx0)).toFixed(2) + 's';   // entry delay: left to right
       const headH = u * 4.4, gap = u * 1.6, loadH = Math.max(u * 6.5, H * .22);
-      const rowH = cl((H - headH - gap - loadH) / rows.length, u * 3.2, u * 5.2);
+      const rowH = cl((H - headH - gap - loadH) / rows.length, u * 3.8, u * 5.4);
       const rowsTop = headH, rowsBot = headH + rowH * rows.length;
       const loadTop = rowsBot + gap, loadBot = H - u * .4;
       const ly0 = loadTop + u * 1.6, ly1 = loadBot;
       const yOf = v => ly1 - v / 100 * (ly1 - ly0);
-      const barY = ri => rowsTop + rowH * ri + rowH * .58;   // centre line of a row's bars
+      const barY = ri => rowsTop + rowH * ri + rowH * .5;   // centre line of a row's bars
       const barH = u * .85;
 
       // ---- the workload: every active workstream adds its weight, the holiday break damps it ----
       const items = rows.flatMap((r, ri) => (r.items || []).map(it => {
-        const a = day(it.start || it.date), b = it.end ? day(it.end) : a + DAY;
+        const a = day(it.start || it.date), b = (it.end ? day(it.end) : a) + DAY;   // end dates are inclusive
         return { ...it, ri, a, b, mid: (a + b) / 2 };
       }));
       const hol = R.holiday ? { a: day(R.holiday.start), b: day(R.holiday.end) } : null;
@@ -1036,10 +1036,15 @@
       const months = [];
       for (let m = new Date(t0); m.getTime() < t1; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) months.push(Math.max(t0, new Date(m.getFullYear(), m.getMonth(), 1).getTime()));
       const today = R.today ? day(R.today) : new Date(new Date().toDateString()).getTime();
+      const when = it => {
+        const a = new Date(it.a), b = new Date(it.b - DAY);
+        if (it.type === 'milestone' || it.b - it.a <= DAY) return fmtDay(it.a);
+        return a.getMonth() === b.getMonth() ? `${a.getDate()}–${fmtDay(b)}` : `${fmtDay(a)} – ${fmtDay(b)}`;
+      };
       const marks = [];
       if (today >= t0 && today <= t1) marks.push({ cls: 'today', x: X(today), text: 'Today' });
       if (hol) marks.push({ cls: 'hol', x: (X(hol.a) + X(hol.b)) / 2, text: R.holiday.label || 'Holiday break' });
-      items.forEach(it => { if (it.key) marks.push({ cls: 'key', x: X(it.mid), text: it.label + (it.when ? ` · ${it.when}` : '') }); });
+      items.forEach(it => { if (it.key && it.type === 'milestone') marks.push({ cls: 'key', x: X(it.mid), text: `${it.label} · ${it.when || when(it)}` }); });
       box.classList.add('gt');
       box.classList.remove('done');
       box.innerHTML = `
@@ -1057,18 +1062,46 @@
           <line class="gt-sep" x1="0" x2="${W}" y1="${rowsBot + gap / 2}" y2="${rowsBot + gap / 2}"/>
           <path class="gt-area" d="${line} L${cx1} ${ly1} L${cx0} ${ly1} Z"/>
           <path class="gt-line" pathLength="1" d="${line}"/>
-          ${marks.map(m => `<line class="gt-mk-line ${m.cls}" style="--d:${sweep(m.x)}" x1="${m.x}" x2="${m.x}" y1="${u * 1.5}" y2="${loadBot}"/>`).join('')}
+          ${marks.map((m, k) => `<path class="gt-mk-line ${m.cls}" id="gtML${k}" style="--d:${sweep(m.x)}" d="M${m.x} ${u * 1.5} V${loadBot}"/>`).join('')}
         </svg>
         ${months.map(t => `<div class="gt-mon" style="left:${X(t)}px;top:${headH - u * 1.9}px">${new Date(t).toLocaleDateString('en-GB', { month: 'short' })}</div>`).join('')}
         ${marks.map((m, k) => `<div class="gt-mk ${m.cls}" id="gtMK${k}" style="left:${m.x}px;--d:${sweep(m.x)}">${esc(m.text)}</div>`).join('')}
-        ${rows.map((r, i) => `<div class="gt-rlab" style="top:${barY(i)}px">${esc(r.label || '')}</div>`).join('')}
-        ${items.map(it => it.type === 'milestone' ? `
-          <div class="gt-ms ${it.key ? 'key' : ''}" style="left:${X(it.mid)}px;top:${barY(it.ri)}px;--d:${sweep(X(it.mid))}"><i></i>${it.key ? '' : `<span>${esc(it.label)}</span>`}</div>` : `
-          <div class="gt-bar ${it.fade ? 'fade' : ''}" style="left:${X(it.a)}px;width:${Math.max(u * .6, X(it.b) - X(it.a))}px;top:${barY(it.ri) - barH / 2}px;height:${barH}px;--d:${sweep(X(it.a))}"></div>
-          <div class="gt-blab" style="left:${X(it.a)}px;top:${barY(it.ri) - barH / 2 - u * .3}px;--d:${sweep(X(it.a))}">${esc(it.label || '')}</div>`).join('')}
+        ${rows.map((r, i) => `<div class="gt-rlab" style="top:${barY(i)}px">${esc(r.label || '')}${r.note ? `<small>${esc(r.note)}</small>` : ''}</div>`).join('')}
+        ${items.map((it, k) => it.type === 'milestone' ? `
+          <div class="gt-ms ${it.key ? 'key' : ''}" style="left:${X(it.mid)}px;top:${barY(it.ri)}px;--d:${sweep(X(it.mid))}"><i></i></div>` : `
+          <div class="gt-bar ${it.fade ? 'fade' : ''} ${it.key ? 'key' : ''}" style="left:${X(it.a)}px;width:${Math.max(u * .6, X(it.b) - X(it.a))}px;top:${barY(it.ri) - barH / 2}px;height:${barH}px;--d:${sweep(X(it.a))}"></div>`).join('')}
+        ${items.map((it, k) => it.key && it.type === 'milestone' ? '' : `
+          <div class="gt-blab ${it.key ? 'key' : ''}" id="gtL${k}" style="left:${it.type === 'milestone' ? X(it.mid) - u * .45 : X(it.a)}px;--d:${sweep(X(it.a))}"><b>${esc(it.label || '')}</b> ${esc(it.when || when(it))}</div>`).join('')}
         <div class="gt-rlab wl" style="top:${(ly0 + ly1) / 2}px">${esc(R.workloadLabel || 'Workload')}</div>
         <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>`;
 
+      // item labels: above the bar when the lane is free, otherwise below it; keep them inside the box
+      rows.forEach((_, ri) => {
+        const lane = { up: -Infinity, down: -Infinity };
+        items.map((it, k) => ({ it, k, el: $('gtL' + k) })).filter(o => o.el && o.it.ri === ri)
+          .sort((p, q) => p.el.offsetLeft - q.el.offsetLeft)
+          .forEach(({ it, el }) => {
+            const w = el.offsetWidth;
+            let left = Math.min(el.offsetLeft, W - w - u * .2);
+            const side = left >= lane.up + u * .8 ? 'up' : left >= lane.down + u * .8 ? 'down' : 'up';
+            lane[side] = left + w;
+            el.style.left = left + 'px';
+            el.classList.add(side);
+            el.style.top = (side === 'up' ? barY(ri) - barH / 2 - u * .3 : barY(ri) + barH / 2 + u * .3) + 'px';
+          });
+      });
+      // the marker lines break where they cross a label, so the text stays clean
+      const rects = [...box.querySelectorAll('.gt-blab')].map(el => {
+        const h = el.offsetHeight, top = parseFloat(el.style.top) - (el.classList.contains('up') ? h : 0);
+        return { l: el.offsetLeft, r: el.offsetLeft + el.offsetWidth, t: top - u * .15, b: top + h + u * .15 };
+      });
+      marks.forEach((m, k) => {
+        const cuts = rects.filter(r => m.x > r.l - 2 && m.x < r.r + 2).sort((p, q) => p.t - q.t);
+        let y = u * 1.5, d = '';
+        cuts.forEach(c => { if (c.t > y) d += `M${m.x} ${y} V${c.t} `; y = Math.max(y, c.b); });
+        if (y < loadBot) d += `M${m.x} ${y} V${loadBot}`;
+        $('gtML' + k).setAttribute('d', d.trim());
+      });
       // keep the marker labels apart
       let edge = -Infinity;
       marks.forEach((m, k) => {

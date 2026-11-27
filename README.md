@@ -9,7 +9,7 @@ A live, **fully anonymous** poll for the year-end all-hands, styled as a game sh
 | 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
 | 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
 | 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| 6 | **The road ahead** | A clean timeline: thin bars on a December to March axis for the year-end close, SOX controls, the annual report and the ERP migration (DR2, ramp-down, the gold cutover, ramp-up and hypercare). Three quiet markers show today, the Christmas break and the cutover. Underneath, one **team workload** line, worked out from how the workstreams overlap, marks the peak. On entry the bars grow in from left to right and the workload line draws along, in about three seconds. Press **H** to skip the animation. |
+| 6 | **The road ahead** | A clean timeline from December to February in four rows: **ERP · S/4HANA** (DR2 finalization and ramp-up on 17–18 Dec, the blackout and cutover from 29 Jan to 1 Feb, the go-live on 1 Feb, then ramp-up and hypercare to 15 Feb), **FDM** (UAT before Christmas, end-to-end testing in January), **Close & reporting** (standard cost prices on 1 Jan, the financial close on 5–6 Jan, the internal annual report deadline on 14 Jan, quarterly results on 27 Jan) and **Controls** (the SOX execution deadline on 19 Jan, disclosure controls on 25 Jan). The Christmas break is shaded, and the go-live is a gold line. Underneath, one **team workload** line, worked out from how everything overlaps, marks the peak. On entry the bars grow in from left to right and the workload line draws along, in about three seconds. Press **H** to skip the animation. |
 | 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
 
 The questions:
@@ -117,11 +117,12 @@ Everything is in `questions.json`:
 - **`lobby`**: the title and intro.
 - **`recap`**: the thank-you title and subtitle.
 - **`roadmap`**: the timeline. **The dates are indicative and to be confirmed.**
-  - `start` and `end`: the date range shown, such as `2026-12-01` to `2027-03-15`. `today` is optional; without it, today's real date is marked.
+  - `start` and `end`: the date range shown, such as `2026-12-01` to `2027-02-21`. `today` is optional; without it, today's real date is marked.
   - `holiday`: the Christmas break band, with `label`, `start`, `end`, `callout` (the label at the dip) and `factor` (how much it damps the workload)
   - `rows`: one row per workstream, each with a `label`, a `note` and `items`. An item is either
-    - a bar: `type: "bar"`, `label`, `start`, `end`, plus `fade: true` to let it trail off (hypercare), or
-    - a milestone: `type: "milestone"`, `label`, `date` and `note`. With `key: true` it becomes the gold cutover line with a callout at the top, which can use `when` for its date text.
+    - a bar: `type: "bar"`, `label`, `start`, `end` (both days included), plus `fade: true` to let it trail off (hypercare) and `key: true` to make it gold, or
+    - a milestone: `type: "milestone"`, `label` and `date`. With `key: true` it becomes the gold line with its label at the top (the go-live).
+    - Every item shows its dates next to its label. `when` replaces that date text, for example "before Christmas".
   - `weight` on any item: how much it adds to the workload (default 1). The workload chart adds up whatever is active each day, on top of `baseLoad` (default 0.6), smooths it, and scales the busiest day to "Peak".
   - `workloadLabel`, `peakLabel` and `source`: the workload label, the peak label and the footnote
   - `style`: `gantt` (the default), `peak` (the mountain range) or `road` (the winding road). The other two styles use `steps` instead of `rows`, with `type`, `when`, `label`, `note`, `load` (0 to 100), `month`, `group` and `say`.

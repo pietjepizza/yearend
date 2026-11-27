@@ -708,14 +708,18 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .gt-bar { position: absolute; border-radius: 999px; background: var(--sky); animation: gtgrow .7s cubic-bezier(.3, 0, .2, 1) both var(--d); }
 .gt-bar.fade { background: linear-gradient(90deg, var(--sky), rgba(95, 184, 255, 0)); }
 @keyframes gtgrow { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-.gt-blab { position: absolute; transform: translateY(-100%); white-space: nowrap; font-weight: 500; font-size: calc(var(--u) * .78); color: var(--fg-2); animation: fadein .5s ease both calc(var(--d) + .3s); }
+.gt-blab { position: absolute; z-index: 1; white-space: nowrap; font-weight: 500; font-size: calc(var(--u) * .76); color: var(--fg-3); text-shadow: 0 0 3px #110b6e, 0 0 6px #110b6e, 0 0 10px #110b6e; animation: fadein .5s ease both calc(var(--d) + .3s); }
+.gt-blab.up { transform: translateY(-100%); }
+.gt-blab b { font-weight: 600; color: var(--fg); margin-right: .15em; }
+.gt-blab.key b { color: var(--gold); }
+.gt-bar.key { background: var(--gold); }
+.gt-rlab small { display: block; font-family: var(--body); font-weight: 500; font-size: calc(var(--u) * .72); color: var(--fg-3); }
 .gt-ms { position: absolute; display: flex; align-items: center; gap: calc(var(--u) * .5); transform: translate(calc(var(--u) * -.45), -50%); }
 .gt-ms i { flex: none; width: calc(var(--u) * .9); height: calc(var(--u) * .9); transform: rotate(45deg); border-radius: 2px; background: var(--sky); animation: gtpop .45s var(--spring) both var(--d); }
-.gt-ms span { font-weight: 500; font-size: calc(var(--u) * .78); color: var(--fg-2); animation: fadein .5s ease both calc(var(--d) + .2s); }
 .gt-ms.key { transform: translate(calc(var(--u) * -.6), -50%); }
 .gt-ms.key i { width: calc(var(--u) * 1.2); height: calc(var(--u) * 1.2); background: var(--gold); }
 @keyframes gtpop { from { transform: rotate(45deg) scale(0); } }
 .gt-peak { position: absolute; width: 0; height: 0; animation: fadein .5s ease both 2.4s; }
 .gt-peak::before { content: ''; position: absolute; left: calc(var(--u) * -.35); top: calc(var(--u) * -.35); width: calc(var(--u) * .7); height: calc(var(--u) * .7); border-radius: 50%; background: var(--gold); }
-.gt-peak span { position: absolute; left: 0; bottom: calc(var(--u) * .6); transform: translateX(-50%); white-space: nowrap; font-weight: 600; font-size: calc(var(--u) * .8); color: var(--gold); }
+.gt-peak span { position: absolute; left: 0; bottom: calc(var(--u) * .6); transform: translateX(-50%); white-space: nowrap; font-weight: 600; font-size: calc(var(--u) * .8); color: var(--gold); text-shadow: 0 0 4px #110b6e, 0 0 8px #110b6e; }
 .gt.done * { animation: none !important; }
