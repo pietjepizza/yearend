@@ -1149,7 +1149,9 @@
         const a = day(it.start || it.date), b = (it.end ? day(it.end) : a) + DAY;   // end dates are inclusive
         return { ...it, ri, a, b, mid: (a + b) / 2 };
       }));
-      const hol = R.holiday ? { a: day(R.holiday.start), b: day(R.holiday.end) } : null;
+      // days off (Christmas, New Year): end dates are inclusive
+      const hols = (R.holidays || (R.holiday ? [R.holiday] : [])).map(h => ({ ...h, a: day(h.start), b: day(h.end || h.start) + DAY }));
+      const offAt = t => hols.find(h => t >= h.a && t < h.b);
       const rawAt = t => {
         let v = R.baseLoad ?? .6;
         for (const it of items) {
@@ -1157,7 +1159,8 @@
           if (it.type === 'milestone') { const d = (t - it.mid) / (DAY * 2.5); v += w * Math.exp(-d * d); }
           else if (t >= it.a && t < it.b) v += it.fade ? w * (1 - .7 * (t - it.a) / (it.b - it.a)) : w;
         }
-        return hol && t >= hol.a && t < hol.b ? v * (R.holiday.factor ?? .35) : v;
+        const off = offAt(t);
+        return off ? v * (off.factor ?? .35) : v;
       };
       const days = [];
       for (let t = t0; t <= t1; t += DAY) days.push(t);
@@ -1198,7 +1201,8 @@
       };
       const marks = [];
       if (today >= t0 && today <= t1) marks.push({ cls: 'today', x: X(today), text: 'Today' });
-      if (hol) marks.push({ cls: 'hol', x: (X(hol.a) + X(hol.b)) / 2, text: R.holiday.label || 'Holiday break' });
+      hols.forEach(h => marks.push({ cls: 'hol', x: (X(h.a) + X(h.b)) / 2, text: h.label || 'Holiday' }));
+      marks.sort((p, q) => p.x - q.x);
       items.forEach(it => { if (it.key && it.type === 'milestone') marks.push({ cls: 'key', x: X(it.mid), text: `${it.label} · ${it.when || when(it)}` }); });
       box.classList.add('gt');
       box.classList.remove('done');
@@ -1221,7 +1225,7 @@
             <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${rowsTop - u * .4}" y2="${rowsTop - u * .4}"/>
             <line class="gt-zedge" x1="${X(zone.a)}" x2="${X(zone.b)}" y1="${loadBot}" y2="${loadBot}"/>
           </g>
-          ${hol ? `<rect class="gt-hol" x="${X(hol.a)}" y="${rowsTop - u * .4}" width="${X(hol.b) - X(hol.a)}" height="${loadBot - rowsTop + u * .4}"/>` : ''}
+          ${hols.map(h => `<rect class="gt-hol" x="${X(h.a)}" y="${rowsTop - u * .4}" width="${X(h.b) - X(h.a)}" height="${loadBot - rowsTop + u * .4}"/>`).join('')}
           ${months.map(t => `<line class="gt-mline" x1="${X(t)}" x2="${X(t)}" y1="${headH - u * 2}" y2="${loadBot}"/>`).join('')}
           <line class="gt-sep" x1="0" x2="${W}" y1="${rowsBot + gap / 2}" y2="${rowsBot + gap / 2}"/>
           <path class="gt-area" d="${line} L${cx1} ${ly1} L${cx0} ${ly1} Z"/>

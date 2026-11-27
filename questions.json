@@ -1,7 +1,7 @@
 {
   "team": "Finance Operations",
   "event": "Year-End All-Hands 2026",
-  "holidayDate": "2026-12-24",
+  "holidayDate": "2026-12-25",
   "countdown": {
     "date": "2027-01-04",
     "label": "year-end close",
@@ -246,8 +246,8 @@
         },
         {
           "icon": "help:snow",
-          "title": "A real holiday break",
-          "text": "[Holiday coverage plan]"
+          "title": "Recharge moments",
+          "text": "[Christmas and New Year days off: who is off when]"
         }
       ]
     },
@@ -288,12 +288,20 @@
     "source": "Planning as of today · FDM UAT dates TBD",
     "workloadLabel": "Team workload",
     "peakLabel": "Peak",
-    "holiday": {
-      "label": "Christmas break",
-      "start": "2026-12-24",
-      "end": "2027-01-03",
-      "factor": 0.35
-    },
+    "holidays": [
+      {
+        "label": "Christmas",
+        "start": "2026-12-25",
+        "end": "2026-12-27",
+        "factor": 0.35
+      },
+      {
+        "label": "New Year · back Mon 4 Jan",
+        "start": "2026-12-31",
+        "end": "2027-01-03",
+        "factor": 0.35
+      }
+    ],
     "rows": [
       {
         "label": "ERP · S/4HANA",
@@ -592,7 +600,7 @@
           "text": "Recharge first, then we go, and we go together"
         }
       ],
-      "pledge": "Protect the holiday break: laptops closed, batteries recharged",
+      "pledge": "Protect the days off at Christmas and New Year: laptops closed, batteries recharged",
       "options": [
         {
           "id": "full",
@@ -617,10 +625,10 @@
         },
         {
           "id": "holiday",
-          "label": "Recharging over the holidays",
+          "label": "Need a recharge",
           "icon": "battery:10",
           "score": 2,
-          "note": "Holiday approved ✓"
+          "note": "Christmas days, here I come"
         }
       ],
       "demo": {
