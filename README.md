@@ -51,6 +51,8 @@ PULSE_KEY=<presenter key> npm run content:pull   # download the current content 
 PULSE_KEY=<presenter key> npm run content:push   # upload it; the live screens use it on the next load
 ```
 
+To keep the key dates off the live presentation for a while, `npm run dates:hide` parks the real timeline in a private archive (behind the presenter key, never shown on any screen) and puts a neutral "date TBD" timeline live; `npm run dates:show` puts the real one back. Both need `PULSE_KEY`.
+
 The main parts of `questions.json`:
 
 - **`show`**: the running order. Every step has a `type` (`title`, `lobby`, `agenda`, `section`, `bullets`, `stats`, `shoutouts`, `quote`, `nominees`, `question`, `roadmap`, `recap`, `qa`, `finale`), a short `nav` label and **`notes`** (shown in the presenter view). Steps with `extra: true` are the February check-in.

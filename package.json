@@ -9,7 +9,9 @@
     "build:sim": "node scripts/build-artifact.js && node scripts/build-simulator.js",
     "build:pages": "node scripts/build-pages.js",
     "content:push": "node scripts/content.js push",
-    "content:pull": "node scripts/content.js pull"
+    "content:pull": "node scripts/content.js pull",
+    "dates:hide": "node scripts/content.js hide-dates",
+    "dates:show": "node scripts/content.js show-dates"
   },
   "repository": {
     "type": "git",

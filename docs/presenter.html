@@ -3347,7 +3347,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
           <div class="gt-blab ${it.key ? 'key' : ''}" id="gtL${k}" style="left:${it.type === 'milestone' ? X(it.mid) - u * .45 : X(it.a)}px;--d:${sweep(X(it.a))}"><b>${esc(it.label || '')}</b> ${esc(it.when || when(it))}</div>`).join('')}
         <div class="gt-rlab wl" style="top:${(ly0 + ly1) / 2}px">${esc(R.workloadLabel || 'Workload')}</div>
         <div class="gt-peak" style="left:${X(peakT)}px;top:${yOf(100)}px"><span>${esc(R.peakLabel || 'Peak')}</span></div>
-        <div class="gt-zlab" style="left:${X(zone.a)}px;top:${loadTop + u * .1}px"><b>${esc(R.peakZoneLabel || 'Peak weeks')}</b> ${fmtDay(zone.a)} – ${fmtDay(zone.b - DAY)}${R.peakZoneNote ? ` · ${esc(R.peakZoneNote)}` : ''}</div>`;
+        <div class="gt-zlab" id="gtZlab" style="left:${X(zone.a)}px;top:${loadTop + u * .1}px"><b>${esc(R.peakZoneLabel || 'Peak weeks')}</b>${R.placeholder ? '' : ` ${fmtDay(zone.a)} – ${fmtDay(zone.b - DAY)}`}${R.peakZoneNote ? ` · ${esc(R.peakZoneNote)}` : ''}</div>`;
 
       // item labels: above the bar when the lane is free, otherwise below it; keep them inside the box
       rows.forEach((_, ri) => {
@@ -3376,6 +3376,12 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         if (y < loadBot) d += `M${m.x} ${y} V${loadBot}`;
         $('gtML' + k).setAttribute('d', d.trim());
       });
+      // the peak-weeks label and the "Peak" label must not overlap: move the first to the end of the zone, else drop the second
+      {
+        const zl = $('gtZlab'), pk = box.querySelector('.gt-peak span');
+        const hit = () => { const a = zl.getBoundingClientRect(), b = pk.getBoundingClientRect(); return a.left < b.right + 8 && b.left < a.right + 8 && a.top < b.bottom && b.top < a.bottom; };
+        if (zl && pk && hit()) { zl.style.left = Math.max(cx0, X(zone.b) - zl.offsetWidth) + 'px'; if (hit()) pk.hidden = true; }
+      }
       // keep the marker labels apart
       let edge = -Infinity;
       marks.forEach((m, k) => {

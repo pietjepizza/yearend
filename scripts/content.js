@@ -43,6 +43,49 @@ function phoneConfig(c) {
   };
 }
 
+// The key dates (the timeline) can be kept out of the live presentation and parked in a private archive
+// (behind the presenter key, never shown on any screen): hide-dates puts a neutral "date TBD" timeline live,
+// show-dates puts the real one back.
+const roadSection = c => c.show.find(st => st.type === 'section' && /road ahead/i.test(st.title || ''));
+const timelineStep = c => c.show.find(st => st.type === 'roadmap');
+const PLACEHOLDER_ROADMAP = (live) => ({
+  ...live,
+  steps: undefined,
+  placeholder: true,
+  subtitle: 'A demanding stretch with a lot to deliver. Key dates to follow.',
+  source: 'Key dates to follow',
+  stats: [{ value: '{items}', label: 'key moments' }, { value: '1', label: 'team' }],
+  rows: [
+    { label: '[Workstream 1]', items: [
+      { type: 'bar', label: '[Phase]', start: '2026-12-07', end: '2026-12-18', when: 'dates TBD', weight: 0.5 },
+      { type: 'milestone', key: true, label: '[Key milestone]', date: '2027-02-01', when: 'date TBD', weight: 1.6 },
+      { type: 'bar', label: '[Follow-up]', start: '2027-02-01', end: '2027-02-15', when: 'dates TBD', weight: 1.2, fade: true } ] },
+    { label: '[Workstream 2]', items: [
+      { type: 'bar', label: '[Phase]', start: '2026-12-09', end: '2026-12-23', when: 'dates TBD', weight: 0.4 },
+      { type: 'bar', label: '[Phase]', start: '2027-01-04', end: '2027-01-29', when: 'dates TBD', weight: 1 } ] },
+    { label: '[Workstream 3]', items: [
+      { type: 'bar', label: '[Phase]', start: '2027-01-05', end: '2027-01-08', when: 'dates TBD', weight: 1.6 },
+      { type: 'milestone', label: '[Deadline]', date: '2027-01-15', when: 'date TBD', weight: 1.2 },
+      { type: 'milestone', label: '[Deadline]', date: '2027-01-27', when: 'date TBD', weight: 0.9 } ] },
+    { label: '[Workstream 4]', items: [
+      { type: 'milestone', label: '[Deadline]', date: '2027-01-20', when: 'date TBD', weight: 1.2 } ] },
+  ],
+});
+
+async function push(config) {
+  let joinCode = process.env.PULSE_JOIN_CODE;
+  if (!joinCode) {
+    try { const prev = await rpc('pulse_get_content', { p_key: KEY }); joinCode = prev && prev.joinCode; } catch (e) { if (/wrong presenter key/.test(e.message)) throw e; }
+  }
+  joinCode ||= crypto.randomBytes(9).toString('base64url');
+  const joinUrl = `${PAGES}phone.html#j=${joinCode}`;
+  const qr = await QRCode.toString(joinUrl, { type: 'svg', margin: 0, color: { dark: '#0b0b3b', light: '#ffffff' } });
+  const full = { config, joinCode, joinUrl, qr, uploadedAt: new Date().toISOString() };
+  const phone = { config: phoneConfig(config) };
+  await rpc('pulse_set_content', { p_key: KEY, p_full: full, p_phone: phone, p_join_hash: crypto.createHash('sha256').update(joinCode).digest('hex') });
+  console.log(`Content uploaded: ${config.show.length} screens, ${config.questions.length} questions. Phones join through the QR code on the presenter screen.`);
+}
+
 (async () => {
   const cmd = process.argv[2];
   if (!KEY) { console.error('Set PULSE_KEY to the presenter key.'); process.exit(1); }
@@ -52,21 +95,32 @@ function phoneConfig(c) {
     fs.writeFileSync(FILE, JSON.stringify(data.config, null, 2) + '\n');
     console.log('questions.json written from Supabase (uploaded ' + (data.uploadedAt || 'earlier') + ')');
   } else if (cmd === 'push') {
+    await push(JSON.parse(fs.readFileSync(FILE, 'utf8')));
+  } else if (cmd === 'hide-dates') {
     const config = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-    let joinCode = process.env.PULSE_JOIN_CODE;
-    if (!joinCode) {
-      try { const prev = await rpc('pulse_get_content', { p_key: KEY }); joinCode = prev && prev.joinCode; } catch (e) { if (/wrong presenter key/.test(e.message)) throw e; }
-    }
-    joinCode ||= crypto.randomBytes(9).toString('base64url');
-    const joinUrl = `${PAGES}phone.html#j=${joinCode}`;
-    const qr = await QRCode.toString(joinUrl, { type: 'svg', margin: 0, color: { dark: '#0b0b3b', light: '#ffffff' } });
-    const full = { config, joinCode, joinUrl, qr, uploadedAt: new Date().toISOString() };
-    const phone = { config: phoneConfig(config) };
-    await rpc('pulse_set_content', { p_key: KEY, p_full: full, p_phone: phone, p_join_hash: crypto.createHash('sha256').update(joinCode).digest('hex') });
-    console.log(`Content uploaded: ${config.show.length} screens, ${config.questions.length} questions. Phones join through the QR code on the presenter screen.`);
+    if (config.roadmap.placeholder) { console.log('The key dates are already off the live presentation.'); return; }
+    const archive = (await rpc('pulse_get_archive', { p_key: KEY })) || {};
+    archive.keyDates = { roadmap: config.roadmap, sectionSubtitle: (roadSection(config) || {}).subtitle, timelineNotes: (timelineStep(config) || {}).notes, savedAt: new Date().toISOString() };
+    await rpc('pulse_set_archive', { p_key: KEY, p_data: archive });
+    config.roadmap = PLACEHOLDER_ROADMAP(config.roadmap);
+    if (roadSection(config)) roadSection(config).subtitle = 'What is coming, and how we get through it together';
+    if (timelineStep(config)) timelineStep(config).notes = 'The key dates are not on screen yet. Talk through the busy months ahead and stress: look out for each other.';
+    fs.writeFileSync(FILE, JSON.stringify(config, null, 2) + '\n');
+    await push(config);
+    console.log('Key dates saved in the private archive and replaced by "date TBD" on the live presentation.');
+  } else if (cmd === 'show-dates') {
+    const archive = await rpc('pulse_get_archive', { p_key: KEY });
+    const d = archive && archive.keyDates;
+    if (!d) { console.error('No key dates in the archive.'); process.exit(1); }
+    const config = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    config.roadmap = d.roadmap;
+    if (roadSection(config) && d.sectionSubtitle) roadSection(config).subtitle = d.sectionSubtitle;
+    if (timelineStep(config) && d.timelineNotes) timelineStep(config).notes = d.timelineNotes;
+    fs.writeFileSync(FILE, JSON.stringify(config, null, 2) + '\n');
+    await push(config);
+    console.log('The key dates (saved ' + d.savedAt + ') are back on the live presentation.');
   } else {
-    console.error('Usage: PULSE_KEY=… node scripts/content.js push|pull');
+    console.error('Usage: PULSE_KEY=… node scripts/content.js push|pull|hide-dates|show-dates');
     process.exit(1);
   }
 })().catch(e => { console.error(e.message); process.exit(1); });
-
