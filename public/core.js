@@ -79,15 +79,58 @@
     const byId = {};
     Q.forEach((q, i) => { byId[q.id || String(i)] = i; });
     const list = Array.isArray(config.show)
-      ? config.show.map(st => st.type === 'question' ? { kind: 'question', qi: st.question in byId ? byId[st.question] : Number(st.question), nav: st.nav }
-        : SPECIAL.includes(st.type) ? { kind: st.type, nav: st.nav }
-        : { kind: 'slide', slide: st, nav: st.nav })
+      ? config.show.map(st => ({
+        ...(st.type === 'question' ? { kind: 'question', qi: st.question in byId ? byId[st.question] : Number(st.question) }
+          : SPECIAL.includes(st.type) ? { kind: st.type }
+          : { kind: 'slide', slide: st }),
+        nav: st.nav, notes: st.notes || '', extra: !!st.extra,
+      }))
       : [{ kind: 'lobby' }, ...Q.map((q, i) => ({ kind: 'question', qi: i })), ...(config.outro || ['recap', 'roadmap', 'finale']).map(k => ({ kind: k }))];
     const out = list.filter(st => st.kind !== 'question' || Q[st.qi]);
     cache.set(config, out);
     return out;
   }
   const lastIndex = config => steps(config).length - 1;
+  // Next and previous stay inside their part of the show: the main all-hands, or the extra check-in steps
+  // (which the presenter opens with "goto"), so "next" after the finale never runs into the check-in.
+  function nextIndex(config, i) {
+    const S = steps(config), cur = clampIndex(config, i);
+    return cur + 1 < S.length && !!S[cur + 1].extra === !!S[cur].extra ? cur + 1 : cur;
+  }
+  function prevIndex(config, i) {
+    const S = steps(config), cur = clampIndex(config, i);
+    return cur > 0 && !!S[cur - 1].extra === !!S[cur].extra ? cur - 1 : cur;
+  }
+  const firstExtra = config => steps(config).findIndex(st => st.extra);
+  // Questions are numbered within their group: the all-hands polls, the award, the check-in.
+  const groupOf = q => (q.type === 'award' ? 'award' : q.group || 'main');
+  function numbering(config, qi) {
+    const Q = config.questions, g = groupOf(Q[qi]);
+    const same = Q.map((q, i) => [q, i]).filter(([q]) => groupOf(q) === g).map(([, i]) => i);
+    return { group: g, qn: same.indexOf(qi) + 1, qtotal: same.length };
+  }
+
+  // Anonymous Q&A: each phone keeps its own questions and upvotes in responses.ask[token] = { q: [{ id, text, ts }], up: [id] }.
+  function qaList(byToken, qa) {
+    const done = new Set((qa && qa.done) || []), hide = new Set((qa && qa.hidden) || []);
+    const list = new Map();
+    for (const a of Object.values(byToken || {})) for (const x of (a && a.q) || []) {
+      if (x && x.id && x.text && !hide.has(x.id) && !list.has(x.id)) list.set(x.id, { id: String(x.id).slice(0, 24), text: clean(x.text, 140), ts: Number(x.ts) || 0, votes: 0, done: done.has(x.id) });
+    }
+    for (const a of Object.values(byToken || {})) for (const id of new Set((a && a.up) || [])) if (list.has(id)) list.get(id).votes++;
+    return [...list.values()].sort((p, q) => (p.done - q.done) || (q.votes - p.votes) || (p.ts - q.ts));
+  }
+
+  // Everything worth keeping after the event, for the downloadable summary.
+  function summary(config, state) {
+    const Q = config.questions;
+    return {
+      team: config.team, event: config.event, at: Date.now(),
+      participants: new Set(Object.entries(state.responses || {}).filter(([k]) => k !== 'ask').flatMap(([, r]) => Object.keys(r || {}))).size,
+      questions: Q.map((q, i) => ({ id: q.id, title: q.title, type: q.type || 'poll', group: groupOf(q), pledge: q.pledge, options: q.options, ...analyse(q, (state.responses || {})[i], state.hidden) })),
+      qa: qaList((state.responses || {}).ask, state.qa),
+    };
+  }
   const clampIndex = (config, i) => Math.max(0, Math.min(lastIndex(config), Number(i) || 0));
   const stepAt = (config, i) => steps(config)[clampIndex(config, i)];
   const qiAt = (config, i) => { const st = stepAt(config, i); return st && st.kind === 'question' ? st.qi : -1; };
@@ -109,10 +152,14 @@
     const index = clampIndex(config, state.current);
     const step = S[index], qi = step.kind === 'question' ? step.qi : -1, q = Q[qi];
     const revealed = !q || !!(state.revealedQ || {})[qi];
+    const nextI = nextIndex(config, index), nextStep = nextI !== index ? S[nextI] : null;
+    const num = q ? numbering(config, qi) : { group: '', qn: 0, qtotal: 0 };
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate, countdown: config.countdown,
       reactions: config.reactions, ticker: config.ticker || [],
-      index, qi, total: Q.filter(x => x.type !== 'award').length, stepCount: S.length, nav: navLabel(config, step),
+      index, qi, total: Q.filter(x => groupOf(x) === 'main').length, stepCount: S.length, nav: navLabel(config, step),
+      qn: num.qn, qtotal: num.qtotal, group: num.group, extra: step.extra,
+      notes: step.notes || '', next: nextStep ? navLabel(config, nextStep) : '',
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
@@ -124,18 +171,21 @@
     if (step.kind === 'slide') {
       // a "nominees" slide shows the candidates of the award vote it names
       const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
-      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, participants };
+      const qa = step.slide.type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, participants };
     }
     if (step.kind !== 'question') {
-      const items = Q.map((q, i) => q.type === 'award' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
+      const items = Q.map((q, i) => groupOf(q) !== 'main' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
       return { ...base, stage: step.kind, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
     }
+    const ci = q.compareWith ? Q.findIndex(x => x.id === q.compareWith) : -1;
     return {
       ...base, stage: 'question', question: q,
       ...analyse(q, state.responses[qi], state.hidden),
       recent: recentWords(state.responses[qi], state.hidden),
+      compare: ci >= 0 ? { label: q.compareLabel || 'Before', ...analyse(Q[ci], state.responses[ci], state.hidden).stats } : null,
     };
   }
 
-  return { norm, clean, analyse, publicState, enter, steps, lastIndex, qiAt, navLabel, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
+  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
 });

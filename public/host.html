@@ -15,7 +15,14 @@
 <script src="/icons.js"></script>
 <script src="/fx.js"></script>
 <script src="/transport-server.js"></script>
+<script src="/help.js"></script>
+<script src="/notes.js"></script>
 <script src="/host.js"></script>
-<script>mountHost(document.getElementById('app'), ServerTransport('host'));</script>
+<script>
+  const T = ServerTransport('host');
+  T.notesUrl = () => location.href.split('#')[0] + '#notes';
+  if (location.hash === '#notes') mountNotes(document.getElementById('app'), T); else mountHost(document.getElementById('app'), T);
+  addEventListener('hashchange', () => location.reload());
+</script>
 </body>
 </html>

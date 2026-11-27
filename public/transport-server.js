@@ -53,6 +53,18 @@
           return r.ok ? 'ok' : r.status === 409 ? 'moved' : 'error';
         } catch { return 'error'; }
       },
+      async ask(text) {
+        try {
+          const r = await fetch('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, text }) });
+          return r.ok ? 'ok' : r.status === 429 ? 'limit' : r.status === 400 ? 'short' : 'error';
+        } catch { return 'error'; }
+      },
+      async upvote(qid, on) {
+        try { const r = await fetch('/api/upvote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, qid, on }) }); return r.ok ? 'ok' : 'error'; }
+        catch { return 'error'; }
+      },
+      loadConfig: () => fetch('/api/config?key=' + encodeURIComponent(key)).then(r => (r.ok ? r.json() : null)).then(c => (T.config = c)).catch(() => null),
+      summary: () => fetch('/api/summary?key=' + encodeURIComponent(key)).then(r => r.json()),
       react(r) {
         fetch('/api/react', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, r }) }).catch(() => {});
       },

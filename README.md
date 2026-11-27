@@ -1,150 +1,80 @@
-# Peak Season Pulse: Finance Operations year-end game show
+# Peak Season Pulse: a live all-hands deck with anonymous voting
 
-A live, **fully anonymous** poll for the year-end all-hands, styled as a game show in ASML blues. People scan a QR code, become a secret player (for example "Captain VLOOKUP"), and vote. Their answers race across the big screen. The show ends on a motivating "YES WE CAN!".
+The whole all-hands runs from this app: slides, live anonymous polls that race across the big screen, an award vote, a timeline with the workload, a live Q&A and a "YES WE CAN!" finale. People join by scanning a QR code. Nobody logs in and no names are collected.
 
-## The show
+**The content is private.** The public website holds only the app. The presentation itself (slides, timeline, notes, polls) lives in a small Supabase database: the presenter screen opens it with the **presenter key**, and phones get only the poll questions, with the join code that the QR code on the big screen carries. Every page tells search engines not to index it.
 
-| # | Screen | What happens |
-| --- | --- | --- |
-| 0 | **Lobby** | Bouncy title, how-to-play steps, a big QR code. Players pop in with their secret names. |
-| 1–3 | **Questions** | A 25-second countdown, then "TIME'S UP!", a confetti reveal and an upbeat headline. Each answer is a glowing light racing along its own lane, and the winner gets a gold ring and a callout. Words float in as bubbles. |
-| 5 | **Recap** | "Thank you for your honesty!" Each question's result is shown with a **We'll do** pledge. |
-| – | **Improvement Award** | Three nominees share an improvement idea or a successful implementation, shown on a "Meet the nominees" slide. Then everyone votes on their phone. The result stays secret, with only the number of votes showing. On the reveal, a spotlight jumps between the three cards, slows down and lands on the winner: "WINNER!", confetti, fireworks and the prize. Phones show the winner too, and a tie is announced as a tie. |
-| 6 | **The road ahead** | A clean timeline from December to February in four rows: **ERP · S/4HANA** (DR2 finalization and ramp-up on 17–18 Dec, the blackout and cutover from 29 Jan to 1 Feb, the go-live on 1 Feb, then ramp-up and hypercare to 15 Feb), **FDM** (UAT before Christmas, end-to-end testing in January), **Close & reporting** (standard cost prices on 1 Jan, the financial close on 5–6 Jan, the internal annual report deadline on 14 Jan, quarterly results on 27 Jan) and **Controls** (the SOX execution deadline on 19 Jan, disclosure controls on 25 Jan). Christmas and New Year are shaded, and the go-live is a gold line. Underneath, one **team workload** line, worked out from how everything overlaps, marks the peak. On entry the bars grow in from left to right and the workload line draws along, in about three seconds. Press **H** to skip the animation. |
-| 7 | **Finale** | Rally lines slam in, then a giant "YES WE CAN!" with fireworks and a wave of light, one dot per player. Phones turn into a big **CHEER!** button. |
+## Using it on the day
 
-The questions:
-1. **If the ERP migration were a movie…** The icebreaker: Mission: Impossible, Ocean's Eleven and more.
-2. **How charged are you for peak season?** The energy check, with a team-energy meter.
-3. **What's the weather forecast for January?** A light-hearted outlook, with a team-forecast meter.
-
-Questions that were dropped are kept under `spareQuestions` in `questions.json`. To bring one back, move it into `questions`.
-
-Between the live words, the bottom ticker shows light-hearted finance lines such as "Reconciling the audience… 98% matched". They come from the `ticker` list in `questions.json`.
-
-The headlines stay encouraging whatever the outcome.
-
-## Test link
-
-The test copy is published as a private claude.ai page.
-- The page is the presenter screen. Move the mouse to show the controls, then press **▶ Simulate the room** to play through with about 40 simulated players.
-- Phones scan the QR code (the link ends in `#join`). Cross-device play works when signed in to claude.ai.
-
-To rebuild it: `ARTIFACT_URL=<link> npm run build:artifact` writes `dist/mood-pulse.html`.
-
-## Simulator (test everything on one page)
-
-`dist/simulator.html` shows the presenter screen with two to four live phones beside it, plus a control panel:
-- jump to any screen
-- go back and forward, reveal, or reset
-- choose the countdown (off, 10 or 25 seconds)
-- run a simulated room with a size and speed you pick
-- fire bursts of reactions
-
-Everything runs in the browser, with no login or devices needed. To rebuild it: `ARTIFACT_URL=<test link> npm run build:sim`.
-
-## Online, with live voting (GitHub Pages + Supabase)
-
-`docs/` is the website for GitHub Pages: https://pietjepizza.github.io/yearend/
-- `index.html`: the landing page
-- `presenter.html`: **live**. The deck for the projector. To control it, open `presenter.html?key=<presenter key>`. Without the key the page is a view-only mirror.
-- `phone.html`: **live**. The QR code points here, and attendees vote from anywhere.
-- `simulator.html`: a stand-alone simulator that runs in the browser only
-
-Live voting uses a small Supabase database: the tables `pulse_state`, `pulse_votes` and `pulse_secrets`, and the functions `pulse_vote` and `pulse_set_state`, set up by `supabase/pulse_live_voting.sql`.
-- **Reading:** everyone can read the current screen and the anonymous answers.
-- **Writing:** phones can only submit answers through `pulse_vote`, which validates the input. Only someone with the presenter key can change the screen.
-- **Reset:** the Reset button starts a new run and deletes the answers from earlier runs.
-- **The key** is stored only as a SHA-256 hash. Never commit the key or its hash.
-- **Connection fallback:** if a network blocks WebSockets, the pages fall back to checking every couple of seconds. Reactions and the "connected" counter need the live connection.
-
-To rebuild the site: `npm run build:pages`. You can override `PAGES_URL`, `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Add `&sim=1` to the presenter URL to show the room simulator, but don't use it during the real event, because simulated answers would mix with real ones.
-
-## Run it for the real event
-
-```bash
-npm install
-HOST_KEY=letmein npm start
-```
-
-Open the presenter link `/host?key=letmein` on the projector. Phones need to reach the server:
-- **Quick option:** a tunnel, with `PUBLIC_URL=https://<tunnel>`.
-- **Sturdier option:** a Node host such as Render, Railway or Fly.io.
+1. Open `presenter.html` on the laptop connected to the projector and enter the presenter key once ("Remember on this computer"). The key never shows in the address bar.
+2. Press **?** for the **presenter guide**: full screen, every key and button, a before-you-start checklist and a check for placeholders still in the content.
+3. Press **F** (or F11, or Ctrl ⌘ F on a Mac) for full screen.
+4. Click **Reset** twice to clear test votes.
+5. Optional: in the guide, click **Open presenter view**. It opens on your laptop with your speaker notes, the next screen, live counts, a clock and big Next/Back buttons. The projector follows it.
 
 | Key | Action |
 | --- | --- |
-| → / Space | Next screen (phones follow) |
-| ← | Previous screen |
-| H | Reveal now, or hide again. On the timeline: skip the animation |
+| → / Space / Page Down (clicker) | Next screen; phones follow |
+| ← / Page Up | Previous screen |
+| H | Reveal results, or hide them again. Award: the drumroll. Timeline: skip the animation. |
+| F | Full screen on or off |
 | S | Snow on or off |
-| Click a word | Remove it from the screen |
-| U | Restore removed words |
-| C, then C again | Clear the current question |
-| Reset button, clicked twice | Start over |
+| U | Bring back removed words and Q&A questions |
+| C, then C | Clear the votes of the current question |
+| ? / Esc | Open or close the presenter guide |
 
-| Env var | Default | Purpose |
-| --- | --- | --- |
-| `PORT` | 3000 | Port to listen on |
-| `PUBLIC_URL` | `http://<lan-ip>:PORT` | Address in the QR code |
-| `HOST_KEY` | random (printed at startup) | Required to control the screen |
-| `DATA_FILE` | `./data.json` | Saved answers |
+Move the mouse to show the control bar: ← →, Reveal now, Snow, Reset (click twice), Full screen and Guide. Click a word in the word cloud to remove it. In the Q&A, click a question once to mark it answered and again to hide it.
 
-## The full all-hands deck
+## What's in the show
 
-The whole meeting runs from this app. `show` in `questions.json` is the running order: every slide, poll and special screen, in sequence. The phones follow along. On ordinary slides they show "Look up!" and people can still send reactions.
+| Screen | What happens |
+| --- | --- |
+| **Join** | A big QR code. Players pop in with secret names such as "Captain VLOOKUP". |
+| **Polls** | A countdown, then a reveal with confetti and an upbeat headline. Answers race along their lanes and words float in as bubbles. |
+| **Slides** | Title, agenda, sections, highlights, figures that count up, shout-outs, quotes. Text in `[brackets]` is highlighted as a placeholder. |
+| **Improvement Award** | "Meet the nominees" (three cards), then a secret audience vote. On the reveal a spotlight jumps between the cards and lands on the winner: confetti, fireworks and the prize. Phones show the winner; ties are called as ties. |
+| **The road ahead** | A clean Gantt-style timeline: workstreams as thin bars and milestones on a month axis, holidays shaded, the key milestone as a gold line, and the peak weeks shaded gold with "look out for each other". Underneath, a team workload line worked out from how everything overlaps. Key figures (key moments, weeks to go-live, one team) count up beside the title. |
+| **Recap** | "Thank you for your honesty!" Each poll's result with a **We'll do** pledge. |
+| **Live Q&A** | People ask anonymously on their phones and upvote each other's questions. The big screen shows them ranked live. |
+| **Finale** | Rally lines, a giant "YES WE CAN!", fireworks. Phones turn into a **CHEER!** button. |
+| **February check-in** | Extra screens after the finale (Next never runs into them). Open them from the presenter guide: the energy question again, with **December's score beside today's**, plus a go-live question. Same QR code. Don't press Reset first if you want the comparison. |
 
-| `type` | What it shows | Main fields |
-| --- | --- | --- |
-| `title` | Opening slide | `kicker`, `title`, `subtitle`, `meta` |
-| `lobby` | QR code and players joining | – |
-| `agenda` | Running order (`live: true` marks the live polls) | `title`, `items[{time, title, who, live}]` |
-| `section` | Big numbered divider | `number`, `title`, `subtitle` |
-| `bullets` | Icon cards that build in one by one | `title`, `subtitle`, `points[{icon, title, text}]` |
-| `stats` | Figures that count up | `title`, `subtitle`, `stats[{value, label, note}]` |
-| `shoutouts` | Thank-you cards | `title`, `subtitle`, `people[{name, team, reason}]` |
-| `quote` | A big quote | `quote`, `by` |
-| `qa` | Questions slide | `title`, `subtitle` |
-| `nominees` | The award nominees as large cards, read from the award vote it names | `title`, `subtitle`, `question` (the award's `id`) |
-| `question` | A live poll, by its `id` | `question` |
-| `recap`, `roadmap`, `finale` | The special screens | – |
-
-Every step can have a short `nav` label, which shows in the presenter controls and on the simulator buttons. Text in `[brackets]` is highlighted on screen as a placeholder until you replace it, and "XX" marks figures still to fill in.
+After the event, **Download results** in the presenter guide saves a one-page summary (all polls, the award winner, the pledges and the Q&A questions) that you can share or print as PDF.
 
 ## Edit the content
 
-Everything is in `questions.json`:
+The content is `questions.json`. It is **not in git**: it lives on your own computer and in Supabase. `questions.example.json` shows the structure with example text.
 
-- **`countdown`**: the chip at the top right, counting the days to `date` (now the year-end close on Monday 4 January 2027) with its `label`. `after` is the text once the date has passed.
-- **`timer`**: seconds per question. A question can set its own `timer`, and 0 turns the countdown off.
-- **`lobby`**: the title and intro.
-- **`recap`**: the thank-you title and subtitle.
-- **`roadmap`**: the timeline. **The dates are indicative and to be confirmed.**
-  - `start` and `end`: the date range shown, such as `2026-12-01` to `2027-02-21`. `today` is optional; without it, today's real date is marked.
-  - `holidays`: the days off, shaded on the timeline: now Christmas (25–27 Dec) and New Year (31 Dec – 3 Jan, back to work on Monday 4 Jan). Each has a `label`, `start`, `end` (both days included) and `factor` (how much it damps the workload).
-  - `rows`: one row per workstream, each with a `label`, a `note` and `items`. An item is either
-    - a bar: `type: "bar"`, `label`, `start`, `end` (both days included), plus `fade: true` to let it trail off (hypercare) and `key: true` to make it gold, or
-    - a milestone: `type: "milestone"`, `label` and `date`. With `key: true` it becomes the gold line with its label at the top (the go-live).
-    - Every item shows its dates next to its label. `when` replaces that date text, for example "before Christmas".
-  - `weight` on any item: how much it adds to the workload (default 1). The workload chart adds up whatever is active each day, on top of `baseLoad` (default 0.6), smooths it, and scales the busiest day to "Peak".
-  - `workloadLabel`, `peakLabel` and `source`: the workload label, the peak label and the footnote
-  - `peakZone` (default 55): the workload level above which the weeks around the peak are shaded gold as the **peak weeks**, labelled with `peakZoneLabel` and `peakZoneNote` ("look out for each other")
-  - `stats` (optional): the figures beside the title. By default these are the number of key moments (`{items}`), the weeks to the go-live (`{weeks}`, counted from today) and "1 team".
-  - `style`: `gantt` (the default), `peak` (the mountain range) or `road` (the winding road). The other two styles use `steps` instead of `rows`, with `type`, `when`, `label`, `note`, `load` (0 to 100), `month`, `group` and `say`.
-- **`finale`**: the rally `lines`, the big `title` and the `thanks`.
-- **The Improvement Award** is the question with `type: "award"` (id `award`). Fill in:
-  - `options`: the three nominees, each with `label` (name), `team` and `idea` (one or two lines)
-  - `prize`: what the winner takes home
-  - `title`, `context` and `winnerText` (`{winner}` is replaced by the name)
-  - It has no countdown (`timer: 0`) and no word field (`noWord: true`). The presenter reveals the winner with **H** or "Reveal now". It is left out of the recap and the "Q1 of 3" numbering.
-- **Each question** has:
-  - `title`, `context` and `wordPrompt`
-  - `takeaways`: the upbeat headline, picked by outcome
-  - `pledge`: the "We'll do" line on the recap
-  - `options`: each has `label`, `icon`, an optional `score` from 1 to 5, and a speech-bubble `note`
-  - `demo`: data for the simulator
+```bash
+PULSE_KEY=<presenter key> npm run content:pull   # download the current content into questions.json
+# edit questions.json
+PULSE_KEY=<presenter key> npm run content:push   # upload it; the live screens use it on the next load
+```
 
-Colours and fonts are set at the top of `public/style.css`.
+The main parts of `questions.json`:
+
+- **`show`**: the running order. Every step has a `type` (`title`, `lobby`, `agenda`, `section`, `bullets`, `stats`, `shoutouts`, `quote`, `nominees`, `question`, `roadmap`, `recap`, `qa`, `finale`), a short `nav` label and **`notes`** (shown in the presenter view). Steps with `extra: true` are the February check-in.
+- **`questions`**: the polls. Each has a `title`, `context`, `wordPrompt`, `options` (`label`, `icon`, an optional `score` from 1 to 5 and a `note`), `takeaways` (the headline, picked by outcome) and a `pledge`. `group: "checkin"` marks check-in polls; `compareWith` shows an earlier poll's score beside the new one.
+- **The award** is the question with `type: "award"`: three `options` with `label`, `team` and `idea`, plus the `prize`.
+- **`roadmap`**: the timeline. `start`/`end` (the date range), `holidays` (`label`, `start`, `end`), and `rows` of `items`: bars (`start`, `end`, both days included, `fade`, `key`) and milestones (`date`; `key: true` makes it the gold line). `weight` sets how much an item adds to the workload, `peakZone` (default 55) where the gold peak weeks start, and `stats` the figures beside the title.
+- **`countdown`**: the chip at the top right, counting the days to a `date`.
+- `timer` (seconds per poll), `lobby`, `recap`, `finale`, `ticker` (the light-hearted lines in the bottom ticker) and `reactions`.
+
+## Testing
+
+- **Simulator** (`simulator.html`, after the presenter key): the presenter screen with live phones beside it and a control panel. Jump to any screen, run a simulated room of up to 120 players (they also ask and upvote Q&A questions), fire reactions.
+- **Node server**, for a fully local run on your own network: `npm install`, then `HOST_KEY=letmein npm start`. Open `/host?key=letmein` (or `/host?key=letmein#notes` for the presenter view); phones open the address printed at startup. It reads `questions.json`, or the example if that is missing.
+
+## How it is built
+
+- `public/`: the app, shared by every mode: `core.js` (state, polls, Q&A, numbering), `host.js` (presenter screen), `join.js` (phone), `notes.js` (presenter view), `help.js` (presenter guide, results download), `lock.js` (presenter key and join code), `fx.js`, `icons.js`, `style.css`.
+- `artifact/`: the bundled app and its transport (Supabase, claude.ai, or same-browser for the simulator).
+- `server.js`: the local Node server with Server-Sent Events.
+- `scripts/build-pages.js` builds `docs/` for GitHub Pages with **no content inside**. It fails if any text from `questions.json` would end up in a public page. `scripts/content.js` uploads and downloads the content.
+- `supabase/`: the database. `pulse_live_voting.sql` holds the screen state and the anonymous answers; `pulse_private_content.sql` holds the content behind the presenter key and the join code. The presenter key and the join code are stored only as SHA-256 hashes. Never commit the key.
+
+If a network blocks WebSockets, the pages fall back to checking every couple of seconds; reactions and the "connected" counter need the live connection.
 
 ## Privacy
 
-No names and no login. Phones get a random token so people can change their answer. Player names are built from fixed word lists, so nobody can put their own text on screen as a name. Words typed as answers can be removed by clicking them.
+No names and no login. Phones get a random token so people can change their answer. Player names come from fixed word lists, so nobody can put their own text on screen as a name. Words and Q&A questions people type can be removed by the presenter with a click.

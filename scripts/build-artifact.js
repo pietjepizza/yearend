@@ -1,13 +1,17 @@
-// Bundles the app into one self-contained HTML page for a claude.ai artifact (the test link).
-// Usage: ARTIFACT_URL=https://claude.ai/... node scripts/build-artifact.js
+// Bundles the app into one self-contained HTML page (dist/mood-pulse.html).
+// - For the private claude.ai test link: the content (questions.json) is inlined. ARTIFACT_URL=<link> sets the QR code.
+// - With PULSE_PUBLIC=1 (used by build-pages for the public website) no content and no QR code go into the page:
+//   the presenter screen loads them after the presenter key, phones with the join code (see public/lock.js).
 const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
 
 const root = path.join(__dirname, '..');
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
-const config = JSON.parse(read('questions.json'));
-const base = (process.env.ARTIFACT_URL || '').replace(/#.*$/, '');
+const PUBLIC = process.env.PULSE_PUBLIC === '1';
+const configFile = ['questions.json', 'questions.example.json'].find(f => fs.existsSync(path.join(root, f)));
+const config = PUBLIC ? null : JSON.parse(read(configFile));
+const base = PUBLIC ? '' : (process.env.ARTIFACT_URL || '').replace(/#.*$/, '');
 const joinUrl = base ? base + '#join' : '';
 const json = v => JSON.stringify(v).replace(/</g, '\\u003c');
 const script = p => {
@@ -18,7 +22,7 @@ const script = p => {
 
 (async () => {
   const qr = joinUrl ? await QRCode.toString(joinUrl, { type: 'svg', margin: 0, color: { dark: '#0b0b3b', light: '#ffffff' } }) : '';
-  const thumb = fs.existsSync(path.join(root, 'dist', 'thumb.png')) ? '\n<link rel="artifact-thumbnail" href="thumb.png">' : '';
+  const thumb = !PUBLIC && fs.existsSync(path.join(root, 'dist', 'thumb.png')) ? '\n<link rel="artifact-thumbnail" href="thumb.png">' : '';
   const html = `<title>Mood Pulse</title>${thumb}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +35,9 @@ ${read('public/style.css')}
 ${script('public/core.js')}
 ${script('public/icons.js')}
 ${script('public/fx.js')}
+${script('public/lock.js')}
+${script('public/help.js')}
+${script('public/notes.js')}
 ${script('public/host.js')}
 ${script('public/join.js')}
 <script>window.PULSE_CONFIG = ${json(config)}; window.PULSE_JOIN_URL = ${json(joinUrl)};</script>
@@ -39,5 +46,5 @@ ${script('artifact/main.js')}
 `;
   fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
   fs.writeFileSync(path.join(root, 'dist', 'mood-pulse.html'), html);
-  console.log(`dist/mood-pulse.html (${(html.length / 1024).toFixed(0)} KB)${joinUrl ? ' · QR → ' + joinUrl : ' · no QR yet (set ARTIFACT_URL)'}`);
+  console.log(`dist/mood-pulse.html (${(html.length / 1024).toFixed(0)} KB)${PUBLIC ? ' · public: no content inside' : joinUrl ? ' · QR → ' + joinUrl : ' · no QR yet (set ARTIFACT_URL)'}`);
 })();

@@ -4,8 +4,8 @@
   "holidayDate": "2026-12-25",
   "countdown": {
     "date": "2027-01-04",
-    "label": "year-end close",
-    "after": "Year-end close: we've got this!"
+    "label": "[the next milestone]",
+    "after": "[Text once the date has passed]"
   },
   "timer": 25,
   "reactions": [
@@ -33,12 +33,14 @@
       "nav": "Title",
       "kicker": "Finance Operations",
       "title": "Year-End All-Hands 2026",
-      "subtitle": "Closing a record year, together",
-      "meta": "[Date] · [Location]"
+      "subtitle": "Closing a big year, together",
+      "meta": "[Date] · [Location]",
+      "notes": "Welcome everyone. While people settle in, move on to the next screen with the QR code."
     },
     {
       "type": "lobby",
-      "nav": "Join"
+      "nav": "Join",
+      "notes": "Ask everyone to scan the QR code. It is anonymous: no names, no login. Wait until most dots have popped in."
     },
     {
       "type": "agenda",
@@ -83,19 +85,22 @@
           "title": "Yes we can!",
           "who": "All of us"
         }
-      ]
+      ],
+      "notes": "Walk through the agenda and point out the live moments: the polls, the Improvement Award and the Q&A."
     },
     {
       "type": "question",
-      "question": "erp",
-      "nav": "Q1 ERP movie"
+      "question": "movie",
+      "nav": "Q1 Movie",
+      "notes": "A light icebreaker. The 25-second countdown starts by itself and the results reveal themselves. Press H to reveal early."
     },
     {
       "type": "section",
       "nav": "01 Review",
       "number": "01",
       "title": "2026 in review",
-      "subtitle": "A record year, and how we got there"
+      "subtitle": "a big year, and how we got there",
+      "notes": "Look back on 2026."
     },
     {
       "type": "bullets",
@@ -105,7 +110,7 @@
       "points": [
         {
           "icon": "chart:rocket",
-          "title": "Record sales year",
+          "title": "[Highlight 1]",
           "text": "[What made it possible]"
         },
         {
@@ -123,7 +128,8 @@
           "title": "[Highlight 4]",
           "text": "[One line about it]"
         }
-      ]
+      ],
+      "notes": "[Your talking points for the 2026 highlights]"
     },
     {
       "type": "stats",
@@ -151,19 +157,22 @@
           "label": "Cups of coffee",
           "note": "Ahead of forecast"
         }
-      ]
+      ],
+      "notes": "[Your talking points for the figures]"
     },
     {
       "type": "question",
       "question": "energy",
-      "nav": "Q2 Energy"
+      "nav": "Q2 Energy",
+      "notes": "The honest energy check. Whatever the outcome, thank people for their honesty: that is what makes this work."
     },
     {
       "type": "section",
       "nav": "02 Shout-outs",
       "number": "02",
       "title": "Shout-outs",
-      "subtitle": "Thank you for making it happen"
+      "subtitle": "Thank you for making it happen",
+      "notes": "Time to say thank you."
     },
     {
       "type": "shoutouts",
@@ -191,37 +200,43 @@
           "team": "[Team]",
           "reason": "[What they did]"
         }
-      ]
+      ],
+      "notes": "Read out each shout-out and give the room a moment to applaud."
     },
     {
       "type": "section",
       "nav": "03 Award",
       "number": "03",
       "title": "Improvement Award",
-      "subtitle": "Three improvements. One winner. Your vote."
+      "subtitle": "Three improvements. One winner. Your vote.",
+      "notes": "Introduce the Improvement Award: three improvements, one winner, and the audience decides."
     },
     {
       "type": "nominees",
       "nav": "Nominees",
       "question": "award",
       "title": "Meet the nominees",
-      "subtitle": "Each shares their improvement. Then you vote."
+      "subtitle": "Each shares their improvement. Then you vote.",
+      "notes": "Invite the three nominees up one by one to share their improvement ([x] minutes each)."
     },
     {
       "type": "question",
       "question": "award",
-      "nav": "Award vote"
+      "nav": "Award vote",
+      "notes": "Voting is open: ask everyone to vote now. When the vote count settles, press H for the drumroll and the winner. Hand over the prize."
     },
     {
       "type": "section",
       "nav": "04 Road ahead",
       "number": "04",
       "title": "The road ahead",
-      "subtitle": "DR2, FDM testing, the financial close, SOX, the annual report and the S/4HANA go-live"
+      "subtitle": "[What is coming up]",
+      "notes": "The busiest stretch of the year is coming."
     },
     {
       "type": "roadmap",
-      "nav": "Timeline"
+      "nav": "Timeline",
+      "notes": "[Your talking points for the timeline]"
     },
     {
       "type": "bullets",
@@ -249,26 +264,71 @@
           "title": "Recharge moments",
           "text": "[Christmas and New Year days off: who is off when]"
         }
-      ]
+      ],
+      "notes": "How we get through it: clear priorities, protected focus time, backing each other up, and real recharge moments."
     },
     {
       "type": "question",
       "question": "weather",
-      "nav": "Q3 Weather"
+      "nav": "Q3 Weather",
+      "notes": "A light-hearted outlook for January."
     },
     {
       "type": "recap",
-      "nav": "Recap"
+      "nav": "Recap",
+      "notes": "Thank people for their honesty and read the \"We will do\" pledges out loud."
     },
     {
       "type": "qa",
       "nav": "Q&A",
       "title": "Questions?",
-      "subtitle": "Ask anything. No question is too small, or too big."
+      "subtitle": "Ask anonymously on your phone, and vote for the questions you want answered.",
+      "notes": "Questions arrive anonymously on the phones and people upvote the ones they want answered. Click a question once to mark it answered, twice to hide it.",
+      "demo": [
+        "How do we cover the close if someone is ill?",
+        "When do we get the new system training?",
+        "Will there be cake at go-live?",
+        "Can we freeze non-urgent requests in January?",
+        "Who do we call during the go-live weekend?",
+        "How will we celebrate the peak?"
+      ]
     },
     {
       "type": "finale",
-      "nav": "Finale"
+      "nav": "Finale",
+      "notes": "End on a high: YES WE CAN! The phones turn into a cheer button."
+    },
+    {
+      "type": "section",
+      "extra": true,
+      "nav": "Check-in",
+      "number": "Feb",
+      "title": "February check-in",
+      "subtitle": "A few weeks after go-live: how are we doing?",
+      "notes": "Welcome back. Same QR code as in December. Do not press Reset first if you want the comparison with December."
+    },
+    {
+      "type": "question",
+      "question": "energy-feb",
+      "extra": true,
+      "nav": "Check-in energy",
+      "notes": "The same energy question as in December. After the reveal, the meter shows the December score next to today."
+    },
+    {
+      "type": "question",
+      "question": "golive",
+      "extra": true,
+      "nav": "Check-in go-live",
+      "notes": "How did the go-live go? Thank people for their honesty, whatever the result."
+    },
+    {
+      "type": "title",
+      "extra": true,
+      "nav": "Check-in thanks",
+      "kicker": "Finance Operations",
+      "title": "Thank you!",
+      "subtitle": "Peak conquered, together.",
+      "notes": "Close the check-in with a thank you."
     }
   ],
   "lobby": {
@@ -281,11 +341,11 @@
   },
   "roadmap": {
     "title": "The road ahead",
-    "subtitle": "A demanding stretch with a lot to deliver. We get through it together.",
+    "subtitle": "[A demanding stretch with a lot to deliver. We get through it together.]",
     "style": "gantt",
     "start": "2026-12-01",
     "end": "2027-02-21",
-    "source": "Planning as of today · FDM UAT dates TBD",
+    "source": "[Planning as of today]",
     "workloadLabel": "Team workload",
     "peakLabel": "Peak",
     "holidays": [
@@ -304,108 +364,70 @@
     ],
     "rows": [
       {
-        "label": "ERP · S/4HANA",
+        "label": "[Workstream A]",
         "items": [
           {
             "type": "bar",
-            "label": "DR2 finalization & ramp-up",
-            "start": "2026-12-17",
+            "label": "[Preparation]",
+            "start": "2026-12-07",
             "end": "2026-12-18",
-            "weight": 1.2
-          },
-          {
-            "type": "bar",
-            "key": true,
-            "label": "Blackout & cutover",
-            "start": "2027-01-29",
-            "end": "2027-01-31",
-            "when": "29 Jan – 1 Feb",
-            "weight": 1.6
+            "weight": 1
           },
           {
             "type": "milestone",
             "key": true,
-            "label": "Go-live S/4HANA",
+            "label": "[Go-live]",
             "date": "2027-02-01",
             "weight": 1
           },
           {
             "type": "bar",
-            "label": "Ramp-up & hypercare",
+            "label": "[Hypercare]",
             "start": "2027-02-01",
             "end": "2027-02-15",
-            "weight": 1.2,
+            "weight": 1,
             "fade": true
           }
         ]
       },
       {
-        "label": "FDM",
+        "label": "[Workstream B]",
         "items": [
           {
             "type": "bar",
-            "label": "UAT testing",
-            "start": "2026-12-07",
-            "end": "2026-12-23",
-            "when": "before Christmas",
-            "weight": 0.8
-          },
-          {
-            "type": "bar",
-            "label": "End-to-end testing",
+            "label": "[Testing]",
             "start": "2027-01-04",
             "end": "2027-01-22",
-            "when": "Jan, to week 3",
             "weight": 0.8
           }
         ]
       },
       {
-        "label": "Close & reporting",
+        "label": "[Close & reporting]",
         "items": [
           {
-            "type": "milestone",
-            "label": "Standard cost prices",
-            "date": "2027-01-01",
-            "weight": 0.5
-          },
-          {
             "type": "bar",
-            "label": "Financial close 2026",
+            "label": "[Close]",
             "start": "2027-01-05",
             "end": "2027-01-06",
             "weight": 1.6
           },
           {
             "type": "milestone",
-            "label": "Annual report deadline",
+            "label": "[Deadline]",
             "date": "2027-01-14",
-            "when": "14 Jan, internal",
             "weight": 1
-          },
-          {
-            "type": "milestone",
-            "label": "Quarterly results",
-            "date": "2027-01-27",
-            "weight": 0.9
           }
         ]
       },
       {
-        "label": "Controls",
+        "label": "[Controls]",
         "items": [
           {
             "type": "milestone",
-            "label": "SOX execution deadline",
+            "label": "[Deadline]",
             "date": "2027-01-19",
             "weight": 0.9
-          },
-          {
-            "type": "milestone",
-            "label": "Disclosure controls deadline",
-            "date": "2027-01-25",
-            "when": "25 Jan, annual report",
-            "weight": 0.8
           }
         ]
       }
@@ -416,91 +438,91 @@
         "type": "start",
         "when": "Today",
         "label": "We're here",
-        "note": "One team, ready to go",
+        "note": "[Note]",
         "load": 60,
         "month": "Dec"
       },
       {
         "type": "level",
-        "when": "December · TBD",
-        "label": "DR2",
-        "note": "Second dress rehearsal",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 75,
         "month": "Dec"
       },
       {
         "type": "rest",
-        "when": "Late December",
-        "label": "Christmas",
-        "note": "Laptops closed, batteries recharged",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 20,
         "month": "Dec"
       },
       {
         "type": "level",
-        "when": "Early January · TBD",
-        "label": "Year-end close",
-        "note": "Closing a record year",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 90,
         "month": "Jan"
       },
       {
         "type": "level",
-        "when": "January · TBD",
-        "label": "SOX controls",
-        "note": "Controls tested, evidence ready",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 85,
         "month": "Jan"
       },
       {
         "type": "level",
-        "when": "Jan – Feb · TBD",
-        "label": "Annual report",
-        "note": "Telling our record-year story",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 85,
         "month": "Jan"
       },
       {
         "type": "level",
-        "when": "End of January · TBD",
-        "label": "Ramp-down",
-        "note": "Closing out the old system",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 90,
         "month": "Jan",
-        "group": "ERP migration"
+        "group": "[Project]"
       },
       {
         "type": "boss",
-        "when": "End Jan / early Feb · TBD",
-        "label": "Cutover",
-        "note": "The big switch-over",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 100,
         "month": "Feb",
-        "group": "ERP migration"
+        "group": "[Project]"
       },
       {
         "type": "level",
-        "when": "Early February · TBD",
-        "label": "Ramp-up",
-        "note": "Live in the new system",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 95,
         "month": "Feb",
-        "group": "ERP migration"
+        "group": "[Project]"
       },
       {
         "type": "level",
-        "when": "February onwards",
-        "label": "Hypercare",
-        "note": "Extra support as it settles",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 75,
         "month": "Feb",
-        "group": "ERP migration"
+        "group": "[Project]"
       },
       {
         "type": "finish",
-        "when": "Spring · TBD",
-        "label": "Peak conquered!",
-        "note": "Celebrate together",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
         "load": 40,
         "month": "Mar"
       }
@@ -510,24 +532,24 @@
   },
   "finale": {
     "lines": [
-      "Record year? Delivered.",
-      "Peak season? Bring it on.",
-      "One team. Together."
+      "[Rally line 1]",
+      "[Rally line 2]",
+      "[Rally line 3]"
     ],
     "title": "YES WE CAN!",
     "thanks": "Happy holidays, Finance Operations!"
   },
   "questions": [
     {
-      "id": "erp",
-      "title": "If the ERP migration were a movie, which one would it be?",
+      "id": "movie",
+      "title": "If our big project were a movie, which one would it be?",
       "wordPrompt": "Your movie tagline in one word (optional)",
       "takeaways": [
         {
-          "text": "ERP migration, the movie: “{top}”. Popcorn ready!"
+          "text": "Our big project, the movie: “{top}”. Popcorn ready!"
         }
       ],
-      "pledge": "Celebrate every ERP milestone together, popcorn included",
+      "pledge": "Celebrate every project milestone together, popcorn included",
       "options": [
         {
           "id": "mission",
@@ -585,7 +607,7 @@
     {
       "id": "energy",
       "title": "How charged are you for peak season?",
-      "context": "Year-end close · annual report · ERP migration",
+      "context": "[Context line]",
       "wordPrompt": "What keeps you going? (one word, optional)",
       "takeaways": [
         {
@@ -763,6 +785,141 @@
         ],
         "words": []
       }
+    },
+    {
+      "id": "energy-feb",
+      "group": "checkin",
+      "title": "How charged are you now, a few weeks after go-live?",
+      "context": "Same question as in December. Let us see how we are doing.",
+      "meterLabel": "Team energy",
+      "compareWith": "energy",
+      "compareLabel": "December",
+      "wordPrompt": "What would help you most right now? (one word, optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% feel charged. The peak is behind us!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Getting there: {topBox}% feel charged. Let us keep looking out for each other."
+        },
+        {
+          "text": "Thank you for your honesty. Recharging is now the priority."
+        }
+      ],
+      "options": [
+        {
+          "id": "full",
+          "label": "Fully charged, bring it on!",
+          "icon": "battery:100",
+          "score": 5,
+          "note": "Let's gooo!"
+        },
+        {
+          "id": "ready",
+          "label": "Charged and ready",
+          "icon": "battery:70",
+          "score": 4,
+          "note": "Ready to roll!"
+        },
+        {
+          "id": "charging",
+          "label": "Charging up",
+          "icon": "battery:35",
+          "score": 3,
+          "note": "Almost there!"
+        },
+        {
+          "id": "holiday",
+          "label": "Need a recharge",
+          "icon": "battery:10",
+          "score": 2,
+          "note": "Christmas days, here I come"
+        }
+      ],
+      "demo": {
+        "weights": [
+          10,
+          14,
+          7,
+          3
+        ],
+        "words": [
+          "rest",
+          "training",
+          "coffee",
+          "team",
+          "time",
+          "focus"
+        ]
+      }
+    },
+    {
+      "id": "golive",
+      "group": "checkin",
+      "title": "How did the go-live go for you?",
+      "meterLabel": "Go-live experience",
+      "wordPrompt": "The go-live in one word (optional)",
+      "takeaways": [
+        {
+          "minAvg": 4,
+          "text": "Mostly smooth sailing: {topPct}% say “{top}”."
+        },
+        {
+          "minAvg": 3,
+          "text": "Bumpy but we got through it, together."
+        },
+        {
+          "text": "Tough weeks. Thank you for sticking with it; let us fix what still hurts."
+        }
+      ],
+      "options": [
+        {
+          "id": "smooth",
+          "label": "Smoother than expected",
+          "icon": "weather:sun",
+          "score": 5,
+          "note": "Nice!"
+        },
+        {
+          "id": "bumpy",
+          "label": "Bumpy, but we got there",
+          "icon": "weather:partly",
+          "score": 4,
+          "note": "Teamwork!"
+        },
+        {
+          "id": "finding",
+          "label": "Still finding my way",
+          "icon": "weather:rain",
+          "score": 3,
+          "note": "Hang in there"
+        },
+        {
+          "id": "support",
+          "label": "Tough, I could use support",
+          "icon": "help:team",
+          "score": 2,
+          "note": "We have got you"
+        }
+      ],
+      "demo": {
+        "weights": [
+          9,
+          15,
+          8,
+          3
+        ],
+        "words": [
+          "teamwork",
+          "bumpy",
+          "proud",
+          "relief",
+          "learning",
+          "smooth"
+        ]
+      }
     }
   ],
   "spareQuestions": [
@@ -855,7 +1012,7 @@
           "text": "2026 in one chart: “{top}”. What a year!"
         }
       ],
-      "pledge": "Celebrate the record year together, because we earned it",
+      "pledge": "Celebrate the a big year together, because we earned it",
       "options": [
         {
           "id": "rocket",
@@ -897,17 +1054,17 @@
           2
         ],
         "words": [
-          "record",
+          "success",
           "intense",
           "growth",
           "rollercoaster",
           "busy",
-          "record",
+          "success",
           "wild",
           "solid",
           "intense",
           "rewarding",
-          "record",
+          "success",
           "fast"
         ]
       }

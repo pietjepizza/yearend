@@ -46,6 +46,7 @@
   .screens button small { font-family: var(--body); font-size: 10px; color: var(--fg-3); margin-right: 6px; }
   .screens button.k-question { border-color: rgba(95, 184, 255, .55); }
   .screens button.k-question::after { content: ' ●'; color: var(--sky); font-size: 9px; vertical-align: 2px; }
+  .screens button.k-extra { border-style: dashed; border-color: rgba(255, 196, 0, .55); color: #ffe08a; }
   .screens button.on { background: var(--blue); border-color: var(--sky); box-shadow: 0 0 14px rgba(95, 184, 255, .45); }
   .panel button.primary { background: var(--sky); color: #05042a; border-color: transparent; }
   .panel button.primary.on { background: var(--gold); }
@@ -139,11 +140,13 @@
 
 <script type="application/json" id="app-src">__APP_JSON__</script>
 <script>
-(function () {
+// On the public website the content is not in this page: window.PULSE_SIM_LOCK makes the simulator ask for the
+// presenter key first and load the content from Supabase. In the private test build the content is inlined.
+function bootSimulator(CONFIG) {
   const $ = id => document.getElementById(id);
   const APP = JSON.parse($('app-src').textContent);
   const frameDoc = sim => '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><script>window.SIM=' +
-    JSON.stringify(sim) + '<\/script>' + APP + '</body></html>';
+    JSON.stringify(CONFIG ? { ...sim, config: CONFIG } : sim).replace(/</g, '\\u003c') + '<\/script>' + APP + '</body></html>';
 
   // --- presenter + phones ---
   $('hostFrame').srcdoc = frameDoc({ role: 'host' });
@@ -178,7 +181,7 @@
 
   function init() {
     const esc = t => String(t || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    $('screens').innerHTML = api.stages().map(st => `<button data-i="${st.i}" class="k-${st.kind}" title="${esc(st.title || st.label)}"><small>${st.i + 1}</small>${esc(st.label)}</button>`).join('');
+    $('screens').innerHTML = api.stages().map(st => `<button data-i="${st.i}" class="k-${st.kind}${st.extra ? ' k-extra' : ''}" title="${esc(st.title || st.label)}"><small>${st.i + 1}</small>${esc(st.label)}</button>`).join('');
     $('screens').onclick = e => { const b = e.target.closest('button'); if (b) api.goto(Number(b.dataset.i)); };
     $('reacts').innerHTML = api.reactions.map(r => `<button aria-label="Stuur ${r}">${r}</button>`).join('');
     $('reacts').onclick = e => {
@@ -191,7 +194,7 @@
   const LABEL = { lobby: 'Lobby', recap: 'Recap', roadmap: 'Road ahead', finale: 'Finale' };
   function render(s) {
     state = s;
-    const where = s.stage === 'question' ? (s.question && s.question.type === 'award' ? 'Award-stemming' : `Vraag ${s.qi + 1} van ${s.total}`) : `Scherm ${s.index + 1}/${s.stepCount}: ${s.nav || LABEL[s.stage] || s.stage}`;
+    const where = s.stage === 'question' ? (s.question && s.question.type === 'award' ? 'Award-stemming' : s.group === 'checkin' ? `Check-in ${s.qn} van ${s.qtotal}` : `Vraag ${s.qn} van ${s.qtotal}`) : `Scherm ${s.index + 1}/${s.stepCount}: ${s.nav || LABEL[s.stage] || s.stage}`;
     const bits = [where];
     if (s.stage === 'question') bits.push(s.revealed ? 'onthuld' : 'stemmen loopt', `${s.stats.n} stemmen`);
     bits.push(`${s.connected || 0} spelers verbonden`);
@@ -240,5 +243,13 @@
     $('speedSeg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
     if (simOn && api) api.simulate(true, { speed });
   };
+}
+(function () {
+  const L = window.PULSE_SIM_LOCK;
+  if (!L || !window.PulseLock) return bootSimulator(null);
+  const layer = document.createElement('div');
+  layer.style.cssText = 'position:fixed;inset:0;z-index:999;overflow:auto';
+  document.body.appendChild(layer);
+  PulseLock.presenter({ url: L.url, anon: L.key, el: layer, what: 'simulator' }).then(({ data }) => { layer.remove(); bootSimulator(data.config); });
 })();
 </script>

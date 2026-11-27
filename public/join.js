@@ -59,6 +59,21 @@
         </div>
       </section>
 
+      <section id="ask" hidden>
+        <div class="anon st" style="--i:0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Anonymous: nobody sees who asked what</div>
+        <div><span class="q-k st" style="--i:0">Q&amp;A</span></div>
+        <h1 class="q-t st" style="--i:1">Ask anything</h1>
+        <p class="q-ctx st" style="--i:1">Your question appears on the big screen without your name. Vote for the questions you want answered.</p>
+        <div class="ask-box st" style="--i:2">
+          <label for="askText" class="sr">Your question</label>
+          <textarea id="askText" maxlength="140" rows="3" placeholder="Type your question…"></textarea>
+          <div class="ask-row"><span id="askLeft">140 characters</span><button class="ask-send" id="askSend" disabled>Send question</button></div>
+        </div>
+        <p class="err" id="askErr" hidden></p>
+        <div class="qa-h st" style="--i:3"><span>Questions so far</span><span id="qaCount"></span></div>
+        <div class="qa-list" id="qaList"></div>
+      </section>
+
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
         <p>Make some noise for the team!</p>
@@ -90,7 +105,7 @@
     let s = null, current = null, choice = null, editing = false, reactionsBuilt = false, shown = null, cheers = 0;
 
     function show(which) {
-      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer']) $(k).hidden = k !== which;
+      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask']) $(k).hidden = k !== which;
       $('ctaWrap').hidden = which !== 'pick';
       if (which !== shown) {
         shown = which;
@@ -157,6 +172,7 @@
       timer(s.stage === 'question' && !s.revealed ? s.timeLeft : 0, s.timerTotal);
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
       if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
       if (s.stage !== 'question') {
         const sl = s.stage === 'slide' ? s.slide || {} : null;
         $('step').textContent = sl ? `${s.index + 1} / ${s.stepCount}` : 'Done!';
@@ -178,8 +194,9 @@
         if ($('wrap').dataset.k !== 'aw' + s.index) { $('wrap').dataset.k = 'aw' + s.index; shown = null; }
         return show('wrap');
       }
-      $('step').textContent = award ? 'Award' : `Q${s.qi + 1} of ${steps}`;
-      $('qk').textContent = award ? 'Improvement Award' : `Question ${s.qi + 1}`;
+      const checkin = s.group === 'checkin';
+      $('step').textContent = award ? 'Award' : checkin ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`;
+      $('qk').textContent = award ? 'Improvement Award' : checkin ? 'February check-in' : `Question ${s.qn}`;
       $('wordField').hidden = !!q.noWord;
       $('qt').textContent = q.title;
       $('qctx').hidden = !q.context; $('qctx').textContent = q.context || '';
@@ -213,6 +230,59 @@
         show('done');
       } else show('pick');
     }
+    // ---------- anonymous Q&A ----------
+    let qaKey = '';
+    function renderAsk() {
+      const list = s.qa || [], mineA = s.mineAsk || { q: [], up: [] };
+      const myQ = new Set((mineA.q || []).map(x => x.id)), myUp = new Set(mineA.up || []);
+      $('qaCount').textContent = list.length ? String(list.length) : '';
+      const key = JSON.stringify([list, [...myQ], [...myUp]]);
+      if (key === qaKey) return;
+      qaKey = key;
+      $('qaList').innerHTML = list.length ? '' : '<p class="qa-empty">No questions yet. Be the first!</p>';
+      list.forEach(x => {
+        const row = document.createElement('div');
+        row.className = 'qa-item' + (myQ.has(x.id) ? ' mine' : '') + (x.done ? ' qa-done' : '');
+        const p = document.createElement('p'); p.textContent = x.text; row.appendChild(p);
+        if (x.done) { const t = document.createElement('span'); t.className = 'qa-tag'; t.textContent = 'Answered'; row.appendChild(t); }
+        if (myQ.has(x.id)) { const t = document.createElement('span'); t.className = 'qa-tag'; t.textContent = `Your question · ${x.votes} vote${x.votes === 1 ? '' : 's'}`; row.appendChild(t); }
+        else {
+          const b = document.createElement('button');
+          const on = myUp.has(x.id);
+          b.className = 'qa-up' + (on ? ' on' : ''); b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', (on ? 'Remove your vote for: ' : 'Vote for: ') + x.text);
+          b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 L13.5 10 H2.5 Z" fill="currentColor"/></svg><b></b>';
+          b.querySelector('b').textContent = x.votes;
+          b.onclick = async () => {
+            b.classList.toggle('on'); b.disabled = true;
+            if (navigator.vibrate) navigator.vibrate(8);
+            await T.upvote(x.id, !on);
+            await load();
+          };
+          row.appendChild(b);
+        }
+        $('qaList').appendChild(row);
+      });
+    }
+    $('askText').oninput = () => {
+      const n = $('askText').value.trim().length;
+      $('askLeft').textContent = `${140 - $('askText').value.length} characters`;
+      $('askSend').disabled = n < 3;
+      $('askErr').hidden = true;
+    };
+    $('askSend').onclick = async () => {
+      $('askSend').disabled = true;
+      const res = await T.ask($('askText').value);
+      if (res === 'ok') {
+        const rect = $('askSend').getBoundingClientRect();
+        confetti.burst('point', { x: rect.left + rect.width / 2, y: rect.top });
+        $('askText').value = ''; $('askLeft').textContent = '140 characters';
+      } else {
+        $('askErr').textContent = res === 'limit' ? 'You can ask up to three questions. Vote for others instead!' : res === 'short' ? 'Type a little more.' : 'Your question could not be sent. Check your connection and try again.';
+        $('askErr').hidden = false; $('askSend').disabled = false;
+      }
+      await load();
+    };
+
     function markChoice() {
       document.querySelectorAll('.opt').forEach(x => {
         const on = x.dataset.id === choice;

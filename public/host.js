@@ -51,6 +51,9 @@
     <button data-a="snow" id="ctlSnow" title="S">Snow on</button>
     <button data-a="sim" id="ctlSim" hidden>▶ Simulate the room</button>
     <button data-a="reset" id="ctlReset">Reset</button>
+    <span class="ctl-sep"></span>
+    <button data-a="full" title="F">Full screen</button>
+    <button data-a="help" title="?">Guide</button>
   </div>`;
 
   function mountHost(rootEl, T) {
@@ -110,7 +113,7 @@
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = countdownChip(s);
-      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : `Q${s.qi + 1} of ${s.total}`) : s.nav || LABELS[s.stage] || '';
+      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
       $('ctlReveal').hidden = s.stage !== 'question';
@@ -144,7 +147,51 @@
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
+    // ---------- live Q&A board ----------
+    let qaKeyHost = '';
+    function paintQa(s) {
+      const board = $('qaBoard');
+      if (!board) return;
+      const list = (s.qa || []).slice(0, 7), more = (s.qa || []).length - list.length;
+      const key = JSON.stringify([list, more]);
+      if (key === qaKeyHost) return;
+      qaKeyHost = key;
+      if (!list.length) { board.innerHTML = '<div class="qa-wait"><b>Questions appear here</b><span>Scan the code and ask anything. It stays anonymous.</span></div>'; return; }
+      const before = new Map([...board.querySelectorAll('.qa-card')].map(el => [el.dataset.id, el.getBoundingClientRect().top]));
+      const old = new Map([...board.querySelectorAll('.qa-card')].map(el => [el.dataset.id, el]));
+      board.querySelector('.qa-wait')?.remove();
+      board.querySelector('.qa-more')?.remove();
+      list.forEach((x, k) => {
+        let el = old.get(x.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'card qa-card new'; el.dataset.id = x.id;
+          el.innerHTML = '<div class="qa-votes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 L13.5 10 H2.5 Z" fill="currentColor"/></svg><b>0</b></div><p></p>';
+          el.querySelector('p').textContent = x.text;
+          if (T.canControl) el.onclick = () => T.act('qa', `${el.classList.contains('qa-done') ? 'hide' : 'done'}:${x.id}`);
+          pulse.spike(.5);
+        }
+        const b = el.querySelector('.qa-votes b');
+        if (b.textContent !== String(x.votes)) { b.textContent = x.votes; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+        el.classList.toggle('qa-done', x.done);
+        el.classList.toggle('top', k === 0 && x.votes > 0 && !x.done);
+        board.appendChild(el);
+        old.delete(x.id);
+      });
+      old.forEach(el => el.remove());
+      if (more > 0) board.insertAdjacentHTML('beforeend', `<div class="qa-more">+ ${more} more question${more === 1 ? '' : 's'}</div>`);
+      // slide the cards from their old to their new place
+      board.querySelectorAll('.qa-card').forEach(el => {
+        const was = before.get(el.dataset.id);
+        if (was == null) return;
+        const dy = was - el.getBoundingClientRect().top;
+        if (!dy) return;
+        el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 550, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      });
+    }
+
     function paint(s, meta) {
+      if (s.stage === 'slide' && s.qa) paintQa(s);
       if (s.stage === 'lobby') paintLobby(s);
       else if (s.stage === 'question') paintQuestion(s, meta);
       else if (s.stage === 'recap') paintRecap(s);
@@ -208,7 +255,7 @@
       const q = s.question, scored = q.options.some(o => typeof o.score === 'number');
       $('titleblock').innerHTML = `
         <div class="qrow">
-          <div class="qbadge"><b>Q${s.qi + 1}</b><span>of ${s.total}</span></div>
+          <div class="qbadge"><b>${s.group === 'checkin' ? s.qn : 'Q' + s.qn}</b><span>of ${s.qtotal}</span></div>
           <div class="qtext"><h1 id="qtitle">${esc(q.title)}</h1>${q.context ? `<div class="ctx">${esc(q.context)}</div>` : ''}</div>
           <div class="timer" id="timer" hidden>
             <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="t-bg" cx="50" cy="50" r="42"/><circle class="t-fg" id="tfg" cx="50" cy="50" r="42" pathLength="100"/></svg>
@@ -253,7 +300,8 @@
                     <path d="M93.9 28.1 A48 48 0 0 1 108 62" class="seg" stroke="#8fd3ff"/>
                     <g class="needle" id="needle"><path d="M60 62 L60 22" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="62" r="7" fill="#ffffff"/></g>
                   </svg>
-                  <div class="mini-v"><span id="k-avg" data-v="0">?</span><small>/ 5</small></div>`
+                  <div class="mini-v"><span id="k-avg" data-v="0">?</span><small>/ 5</small></div>
+                  ${s.compare ? `<div class="mini-cmp" id="cmp" hidden></div>` : ''}`
                 : `<div class="mini-k">In the lead</div><div class="leader" id="leader"><span class="q">?</span></div>`}
               </div>
               <div class="card mini qr-mini st" style="--i:3" id="joinCard">
@@ -296,6 +344,11 @@
       if ($('needle')) {
         if (s.revealed && s.stats.avg != null) { $('needle').style.setProperty('--a', ((s.stats.avg - 1) / 4 * 180 - 90).toFixed(1) + 'deg'); FX.tween($('k-avg'), s.stats.avg, v => v.toFixed(1)); }
         else $('k-avg').textContent = '?';
+        if ($('cmp')) {
+          const c = s.compare, show = s.revealed && c && c.avg != null && s.stats.avg != null;
+          $('cmp').hidden = !show;
+          if (show) { const d = +(s.stats.avg - c.avg).toFixed(1); $('cmp').innerHTML = `${esc(c.label)}: <b>${c.avg}</b> <span class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)}</span>`; }
+        }
       } else {
         const opt = q.options.find(o => o.id === s.stats.topId), i = q.options.indexOf(opt);
         const html = s.revealed && opt ? `${orbIcon(LANES[i % LANES.length], opt.icon)}<b>${esc(opt.label)}</b>` : '<span class="q">?</span>';
@@ -635,6 +688,20 @@
       } else if (sl.type === 'quote') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-quote"><div class="s-qmark">“</div><blockquote>${ph(sl.quote || '')}</blockquote>${sl.by ? `<div class="s-by">${ph(sl.by)}</div>` : ''}</div>`;
+      } else if (sl.type === 'qa' && s.qa) {
+        // live anonymous Q&A: the questions from the phones, ranked by votes
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="qa-wall">
+          <div class="qa-side">
+            <div class="s-qa-orbs">${[0, 1, 2, 3, 4].map(k => `<span style="--k:${k}">${orb(LANES[k % LANES.length])}</span>`).join('')}</div>
+            ${bouncy(sl.title || 'Questions?', 'big')}
+            ${sl.subtitle ? `<p class="s-sub">${ph(sl.subtitle)}</p>` : ''}
+            <div class="card qa-join st" style="--i:2"><div class="qr">${T.qrHtml()}</div><div><b>Scan to ask</b><span>Anonymous. Vote for the questions you want answered.</span></div></div>
+          </div>
+          <div class="qa-board" id="qaBoard"></div>
+        </div>`;
+        $('source').textContent = T.canControl ? 'Click a question: answered · click again: hide · U: bring back' : 'Live Q&A';
+        qaKeyHost = '';
       } else if (sl.type === 'qa') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-qa">
@@ -1322,7 +1389,10 @@
 
     // ---------- controls ----------
     let resetArmed = 0, clearArmed = 0;
+    const help = root.PulseHelp ? PulseHelp.mount({ T, getState: () => latest }) : null;
     function control(a) {
+      if (a === 'help') { if (help) help.toggle(); return; }
+      if (a === 'full') { if (help) help.fullscreen(); return; }
       if (a === 'snow') { const on = snow.toggle(); $('ctlSnow').textContent = on ? 'Snow on' : 'Snow off'; return; }
       if (a === 'sim') { const on = T.simulate(!T.simulating()); $('ctlSim').textContent = on ? '■ Stop simulation' : '▶ Simulate the room'; return; }
       if (!T.canControl) { $('status').textContent = T.controlHint || 'Only the presenter can control this screen'; return; }
@@ -1347,11 +1417,14 @@
     addEventListener('keydown', e => {
       if (e.target.closest && e.target.closest('input,textarea')) return;
       const k = e.key.toLowerCase();
+      if (k === '?' || (k === '/' && e.shiftKey)) { e.preventDefault(); return control('help'); }
+      if (help && help.isOpen()) { if (k === 'escape') help.close(); return; }
+      if (k === 'f' && !e.ctrlKey && !e.metaKey) return control('full');
       if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); control('next'); }
       else if (['arrowleft', 'pageup'].includes(k)) control('prev');
       else if (k === 'h') { if (latest && latest.stage === 'roadmap') { if (skipRoad) skipRoad(); } else control('reveal'); }
       else if (k === 's') control('snow');
-      else if (k === 'u') control('unhide');
+      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); }
       else if (k === 'c') control('clear');
     });
     addEventListener('resize', () => {
@@ -1363,6 +1436,7 @@
 
     T.onStatus = msg => ($('status').textContent = msg || '');
     T.subscribe(render, onReact);
+    if (T.canControl && help) setTimeout(() => FX.toast($('toast'), 'Press ? for the presenter guide · F for full screen', 4200), 1800);
   }
 
   root.mountHost = mountHost;

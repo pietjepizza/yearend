@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#10069f">
 <style>[hidden]{display:none!important}</style>
-
 <script src="vendor/supabase.js"></script>
 <script>window.PULSE_LIVE={"url":"https://evdtpvbacpibeasrczhu.supabase.co","key":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZHRwdmJhY3BpYmVhc3Jjemh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5Nzc0ODgsImV4cCI6MjExMDU1MzQ4OH0.SfKzou_Ogcsroj9EpOgB7yBhvd6tNyYGm8Lqiu7EZAQ","role":"phone"};</script>
 <script>
@@ -137,6 +138,7 @@
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
+
 </head>
 <body>
 <title>Mood Pulse</title>
@@ -930,10 +932,127 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .qbadge.award .aw-ico { display: grid; place-items: center; }
 .opt .l small { display: block; font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--fg-2); margin-top: 2px; }
 
+/* ---------- phone: anonymous Q&A ---------- */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.ask-box { margin-top: 14px; background: rgba(255, 255, 255, .07); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+.ask-box textarea { width: 100%; resize: none; border: 0; outline: 0; background: transparent; color: var(--fg); font: 500 16px/1.4 var(--body); }
+.ask-box textarea::placeholder { color: var(--fg-3); }
+.ask-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.ask-row span { font-size: 12px; color: var(--fg-3); }
+.ask-send { border: 0; border-radius: 999px; padding: 10px 18px; background: var(--sky); color: #05042a; font: 700 15px var(--display); cursor: pointer; }
+.ask-send:disabled { opacity: .4; cursor: default; }
+.ask-send:focus-visible, .qa-up:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.qa-h { display: flex; justify-content: space-between; margin: 22px 0 8px; font: 600 12px var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--sky); }
+.qa-list { display: flex; flex-direction: column; gap: 8px; padding-bottom: 24px; }
+.qa-empty { color: var(--fg-3); font-size: 14px; }
+.qa-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 12px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 14px; padding: 10px 10px 10px 14px; animation: phonein .4s var(--ease) both; }
+.qa-item p { margin: 0; font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+.qa-item.mine { border-color: rgba(95, 184, 255, .55); }
+.qa-item.qa-done { opacity: .55; }
+.qa-tag { grid-column: 1; font-size: 12px; font-weight: 600; color: var(--sky); }
+.qa-up { grid-row: 1 / span 2; grid-column: 2; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 48px; padding: 6px 8px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .06); color: var(--fg-2); cursor: pointer; }
+.qa-up svg { width: 16px; height: 16px; }
+.qa-up b { font: 700 15px var(--display); }
+.qa-up.on { background: var(--sky); border-color: var(--sky); color: #05042a; }
+
+/* ---------- presenter: live Q&A board ---------- */
+.qa-wall { flex: 1; display: grid; grid-template-columns: minmax(0, 36fr) minmax(0, 64fr); gap: calc(var(--u) * 3); align-items: center; min-height: 0; }
+.qa-side { display: flex; flex-direction: column; gap: calc(var(--u) * 1.2); }
+.qa-side .s-qa-orbs { justify-content: flex-start; }
+.qa-side .s-sub { font-size: calc(var(--u) * 1.5); color: var(--fg-2); margin: 0; }
+.qa-join { display: flex; align-items: center; gap: calc(var(--u) * 1.2); margin-top: calc(var(--u) * 1); }
+.qa-join .qr { width: calc(var(--u) * 8); flex: none; background: #fff; border-radius: calc(var(--u) * .6); padding: calc(var(--u) * .4); }
+.qa-join b { display: block; font-family: var(--display); font-size: calc(var(--u) * 1.6); }
+.qa-join span { font-size: calc(var(--u) * 1.05); color: var(--fg-2); }
+.qa-board { align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--u) * .9); min-height: 0; overflow: hidden; }
+.qa-wait { text-align: center; padding: calc(var(--u) * 4); border: 1px dashed var(--line); border-radius: var(--r); color: var(--fg-2); }
+.qa-wait b { display: block; font-family: var(--display); font-size: calc(var(--u) * 2); color: var(--fg); margin-bottom: .3em; }
+.qa-card { display: flex; align-items: center; gap: calc(var(--u) * 1.4); padding: calc(var(--u) * .9) calc(var(--u) * 1.4); transition: opacity .4s, border-color .3s, box-shadow .3s; }
+.presenting .qa-card { cursor: pointer; }
+.qa-card.new { animation: rise .6s var(--ease) both; }
+.qa-card p { margin: 0; font-size: calc(var(--u) * 1.45); line-height: 1.35; font-weight: 500; }
+.qa-votes { flex: none; display: flex; flex-direction: column; align-items: center; min-width: calc(var(--u) * 4); padding: calc(var(--u) * .35) 0; border-radius: calc(var(--u) * .7); background: rgba(95, 184, 255, .16); color: var(--sky); }
+.qa-votes svg { width: calc(var(--u) * 1.1); height: auto; }
+.qa-votes b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.7); line-height: 1.1; color: var(--fg); }
+.qa-card.bump .qa-votes b { animation: grow .45s var(--ease); }
+.qa-card.top { border-color: rgba(255, 196, 0, .7); box-shadow: 0 0 calc(var(--u) * 2) rgba(255, 196, 0, .3); }
+.qa-card.top .qa-votes { background: rgba(255, 196, 0, .2); color: var(--gold); }
+.qa-card.qa-done { opacity: .45; }
+.qa-card.qa-done p { text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, .4); }
+.qa-more { text-align: center; color: var(--fg-3); font-size: calc(var(--u) * 1); }
+.mini-cmp { margin-top: calc(var(--u) * .3); font-size: calc(var(--u) * .95); color: var(--fg-2); }
+.mini-cmp b { color: var(--fg); }
+.mini-cmp .up { color: #6fe3a5; font-weight: 700; margin-left: .3em; }
+.mini-cmp .down { color: #ffb36b; font-weight: 700; margin-left: .3em; }
+
+/* ---------- presenter guide ---------- */
+.help { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 24px; background: rgba(3, 2, 30, .72); backdrop-filter: blur(6px); }
+.help[hidden] { display: none; }
+.help-card { width: min(1180px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: #0d0b52; border: 1px solid rgba(255, 255, 255, .18); border-radius: 20px; box-shadow: 0 30px 80px rgba(0, 0, 20, .6); padding: 26px 30px 30px; color: #fff; font: 15px/1.55 var(--body); animation: rise .35s var(--ease) both; }
+.help-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.help-head h2 { margin: 0; font: 700 26px var(--display); }
+.help-x { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); background: transparent; color: #fff; font-size: 16px; cursor: pointer; }
+.help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 26px; }
+.help h3 { margin: 14px 0 8px; font: 600 12px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--sky); }
+.help-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: rgba(255, 255, 255, .85); }
+.help-steps b { color: #fff; }
+.help i { font-style: normal; color: var(--ice); font-weight: 600; }
+.help kbd { display: inline-block; min-width: 1.6em; text-align: center; padding: 1px 6px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .3); border-bottom-width: 2px; background: rgba(255, 255, 255, .08); font: 600 12px var(--body); color: #fff; }
+.help-keys { width: 100%; border-collapse: collapse; }
+.help-keys td { padding: 5px 0; vertical-align: top; color: rgba(255, 255, 255, .85); border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.help-keys td:first-child { white-space: nowrap; padding-right: 12px; width: 1%; }
+.help-list { margin: 0; padding-left: 18px; color: rgba(255, 255, 255, .85); display: flex; flex-direction: column; gap: 6px; }
+.help-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.help-tools button { border: 1px solid rgba(95, 184, 255, .55); background: rgba(95, 184, 255, .14); color: #fff; border-radius: 999px; padding: 9px 16px; font: 600 14px var(--body); cursor: pointer; }
+.help-tools button:hover { background: rgba(95, 184, 255, .3); }
+.help-tools button:focus-visible, .help-x:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.help-note { color: rgba(255, 255, 255, .65); font-size: 13.5px; margin: 10px 0 0; }
+.help-ok { color: #6fe3a5; font-weight: 600; margin: 0; }
+.help-warn { color: var(--gold); font-weight: 600; margin: 0 0 6px; }
+.help-ph { margin: 0; padding: 0; list-style: none; max-height: 220px; overflow: auto; font-size: 13px; color: rgba(255, 255, 255, .7); }
+.help-ph li { padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, .07); }
+.help-ph b { color: #fff; font-weight: 600; margin-right: 6px; }
+
+/* ---------- presenter view (second window on the laptop) ---------- */
+body.notes-mode { background: #07062f; overflow: auto; }
+.nv { min-height: 100vh; display: flex; flex-direction: column; color: #fff; font: 16px/1.5 var(--body); }
+.nv-top { display: flex; align-items: center; gap: 18px; padding: 14px 24px; border-bottom: 1px solid rgba(255, 255, 255, .12); background: #0b0950; position: sticky; top: 0; z-index: 2; }
+.nv-top > b { font: 700 18px var(--display); }
+.nv-top #nvPos { color: rgba(255, 255, 255, .7); }
+.nv-sp { flex: 1; }
+.nv-status { color: var(--gold); font-size: 14px; }
+.nv-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; cursor: default; }
+.nv-clock:first-of-type { cursor: pointer; }
+.nv-clock small { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .55); }
+.nv-clock b { font: 700 22px var(--display); font-variant-numeric: tabular-nums; }
+.nv-ghost { border: 1px solid rgba(255, 255, 255, .3); background: transparent; color: #fff; border-radius: 999px; padding: 7px 14px; font: 600 14px var(--body); cursor: pointer; }
+.nv-main { flex: 1; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 24px; padding: 24px; }
+.nv-k { font: 600 12px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--sky); }
+.nv-k2 { margin-top: 22px; }
+.nv-now h1 { margin: 6px 0 12px; font: 700 34px/1.15 var(--display); }
+.nv-live { display: flex; flex-wrap: wrap; gap: 8px; }
+.nv-live span { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; padding: 4px 12px; font-size: 14px; color: rgba(255, 255, 255, .85); }
+.nv-live .nv-q { border-radius: 10px; flex-basis: 100%; }
+.nv-notes { margin-top: 8px; font-size: 24px; line-height: 1.5; max-width: 60ch; }
+.nv-empty { color: rgba(255, 255, 255, .5); font-size: 16px; }
+.nv-side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.nv-next { background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px; padding: 14px 16px; }
+.nv-next b { display: block; margin-top: 4px; font: 600 20px var(--display); }
+.nv-btns { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.nv-btns button, .nv-reveal { border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #fff; border-radius: 14px; padding: 16px; font: 700 18px var(--display); cursor: pointer; }
+.nv-btns .nv-go { background: var(--blue); border-color: var(--sky); }
+.nv-reveal { background: rgba(255, 196, 0, .15); border-color: rgba(255, 196, 0, .6); color: var(--gold); }
+.nv-btns button:focus-visible, .nv-reveal:focus-visible, .nv-list li:focus-visible, .nv-ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.nv-list { margin: 0; padding: 0; list-style: none; overflow: auto; max-height: 44vh; border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; }
+.nv-list li { padding: 7px 12px; font-size: 14px; color: rgba(255, 255, 255, .75); cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+.nv-list li:hover { background: rgba(255, 255, 255, .06); }
+.nv-list li.on { background: rgba(95, 184, 255, .2); color: #fff; font-weight: 600; }
+.nv-list li.extra { color: rgba(255, 224, 138, .8); }
+@media (max-width: 860px) { .nv-main { grid-template-columns: 1fr; } .nv-top { flex-wrap: wrap; } }
+
 </style>
 <div id="app"></div>
-<template id="qr-template"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#0b0b3b" d="M0 0.5h7m1 0h1m1 0h5m1 0h1m1 0h1m3 0h1m3 0h7M0 1.5h1m5 0h1m1 0h4m1 0h2m1 0h2m1 0h1m4 0h1m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h2m3 0h1m1 0h5m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h2m3 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m4 0h1m1 0h6m1 0h1m2 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M11 7.5h3m1 0h2m2 0h2m1 0h2M0 8.5h1m2 0h6m5 0h1m1 0h2m5 0h3m2 0h1m1 0h3M4 9.5h1m2 0h2m3 0h2m1 0h1m1 0h1m1 0h1m3 0h1m4 0h4M2 10.5h2m1 0h4m2 0h1m1 0h1m1 0h2m3 0h5m1 0h1m1 0h5M2 11.5h3m2 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h2m3 0h1m2 0h2M1 12.5h3m1 0h3m1 0h1m1 0h3m3 0h1m2 0h1m2 0h2m1 0h1m4 0h2M0 13.5h1m3 0h1m9 0h1m3 0h1m4 0h3m1 0h1m2 0h1M2 14.5h5m1 0h1m1 0h1m1 0h1m1 0h2m3 0h4m3 0h1M1 15.5h2m1 0h1m2 0h2m1 0h3m3 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1M0 16.5h1m1 0h2m1 0h3m6 0h2m3 0h2m1 0h2m1 0h5M0 17.5h1m1 0h1m2 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h2m2 0h2m1 0h1m1 0h1m1 0h1M3 18.5h2m1 0h7m1 0h6m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1M1 19.5h1m2 0h1m3 0h1m2 0h1m1 0h4m2 0h2m1 0h1m2 0h2m1 0h3m1 0h1M1 20.5h6m1 0h1m1 0h5m1 0h1m1 0h2m4 0h1m2 0h1m1 0h1M0 21.5h1m1 0h1m4 0h4m1 0h2m3 0h1m1 0h1m1 0h3m4 0h3M0 22.5h1m1 0h1m3 0h1m1 0h1m1 0h2m1 0h2m2 0h2m1 0h2m1 0h2m1 0h2m2 0h3M0 23.5h1m2 0h3m5 0h5m1 0h3m7 0h2m1 0h2M0 24.5h4m1 0h3m3 0h1m1 0h2m1 0h1m3 0h1m3 0h6m2 0h1M8 25.5h1m1 0h1m1 0h1m1 0h2m1 0h1m3 0h2m1 0h1m3 0h1m1 0h2M0 26.5h7m1 0h2m1 0h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1M0 27.5h1m5 0h1m1 0h1m3 0h1m1 0h7m1 0h3m3 0h5M0 28.5h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h3m1 0h2m2 0h6M0 29.5h1m1 0h3m1 0h1m1 0h3m5 0h7m1 0h2m1 0h1m3 0h2M0 30.5h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h2M0 31.5h1m5 0h1m2 0h1m1 0h1m8 0h1m6 0h6M0 32.5h7m1 0h1m2 0h3m1 0h3m1 0h2m2 0h2m1 0h3"/></svg>
-</template>
+<template id="qr-template"></template>
 <script>
 // Shared survey logic, used by the Node server and by the browser-only demo.
 // state = { current, revealedQ: { [questionIndex]: true }, timerEnd, hidden: [word],
@@ -1016,15 +1135,58 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     const byId = {};
     Q.forEach((q, i) => { byId[q.id || String(i)] = i; });
     const list = Array.isArray(config.show)
-      ? config.show.map(st => st.type === 'question' ? { kind: 'question', qi: st.question in byId ? byId[st.question] : Number(st.question), nav: st.nav }
-        : SPECIAL.includes(st.type) ? { kind: st.type, nav: st.nav }
-        : { kind: 'slide', slide: st, nav: st.nav })
+      ? config.show.map(st => ({
+        ...(st.type === 'question' ? { kind: 'question', qi: st.question in byId ? byId[st.question] : Number(st.question) }
+          : SPECIAL.includes(st.type) ? { kind: st.type }
+          : { kind: 'slide', slide: st }),
+        nav: st.nav, notes: st.notes || '', extra: !!st.extra,
+      }))
       : [{ kind: 'lobby' }, ...Q.map((q, i) => ({ kind: 'question', qi: i })), ...(config.outro || ['recap', 'roadmap', 'finale']).map(k => ({ kind: k }))];
     const out = list.filter(st => st.kind !== 'question' || Q[st.qi]);
     cache.set(config, out);
     return out;
   }
   const lastIndex = config => steps(config).length - 1;
+  // Next and previous stay inside their part of the show: the main all-hands, or the extra check-in steps
+  // (which the presenter opens with "goto"), so "next" after the finale never runs into the check-in.
+  function nextIndex(config, i) {
+    const S = steps(config), cur = clampIndex(config, i);
+    return cur + 1 < S.length && !!S[cur + 1].extra === !!S[cur].extra ? cur + 1 : cur;
+  }
+  function prevIndex(config, i) {
+    const S = steps(config), cur = clampIndex(config, i);
+    return cur > 0 && !!S[cur - 1].extra === !!S[cur].extra ? cur - 1 : cur;
+  }
+  const firstExtra = config => steps(config).findIndex(st => st.extra);
+  // Questions are numbered within their group: the all-hands polls, the award, the check-in.
+  const groupOf = q => (q.type === 'award' ? 'award' : q.group || 'main');
+  function numbering(config, qi) {
+    const Q = config.questions, g = groupOf(Q[qi]);
+    const same = Q.map((q, i) => [q, i]).filter(([q]) => groupOf(q) === g).map(([, i]) => i);
+    return { group: g, qn: same.indexOf(qi) + 1, qtotal: same.length };
+  }
+
+  // Anonymous Q&A: each phone keeps its own questions and upvotes in responses.ask[token] = { q: [{ id, text, ts }], up: [id] }.
+  function qaList(byToken, qa) {
+    const done = new Set((qa && qa.done) || []), hide = new Set((qa && qa.hidden) || []);
+    const list = new Map();
+    for (const a of Object.values(byToken || {})) for (const x of (a && a.q) || []) {
+      if (x && x.id && x.text && !hide.has(x.id) && !list.has(x.id)) list.set(x.id, { id: String(x.id).slice(0, 24), text: clean(x.text, 140), ts: Number(x.ts) || 0, votes: 0, done: done.has(x.id) });
+    }
+    for (const a of Object.values(byToken || {})) for (const id of new Set((a && a.up) || [])) if (list.has(id)) list.get(id).votes++;
+    return [...list.values()].sort((p, q) => (p.done - q.done) || (q.votes - p.votes) || (p.ts - q.ts));
+  }
+
+  // Everything worth keeping after the event, for the downloadable summary.
+  function summary(config, state) {
+    const Q = config.questions;
+    return {
+      team: config.team, event: config.event, at: Date.now(),
+      participants: new Set(Object.entries(state.responses || {}).filter(([k]) => k !== 'ask').flatMap(([, r]) => Object.keys(r || {}))).size,
+      questions: Q.map((q, i) => ({ id: q.id, title: q.title, type: q.type || 'poll', group: groupOf(q), pledge: q.pledge, options: q.options, ...analyse(q, (state.responses || {})[i], state.hidden) })),
+      qa: qaList((state.responses || {}).ask, state.qa),
+    };
+  }
   const clampIndex = (config, i) => Math.max(0, Math.min(lastIndex(config), Number(i) || 0));
   const stepAt = (config, i) => steps(config)[clampIndex(config, i)];
   const qiAt = (config, i) => { const st = stepAt(config, i); return st && st.kind === 'question' ? st.qi : -1; };
@@ -1046,10 +1208,14 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     const index = clampIndex(config, state.current);
     const step = S[index], qi = step.kind === 'question' ? step.qi : -1, q = Q[qi];
     const revealed = !q || !!(state.revealedQ || {})[qi];
+    const nextI = nextIndex(config, index), nextStep = nextI !== index ? S[nextI] : null;
+    const num = q ? numbering(config, qi) : { group: '', qn: 0, qtotal: 0 };
     const base = {
       team: config.team, event: config.event, holidayDate: config.holidayDate, countdown: config.countdown,
       reactions: config.reactions, ticker: config.ticker || [],
-      index, qi, total: Q.filter(x => x.type !== 'award').length, stepCount: S.length, nav: navLabel(config, step),
+      index, qi, total: Q.filter(x => groupOf(x) === 'main').length, stepCount: S.length, nav: navLabel(config, step),
+      qn: num.qn, qtotal: num.qtotal, group: num.group, extra: step.extra,
+      notes: step.notes || '', next: nextStep ? navLabel(config, nextStep) : '',
       revealed,
       timeLeft: q && !revealed && state.timerEnd ? Math.max(0, state.timerEnd - now) : 0,
       timerTotal: timerMs(config, q),
@@ -1061,20 +1227,23 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     if (step.kind === 'slide') {
       // a "nominees" slide shows the candidates of the award vote it names
       const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
-      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, participants };
+      const qa = step.slide.type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, participants };
     }
     if (step.kind !== 'question') {
-      const items = Q.map((q, i) => q.type === 'award' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
+      const items = Q.map((q, i) => groupOf(q) !== 'main' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
       return { ...base, stage: step.kind, recap: config.recap || {}, roadmap: config.roadmap || {}, finale: config.finale || {}, items, participants };
     }
+    const ci = q.compareWith ? Q.findIndex(x => x.id === q.compareWith) : -1;
     return {
       ...base, stage: 'question', question: q,
       ...analyse(q, state.responses[qi], state.hidden),
       recent: recentWords(state.responses[qi], state.hidden),
+      compare: ci >= 0 ? { label: q.compareLabel || 'Before', ...analyse(Q[ci], state.responses[ci], state.hidden).stats } : null,
     };
   }
 
-  return { norm, clean, analyse, publicState, enter, steps, lastIndex, qiAt, navLabel, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
+  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
 });
 
 </script>
@@ -1402,6 +1571,471 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
 </script>
 <script>
+// Private content for the public website: the presentation itself is not in the pages.
+// - The presenter screen (and the simulator) ask for the presenter key once, then load the full content
+//   from Supabase (rpc pulse_get_content). A ?key=… in the address is taken and removed from the address bar.
+// - Phones load only the poll questions, with the join code that the QR code on the big screen carries
+//   (#j=…, rpc pulse_get_phone). Without it they are asked to scan the code.
+(function (root) {
+  const KEY = 'pulse-key', JOIN = 'pulse-join';
+  const store = {
+    get(k) { try { return sessionStorage.getItem(k) || localStorage.getItem(k); } catch { return null; } },
+    set(k, v, remember) { try { sessionStorage.setItem(k, v); if (remember) localStorage.setItem(k, v); } catch {} },
+    del(k) { try { sessionStorage.removeItem(k); localStorage.removeItem(k); } catch {} },
+  };
+  async function rpc(url, anon, fn, args) {
+    let r;
+    try {
+      r = await fetch(`${url}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: anon, Authorization: 'Bearer ' + anon, 'Content-Type': 'application/json' }, body: JSON.stringify(args) });
+    } catch { const e = new Error('offline'); e.offline = true; throw e; }
+    const body = await r.json().catch(() => null);
+    if (!r.ok) { const e = new Error((body && body.message) || 'error ' + r.status); e.denied = !!(body && body.code === '42501'); throw e; }
+    if (!body || typeof body !== 'object' || !body.config) { const e = new Error('No content has been uploaded yet'); e.empty = true; throw e; }
+    return body;
+  }
+  const LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const STYLE = `<style>
+    .lk { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(900px 600px at 15% -10%, #1b129e, transparent 60%), #07062f; color: #fff; font: 16px/1.5 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .lk-card { width: min(440px, 100%); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 20px; padding: 28px; box-shadow: 0 30px 80px rgba(0,0,20,.5); }
+    .lk-ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: rgba(95,184,255,.16); color: #5fb8ff; margin-bottom: 14px; }
+    .lk-ico svg { width: 26px; height: 26px; }
+    .lk h1 { margin: 0 0 6px; font: 700 24px 'Space Grotesk', Inter, sans-serif; }
+    .lk p { margin: 0 0 16px; color: rgba(255,255,255,.75); }
+    .lk label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .lk input[type=password] { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.25); color: #fff; font: 16px Inter, sans-serif; }
+    .lk input[type=password]:focus { outline: 2px solid #5fb8ff; outline-offset: 1px; }
+    .lk-check { display: flex; align-items: center; gap: 8px; margin: 12px 0 18px; font-size: 14px; color: rgba(255,255,255,.8); }
+    .lk-check input { width: 18px; height: 18px; accent-color: #5fb8ff; }
+    .lk button { width: 100%; padding: 13px; border: 0; border-radius: 12px; background: #3b6fff; color: #fff; font: 700 16px 'Space Grotesk', Inter, sans-serif; cursor: pointer; }
+    .lk button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .lk button:disabled { opacity: .6; }
+    .lk-err { min-height: 1.5em; margin: 10px 0 0; color: #ffc400; font-size: 14px; }
+    .lk-foot { margin: 16px 0 0; font-size: 13px; color: rgba(255,255,255,.55); }
+  </style>`;
+
+  // Presenter: resolves with { key, data } once the right key is in.
+  function presenter({ url, anon, el, what = 'presenter screen' }) {
+    const params = new URLSearchParams(location.search);
+    let fromUrl = params.get('key');
+    if (fromUrl) {
+      params.delete('key');
+      history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash);
+    }
+    const saved = fromUrl || store.get(KEY);
+    return new Promise(resolve => {
+      const tryKey = async (key, remember, quiet) => {
+        try {
+          const data = await rpc(url, anon, 'pulse_get_content', { p_key: key });
+          store.set(KEY, key, remember);
+          resolve({ key, data });
+          return true;
+        } catch (e) {
+          if (e.denied) store.del(KEY);
+          if (!quiet || !e.denied) show(e.denied ? 'That key is not right. Try again.' : e.empty ? 'No content has been uploaded yet.' : 'Could not reach the server. Check the connection and try again.');
+          else show('');
+          return false;
+        }
+      };
+      function show(msg) {
+        if (!el.querySelector('.lk')) {
+          el.innerHTML = STYLE + `<main class="lk"><form class="lk-card" id="lkForm" autocomplete="off">
+            <div class="lk-ico">${LOCK_SVG}</div>
+            <h1>Private presentation</h1>
+            <p>Enter the presenter key to open the ${what}. You only need to do this once on this computer.</p>
+            <label for="lkKey">Presenter key</label>
+            <input type="password" id="lkKey" autocomplete="current-password" spellcheck="false">
+            <label class="lk-check"><input type="checkbox" id="lkRemember" checked> Remember on this computer</label>
+            <button id="lkGo">Open</button>
+            <p class="lk-err" id="lkErr" role="alert"></p>
+            <p class="lk-foot">Joining from your phone? Scan the QR code on the big screen instead.</p>
+          </form></main>`;
+          el.querySelector('#lkForm').onsubmit = async e => {
+            e.preventDefault();
+            const k = el.querySelector('#lkKey').value.trim();
+            if (!k) return;
+            el.querySelector('#lkGo').disabled = true;
+            await tryKey(k, el.querySelector('#lkRemember').checked, false);
+            const go = el.querySelector('#lkGo'); if (go) go.disabled = false;
+          };
+        }
+        const err = el.querySelector('#lkErr'); if (err) err.textContent = msg;
+        const inp = el.querySelector('#lkKey'); if (inp) inp.focus();
+      }
+      if (saved) tryKey(saved, true, true); else show('');
+    });
+  }
+
+  // Phone: resolves with the poll content once the join code from the QR code works.
+  function phone({ url, anon, el }) {
+    const m = location.hash.match(/[#&]j=([A-Za-z0-9_-]{6,64})/);
+    if (m) { store.set(JOIN, m[1], true); history.replaceState(null, '', location.pathname + location.search); }
+    const code = (m && m[1]) || store.get(JOIN);
+    const scan = msg => {
+      addEventListener('hashchange', () => { if (/[#&]j=/.test(location.hash)) location.reload(); });
+      el.innerHTML = STYLE + `<main class="lk"><div class="lk-card"><div class="lk-ico">${LOCK_SVG}</div>
+        <h1>Scan to join</h1><p>${msg}</p><p class="lk-foot">The QR code is on the big screen in the room.</p></div></main>`;
+    };
+    return new Promise(resolve => {
+      if (!code) return scan('Scan the QR code on the big screen with your phone camera to join.');
+      rpc(url, anon, 'pulse_get_phone', { p_code: code }).then(resolve).catch(e => {
+        if (e.denied) { store.del(JOIN); scan('This link has expired. Scan the QR code on the big screen again.'); }
+        else scan('Could not reach the server. Check your connection, then reload this page.');
+      });
+    });
+  }
+
+  const forget = () => { store.del(KEY); location.reload(); };
+  root.PulseLock = { presenter, phone, forget };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+// Presenter guide and tools, opened with the "Guide" button or the ? key on the presenter screen:
+// how to go full screen, the keys and buttons, a before-you-start checklist, the presenter view,
+// the results download, the February check-in, and a check for placeholders still left in the content.
+(function (root) {
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
+  // ---------- full screen ----------
+  function toggleFullscreen() {
+    const d = document;
+    if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    else {
+      const el = d.documentElement;
+      const go = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (go) Promise.resolve(go.call(el)).catch(() => {});
+    }
+  }
+
+  // ---------- placeholders still in the content ----------
+  function placeholders(config) {
+    if (!config) return null;
+    const found = [];
+    const scan = (where, v) => {
+      if (typeof v === 'string') {
+        const hits = v.match(/\[[^\]]+\]|\bXX\b/g);
+        if (hits) found.push({ where, text: v });
+      } else if (Array.isArray(v)) v.forEach(x => scan(where, x));
+      else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) if (k !== 'demo' && k !== 'notes') scan(where, x);
+    };
+    (config.show || []).forEach((st, i) => { if (st.type !== 'question') scan(`${i + 1} · ${st.nav || st.title || st.type}`, st); });
+    (config.questions || []).forEach(q => scan(q.type === 'award' ? 'Award vote' : `Question “${q.title}”`, q));
+    scan('Timeline', config.roadmap && { rows: config.roadmap.rows, holidays: config.roadmap.holidays });
+    return found;
+  }
+
+  // ---------- results summary (a standalone page to save or print) ----------
+  function summaryHtml(sum) {
+    const day = new Date(sum.at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const qs = (sum.questions || []).filter(q => q.stats && q.stats.n);
+    const block = q => {
+      const rows = q.options.map(o => {
+        const c = q.counts[o.id] || 0, pct = q.stats.n ? Math.round(100 * c / q.stats.n) : 0;
+        return `<tr><td>${esc(String(o.label).replace(/[\[\]]/g, ''))}</td><td class="bar"><i style="width:${pct}%"></i></td><td class="n">${pct}%</td><td class="n">${c}</td></tr>`;
+      }).join('');
+      const words = Object.entries(q.words || {}).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([w, n]) => `<span>${esc(w)}${n > 1 ? ` <b>${n}</b>` : ''}</span>`).join('');
+      const label = q.type === 'award' ? 'Improvement Award' : q.group === 'checkin' ? 'February check-in' : 'Poll';
+      return `<section>
+        <div class="k">${label} · ${q.stats.n} response${q.stats.n === 1 ? '' : 's'}${q.stats.avg != null ? ` · average ${q.stats.avg} / 5` : ''}</div>
+        <h2>${esc(q.title)}</h2>
+        ${q.takeaway && q.type !== 'award' ? `<p class="take">${esc(q.takeaway)}</p>` : ''}
+        ${q.type === 'award' && q.stats.top ? `<p class="take">Winner: <b>${esc(String(q.stats.top).replace(/[\[\]]/g, ''))}</b> (${q.stats.topPct}% of the votes)</p>` : ''}
+        <table>${rows}</table>
+        ${words ? `<div class="words">${words}</div>` : ''}
+        ${q.pledge ? `<p class="pledge"><b>We'll do:</b> ${esc(q.pledge)}</p>` : ''}
+      </section>`;
+    };
+    const qa = (sum.qa || []).map(x => `<li><b>${x.votes}</b> ${esc(x.text)}${x.done ? ' <em>answered</em>' : ''}</li>`).join('');
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><title>${esc(sum.event)} · Results</title>
+<style>
+  :root { --ink: #0b0b3b; --blue: #10069f; --sky: #3b6fff; --muted: #5b5f7a; --line: #e2e4ef; }
+  body { margin: 0; background: #fff; color: var(--ink); font: 15px/1.5 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 40px 20px 60px; }
+  header { border-bottom: 3px solid var(--blue); padding-bottom: 16px; margin-bottom: 8px; }
+  .kick { color: var(--sky); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; }
+  h1 { margin: 6px 0 4px; font-size: 30px; line-height: 1.15; }
+  .meta { color: var(--muted); }
+  section { padding: 22px 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+  .k { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  h2 { margin: 4px 0 8px; font-size: 20px; line-height: 1.25; }
+  .take { margin: 0 0 10px; font-weight: 600; color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 5px 8px 5px 0; vertical-align: middle; }
+  td.bar { width: 40%; } td.bar i { display: block; height: 10px; border-radius: 99px; background: var(--sky); min-width: 2px; }
+  td.n { text-align: right; width: 48px; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .words { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .words span { background: #eef1ff; border-radius: 99px; padding: 2px 10px; font-size: 13px; }
+  .pledge { margin: 10px 0 0; }
+  ol { padding-left: 0; list-style: none; margin: 8px 0 0; }
+  ol li { padding: 7px 0; border-bottom: 1px solid var(--line); }
+  ol li b { display: inline-block; min-width: 34px; color: var(--sky); }
+  em { color: var(--muted); font-style: normal; font-size: 12px; border: 1px solid var(--line); border-radius: 99px; padding: 0 8px; margin-left: 6px; }
+  footer { margin-top: 24px; color: var(--muted); font-size: 13px; }
+  @media print { main { padding: 0; } }
+</style></head><body><main>
+<header><div class="kick">${esc(sum.team)}</div><h1>${esc(sum.event)}: results</h1>
+<div class="meta">${esc(day)} · ${sum.participants} participant${sum.participants === 1 ? '' : 's'} · fully anonymous</div></header>
+${qs.length ? qs.map(block).join('') : '<section><p>No votes yet.</p></section>'}
+${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.length === 1 ? '' : 's'}, by votes</div><h2>Your questions</h2><ol>${qa}</ol></section>` : ''}
+<footer>No names were collected: every answer was anonymous. Generated by Peak Season Pulse.</footer>
+</main></body></html>`;
+  }
+  async function downloadSummary(T) {
+    const sum = await Promise.resolve(T.summary());
+    const html = summaryHtml(sum);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = `all-hands-results-${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+
+  // ---------- the guide ----------
+  function mount({ T, getState }) {
+    const el = document.createElement('div');
+    el.className = 'help';
+    el.id = 'help';
+    el.hidden = true;
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'helpTitle');
+    document.body.appendChild(el);
+    const fsKey = isMac ? '<kbd>Ctrl</kbd> <kbd>⌘</kbd> <kbd>F</kbd>' : '<kbd>F11</kbd>';
+
+    async function render() {
+      if (!T.config && T.loadConfig) await T.loadConfig();
+      const s = getState() || {};
+      const list = placeholders(T.config);
+      const inCheckin = !!s.extra;
+      el.innerHTML = `
+        <div class="help-card">
+          <div class="help-head"><h2 id="helpTitle">Presenter guide</h2><button class="help-x" data-h="close" aria-label="Close the guide">✕</button></div>
+          <div class="help-grid">
+            <section>
+              <h3>Before you start</h3>
+              <ol class="help-steps">
+                <li><b>Go full screen.</b> Press ${fsKey} or <kbd>F</kbd>, or click <i>Full screen</i> below. Nobody then sees the address bar or your key.</li>
+                <li><b>Clear the test votes.</b> Move the mouse and click <i>Reset</i> twice in the bar at the bottom. Skip this before the February check-in if you want the comparison with December.</li>
+                <li><b>Presenter view (optional).</b> Click <i>Open presenter view</i>: it opens on your laptop with notes and the next screen. Drag this window to the projector and make it full screen.</li>
+                <li><b>Test the QR code</b> on the Join screen with your own phone.</li>
+                <li><b>Clicker:</b> a presentation clicker works too. It sends Page Down and Page Up.</li>
+              </ol>
+            </section>
+            <section>
+              <h3>Keys</h3>
+              <table class="help-keys">
+                <tr><td><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></td><td>Next screen (phones follow)</td></tr>
+                <tr><td><kbd>←</kbd> <kbd>PgUp</kbd></td><td>Previous screen</td></tr>
+                <tr><td><kbd>H</kbd></td><td>Reveal the results, or hide them again. Award: the drumroll. Timeline: skip the animation.</td></tr>
+                <tr><td><kbd>F</kbd></td><td>Full screen on or off</td></tr>
+                <tr><td><kbd>S</kbd></td><td>Snow on or off</td></tr>
+                <tr><td><kbd>U</kbd></td><td>Bring back removed words and Q&amp;A questions</td></tr>
+                <tr><td><kbd>C</kbd> then <kbd>C</kbd></td><td>Clear the votes of the current question</td></tr>
+                <tr><td><kbd>?</kbd> / <kbd>Esc</kbd></td><td>Open or close this guide</td></tr>
+              </table>
+              <h3>Mouse</h3>
+              <ul class="help-list">
+                <li>Move the mouse to show the bar at the bottom: <i>←</i> <i>→</i>, <i>Reveal now</i>, <i>Snow</i>, <i>Reset</i> (click twice), <i>Full screen</i> and <i>Guide</i>.</li>
+                <li>Click a word in the word cloud to remove it.</li>
+                <li>Q&amp;A: click a question once to mark it answered, again to hide it.</li>
+              </ul>
+            </section>
+            <section>
+              <h3>Tools</h3>
+              <div class="help-tools">
+                <button data-h="full">Full screen</button>
+                ${T.notesUrl ? '<button data-h="notes">Open presenter view</button>' : ''}
+                ${T.summary ? '<button data-h="export">Download results</button>' : ''}
+                ${T.config && PulseCore.firstExtra(T.config) >= 0 ? `<button data-h="checkin">${inCheckin ? 'Back to the all-hands' : 'Go to the February check-in'}</button>` : ''}
+                ${T.lock ? '<button data-h="lock">Lock this screen</button>' : ''}
+              </div>
+              <p class="help-note">The February check-in uses the same QR code. It sits after the finale, so <i>Next</i> never runs into it by accident.</p>
+              <h3>Content check</h3>
+              ${list == null ? '<p class="help-note">Available once the content is loaded.</p>'
+                : !list.length ? '<p class="help-ok">✓ Everything is filled in.</p>'
+                : `<p class="help-warn">${list.length} text${list.length === 1 ? '' : 's'} still contain a [placeholder] or XX:</p>
+                   <ul class="help-ph">${list.slice(0, 40).map(x => `<li><b>${esc(x.where)}</b> ${esc(x.text)}</li>`).join('')}</ul>`}
+            </section>
+          </div>
+        </div>`;
+    }
+    const api = {
+      async open() { await render(); el.hidden = false; el.querySelector('.help-x').focus(); },
+      close() { el.hidden = true; },
+      toggle() { if (el.hidden) api.open(); else api.close(); },
+      isOpen: () => !el.hidden,
+      fullscreen: toggleFullscreen,
+      openNotes() { if (T.notesUrl) window.open(T.notesUrl(), 'pulse-presenter-view', 'width=1280,height=820'); },
+      download: () => downloadSummary(T),
+    };
+    el.addEventListener('click', e => {
+      if (e.target === el) return api.close();
+      const b = e.target.closest('[data-h]');
+      if (!b) return;
+      const h = b.dataset.h;
+      if (h === 'close') api.close();
+      else if (h === 'full') toggleFullscreen();
+      else if (h === 'notes') api.openNotes();
+      else if (h === 'export') api.download();
+      else if (h === 'lock') T.lock();
+      else if (h === 'checkin') {
+        const s = getState() || {};
+        T.act('goto', s.extra ? 0 : PulseCore.firstExtra(T.config));
+        api.close();
+      }
+    });
+    return api;
+  }
+
+  root.PulseHelp = { mount, summaryHtml, downloadSummary, toggleFullscreen, placeholders };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+// Presenter view: a second window for the presenter's laptop. It shows the speaker notes, what is on the
+// big screen now and what comes next, live counts and a clock, and it drives the show: the projector follows.
+// mountNotes(rootElement, transport). Opened from the presenter guide ("Open presenter view").
+(function (root) {
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const plain = s => String(s ?? '').replace(/[\[\]]/g, '');
+  const KIND = { lobby: 'Join screen', recap: 'Recap', roadmap: 'Timeline', finale: 'Finale' };
+
+  function titleOf(s) {
+    if (s.stage === 'question') return s.question.title;
+    if (s.stage === 'slide') return (s.slide && (s.slide.title || s.slide.type)) || s.nav;
+    if (s.stage === 'lobby') return (s.lobby && s.lobby.title) || 'Join';
+    if (s.stage === 'roadmap') return (s.roadmap && s.roadmap.title) || 'The road ahead';
+    if (s.stage === 'recap') return (s.recap && s.recap.title) || 'Recap';
+    if (s.stage === 'finale') return (s.finale && s.finale.title) || 'Finale';
+    return s.nav;
+  }
+  function kindOf(s) {
+    if (s.stage === 'question') return s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in poll ${s.qn} of ${s.qtotal}` : `Poll ${s.qn} of ${s.qtotal}`;
+    if (s.stage === 'slide') return s.slide && s.slide.type === 'qa' ? 'Live Q&A' : 'Slide';
+    return KIND[s.stage] || s.stage;
+  }
+
+  function mountNotes(rootEl, T) {
+    document.title = 'Presenter view';
+    document.body.classList.add('notes-mode');
+    rootEl.innerHTML = `
+      <div class="nv">
+        <header class="nv-top">
+          <b>Presenter view</b>
+          <span id="nvPos"></span>
+          <span class="nv-sp"></span>
+          <span id="nvStatus" class="nv-status"></span>
+          <span class="nv-clock" title="Time since you opened this view (click to restart)"><small>Running</small><b id="nvRun">0:00</b></span>
+          <span class="nv-clock"><small>Time</small><b id="nvNow"></b></span>
+          <button id="nvGuide" class="nv-ghost">Guide</button>
+        </header>
+        <div class="nv-main">
+          <section class="nv-now">
+            <div class="nv-k">On the big screen now · <span id="nvKind"></span></div>
+            <h1 id="nvTitle"></h1>
+            <div class="nv-live" id="nvLive"></div>
+            <div class="nv-k nv-k2">Your notes</div>
+            <div class="nv-notes" id="nvNotes"></div>
+          </section>
+          <aside class="nv-side">
+            <div class="nv-next"><div class="nv-k">Next</div><b id="nvNext"></b></div>
+            <div class="nv-btns">
+              <button id="nvPrev" aria-label="Previous screen">← Back</button>
+              <button id="nvNextBtn" class="nv-go" aria-label="Next screen">Next →</button>
+            </div>
+            <button id="nvReveal" class="nv-reveal" hidden>Reveal results (H)</button>
+            <div class="nv-k">Jump to</div>
+            <ol class="nv-list" id="nvList"></ol>
+          </aside>
+        </div>
+      </div>`;
+    const $ = id => document.getElementById(id);
+    let latest = null, start = Date.now(), listKey = '';
+    const help = root.PulseHelp ? PulseHelp.mount({ T, getState: () => latest }) : null;
+    $('nvGuide').onclick = () => help && help.toggle();
+    document.querySelector('.nv-clock').onclick = () => { start = Date.now(); tick(); };
+
+    function act(a, arg) {
+      if (!T.canControl) { $('nvStatus').textContent = T.controlHint || 'Enter the presenter key to control the show'; return; }
+      if (a === 'reveal') a = latest && latest.revealed ? 'conceal' : 'reveal';
+      T.act(a, arg);
+    }
+    $('nvPrev').onclick = () => act('prev');
+    $('nvNextBtn').onclick = () => act('next');
+    $('nvReveal').onclick = () => act('reveal');
+    $('nvList').onclick = e => { const li = e.target.closest('li[data-i]'); if (li) act('goto', Number(li.dataset.i)); };
+
+    const two = n => String(n).padStart(2, '0');
+    function tick() {
+      const sec = Math.floor((Date.now() - start) / 1000);
+      $('nvRun').textContent = `${Math.floor(sec / 60)}:${two(sec % 60)}`;
+      const d = new Date();
+      $('nvNow').textContent = `${two(d.getHours())}:${two(d.getMinutes())}`;
+      if (latest && latest.stage === 'question' && !latest.revealed && latest.timerTotal) liveInfo(latest);
+    }
+    setInterval(tick, 1000); tick();
+
+    let timerBase = 0, timerAt = 0;
+    function liveInfo(s) {
+      const parts = [];
+      if (s.stage === 'question') {
+        const n = s.stats.n;
+        parts.push(`<span><b>${n}</b> vote${n === 1 ? '' : 's'}</span>`);
+        if (!s.revealed && s.timerTotal) { const left = Math.max(0, Math.ceil((timerBase - (Date.now() - timerAt)) / 1000)); parts.push(`<span><b>${left}</b> s left</span>`); }
+        parts.push(`<span>${s.revealed ? 'Results shown' : 'Results hidden'}</span>`);
+        if (s.revealed && s.stats.n) parts.push(`<span>Top: <b>${esc(plain(s.stats.top))}</b> (${s.stats.topPct}%)</span>`);
+      } else if (s.stage === 'lobby') parts.push(`<span><b>${s.connected || 0}</b> phones connected</span>`);
+      else if (s.qa) parts.push(`<span><b>${s.qa.length}</b> question${s.qa.length === 1 ? '' : 's'}</span>`, ...s.qa.slice(0, 3).map(x => `<span class="nv-q">▲ ${x.votes} · ${esc(x.text)}</span>`));
+      else if (s.participants != null) parts.push(`<span><b>${s.participants}</b> people have voted so far</span>`);
+      $('nvLive').innerHTML = parts.join('');
+    }
+
+    function render(s) {
+      latest = s;
+      if (s.stage === 'question') { timerBase = s.timeLeft || 0; timerAt = Date.now(); }
+      $('nvPos').textContent = `Screen ${s.index + 1} of ${s.stepCount}${s.extra ? ' · February check-in' : ''}`;
+      $('nvKind').textContent = kindOf(s);
+      $('nvTitle').textContent = plain(titleOf(s));
+      $('nvNotes').innerHTML = s.notes ? esc(s.notes).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>').replace(/\n/g, '<br>') : '<span class="nv-empty">No notes for this screen. Add them as "notes" in the running order.</span>';
+      $('nvNext').textContent = s.next || 'End of this part of the show';
+      $('nvReveal').hidden = s.stage !== 'question';
+      $('nvReveal').textContent = s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
+      liveInfo(s);
+      // the running order, built once from the content
+      const steps = T.config ? PulseCore.steps(T.config) : null;
+      if (steps) {
+        const key = steps.length + ':' + s.index;
+        if (key !== listKey) {
+          listKey = key;
+          $('nvList').innerHTML = steps.map((st, i) => `<li data-i="${i}" class="${i === s.index ? 'on' : ''} ${st.extra ? 'extra' : ''}" tabindex="0">${i + 1}. ${esc(PulseCore.navLabel(T.config, st))}</li>`).join('');
+          const on = $('nvList').querySelector('.on');
+          if (on) on.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    }
+    if (!T.config && T.loadConfig) T.loadConfig().then(() => latest && render(latest));
+
+    addEventListener('keydown', e => {
+      if (e.target.closest && e.target.closest('input,textarea')) return;
+      const k = e.key.toLowerCase();
+      if (k === '?' || (k === '/' && e.shiftKey)) { e.preventDefault(); return help && help.toggle(); }
+      if (help && help.isOpen()) { if (k === 'escape') help.close(); return; }
+      if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); act('next'); }
+      else if (['arrowleft', 'pageup'].includes(k)) act('prev');
+      else if (k === 'h' && latest && latest.stage === 'question') act('reveal');
+      else if (k === 'enter' && e.target.closest && e.target.closest('li[data-i]')) act('goto', Number(e.target.closest('li[data-i]').dataset.i));
+    });
+    T.onStatus = msg => ($('nvStatus').textContent = msg || '');
+    T.subscribe(render, null);
+  }
+
+  root.mountNotes = mountNotes;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
 // Presenter screen ("game show" style). mountHost(rootElement, transport).
 // Screens: lobby → questions (race + reveal) → recap (thanks + pledges) → roadmap (animated timeline) → finale.
 (function (root) {
@@ -1455,6 +2089,9 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     <button data-a="snow" id="ctlSnow" title="S">Snow on</button>
     <button data-a="sim" id="ctlSim" hidden>▶ Simulate the room</button>
     <button data-a="reset" id="ctlReset">Reset</button>
+    <span class="ctl-sep"></span>
+    <button data-a="full" title="F">Full screen</button>
+    <button data-a="help" title="?">Guide</button>
   </div>`;
 
   function mountHost(rootEl, T) {
@@ -1514,7 +2151,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       $('team').textContent = s.team;
       $('event').textContent = s.event;
       $('holiday').innerHTML = countdownChip(s);
-      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : `Q${s.qi + 1} of ${s.total}`) : s.nav || LABELS[s.stage] || '';
+      const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
       $('ctlReveal').hidden = s.stage !== 'question';
@@ -1548,7 +2185,51 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
+    // ---------- live Q&A board ----------
+    let qaKeyHost = '';
+    function paintQa(s) {
+      const board = $('qaBoard');
+      if (!board) return;
+      const list = (s.qa || []).slice(0, 7), more = (s.qa || []).length - list.length;
+      const key = JSON.stringify([list, more]);
+      if (key === qaKeyHost) return;
+      qaKeyHost = key;
+      if (!list.length) { board.innerHTML = '<div class="qa-wait"><b>Questions appear here</b><span>Scan the code and ask anything. It stays anonymous.</span></div>'; return; }
+      const before = new Map([...board.querySelectorAll('.qa-card')].map(el => [el.dataset.id, el.getBoundingClientRect().top]));
+      const old = new Map([...board.querySelectorAll('.qa-card')].map(el => [el.dataset.id, el]));
+      board.querySelector('.qa-wait')?.remove();
+      board.querySelector('.qa-more')?.remove();
+      list.forEach((x, k) => {
+        let el = old.get(x.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'card qa-card new'; el.dataset.id = x.id;
+          el.innerHTML = '<div class="qa-votes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 L13.5 10 H2.5 Z" fill="currentColor"/></svg><b>0</b></div><p></p>';
+          el.querySelector('p').textContent = x.text;
+          if (T.canControl) el.onclick = () => T.act('qa', `${el.classList.contains('qa-done') ? 'hide' : 'done'}:${x.id}`);
+          pulse.spike(.5);
+        }
+        const b = el.querySelector('.qa-votes b');
+        if (b.textContent !== String(x.votes)) { b.textContent = x.votes; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+        el.classList.toggle('qa-done', x.done);
+        el.classList.toggle('top', k === 0 && x.votes > 0 && !x.done);
+        board.appendChild(el);
+        old.delete(x.id);
+      });
+      old.forEach(el => el.remove());
+      if (more > 0) board.insertAdjacentHTML('beforeend', `<div class="qa-more">+ ${more} more question${more === 1 ? '' : 's'}</div>`);
+      // slide the cards from their old to their new place
+      board.querySelectorAll('.qa-card').forEach(el => {
+        const was = before.get(el.dataset.id);
+        if (was == null) return;
+        const dy = was - el.getBoundingClientRect().top;
+        if (!dy) return;
+        el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 550, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      });
+    }
+
     function paint(s, meta) {
+      if (s.stage === 'slide' && s.qa) paintQa(s);
       if (s.stage === 'lobby') paintLobby(s);
       else if (s.stage === 'question') paintQuestion(s, meta);
       else if (s.stage === 'recap') paintRecap(s);
@@ -1612,7 +2293,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       const q = s.question, scored = q.options.some(o => typeof o.score === 'number');
       $('titleblock').innerHTML = `
         <div class="qrow">
-          <div class="qbadge"><b>Q${s.qi + 1}</b><span>of ${s.total}</span></div>
+          <div class="qbadge"><b>${s.group === 'checkin' ? s.qn : 'Q' + s.qn}</b><span>of ${s.qtotal}</span></div>
           <div class="qtext"><h1 id="qtitle">${esc(q.title)}</h1>${q.context ? `<div class="ctx">${esc(q.context)}</div>` : ''}</div>
           <div class="timer" id="timer" hidden>
             <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="t-bg" cx="50" cy="50" r="42"/><circle class="t-fg" id="tfg" cx="50" cy="50" r="42" pathLength="100"/></svg>
@@ -1657,7 +2338,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
                     <path d="M93.9 28.1 A48 48 0 0 1 108 62" class="seg" stroke="#8fd3ff"/>
                     <g class="needle" id="needle"><path d="M60 62 L60 22" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="62" r="7" fill="#ffffff"/></g>
                   </svg>
-                  <div class="mini-v"><span id="k-avg" data-v="0">?</span><small>/ 5</small></div>`
+                  <div class="mini-v"><span id="k-avg" data-v="0">?</span><small>/ 5</small></div>
+                  ${s.compare ? `<div class="mini-cmp" id="cmp" hidden></div>` : ''}`
                 : `<div class="mini-k">In the lead</div><div class="leader" id="leader"><span class="q">?</span></div>`}
               </div>
               <div class="card mini qr-mini st" style="--i:3" id="joinCard">
@@ -1700,6 +2382,11 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       if ($('needle')) {
         if (s.revealed && s.stats.avg != null) { $('needle').style.setProperty('--a', ((s.stats.avg - 1) / 4 * 180 - 90).toFixed(1) + 'deg'); FX.tween($('k-avg'), s.stats.avg, v => v.toFixed(1)); }
         else $('k-avg').textContent = '?';
+        if ($('cmp')) {
+          const c = s.compare, show = s.revealed && c && c.avg != null && s.stats.avg != null;
+          $('cmp').hidden = !show;
+          if (show) { const d = +(s.stats.avg - c.avg).toFixed(1); $('cmp').innerHTML = `${esc(c.label)}: <b>${c.avg}</b> <span class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d)}</span>`; }
+        }
       } else {
         const opt = q.options.find(o => o.id === s.stats.topId), i = q.options.indexOf(opt);
         const html = s.revealed && opt ? `${orbIcon(LANES[i % LANES.length], opt.icon)}<b>${esc(opt.label)}</b>` : '<span class="q">?</span>';
@@ -2039,6 +2726,20 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       } else if (sl.type === 'quote') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-quote"><div class="s-qmark">“</div><blockquote>${ph(sl.quote || '')}</blockquote>${sl.by ? `<div class="s-by">${ph(sl.by)}</div>` : ''}</div>`;
+      } else if (sl.type === 'qa' && s.qa) {
+        // live anonymous Q&A: the questions from the phones, ranked by votes
+        T2.innerHTML = '';
+        C.innerHTML = `<div class="qa-wall">
+          <div class="qa-side">
+            <div class="s-qa-orbs">${[0, 1, 2, 3, 4].map(k => `<span style="--k:${k}">${orb(LANES[k % LANES.length])}</span>`).join('')}</div>
+            ${bouncy(sl.title || 'Questions?', 'big')}
+            ${sl.subtitle ? `<p class="s-sub">${ph(sl.subtitle)}</p>` : ''}
+            <div class="card qa-join st" style="--i:2"><div class="qr">${T.qrHtml()}</div><div><b>Scan to ask</b><span>Anonymous. Vote for the questions you want answered.</span></div></div>
+          </div>
+          <div class="qa-board" id="qaBoard"></div>
+        </div>`;
+        $('source').textContent = T.canControl ? 'Click a question: answered · click again: hide · U: bring back' : 'Live Q&A';
+        qaKeyHost = '';
       } else if (sl.type === 'qa') {
         T2.innerHTML = '';
         C.innerHTML = `<div class="s-qa">
@@ -2726,7 +3427,10 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
     // ---------- controls ----------
     let resetArmed = 0, clearArmed = 0;
+    const help = root.PulseHelp ? PulseHelp.mount({ T, getState: () => latest }) : null;
     function control(a) {
+      if (a === 'help') { if (help) help.toggle(); return; }
+      if (a === 'full') { if (help) help.fullscreen(); return; }
       if (a === 'snow') { const on = snow.toggle(); $('ctlSnow').textContent = on ? 'Snow on' : 'Snow off'; return; }
       if (a === 'sim') { const on = T.simulate(!T.simulating()); $('ctlSim').textContent = on ? '■ Stop simulation' : '▶ Simulate the room'; return; }
       if (!T.canControl) { $('status').textContent = T.controlHint || 'Only the presenter can control this screen'; return; }
@@ -2751,11 +3455,14 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     addEventListener('keydown', e => {
       if (e.target.closest && e.target.closest('input,textarea')) return;
       const k = e.key.toLowerCase();
+      if (k === '?' || (k === '/' && e.shiftKey)) { e.preventDefault(); return control('help'); }
+      if (help && help.isOpen()) { if (k === 'escape') help.close(); return; }
+      if (k === 'f' && !e.ctrlKey && !e.metaKey) return control('full');
       if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); control('next'); }
       else if (['arrowleft', 'pageup'].includes(k)) control('prev');
       else if (k === 'h') { if (latest && latest.stage === 'roadmap') { if (skipRoad) skipRoad(); } else control('reveal'); }
       else if (k === 's') control('snow');
-      else if (k === 'u') control('unhide');
+      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); }
       else if (k === 'c') control('clear');
     });
     addEventListener('resize', () => {
@@ -2767,6 +3474,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
     T.onStatus = msg => ($('status').textContent = msg || '');
     T.subscribe(render, onReact);
+    if (T.canControl && help) setTimeout(() => FX.toast($('toast'), 'Press ? for the presenter guide · F for full screen', 4200), 1800);
   }
 
   root.mountHost = mountHost;
@@ -2835,6 +3543,21 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         </div>
       </section>
 
+      <section id="ask" hidden>
+        <div class="anon st" style="--i:0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Anonymous: nobody sees who asked what</div>
+        <div><span class="q-k st" style="--i:0">Q&amp;A</span></div>
+        <h1 class="q-t st" style="--i:1">Ask anything</h1>
+        <p class="q-ctx st" style="--i:1">Your question appears on the big screen without your name. Vote for the questions you want answered.</p>
+        <div class="ask-box st" style="--i:2">
+          <label for="askText" class="sr">Your question</label>
+          <textarea id="askText" maxlength="140" rows="3" placeholder="Type your question…"></textarea>
+          <div class="ask-row"><span id="askLeft">140 characters</span><button class="ask-send" id="askSend" disabled>Send question</button></div>
+        </div>
+        <p class="err" id="askErr" hidden></p>
+        <div class="qa-h st" style="--i:3"><span>Questions so far</span><span id="qaCount"></span></div>
+        <div class="qa-list" id="qaList"></div>
+      </section>
+
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
         <p>Make some noise for the team!</p>
@@ -2866,7 +3589,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     let s = null, current = null, choice = null, editing = false, reactionsBuilt = false, shown = null, cheers = 0;
 
     function show(which) {
-      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer']) $(k).hidden = k !== which;
+      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask']) $(k).hidden = k !== which;
       $('ctaWrap').hidden = which !== 'pick';
       if (which !== shown) {
         shown = which;
@@ -2933,6 +3656,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       timer(s.stage === 'question' && !s.revealed ? s.timeLeft : 0, s.timerTotal);
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
       if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
       if (s.stage !== 'question') {
         const sl = s.stage === 'slide' ? s.slide || {} : null;
         $('step').textContent = sl ? `${s.index + 1} / ${s.stepCount}` : 'Done!';
@@ -2954,8 +3678,9 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         if ($('wrap').dataset.k !== 'aw' + s.index) { $('wrap').dataset.k = 'aw' + s.index; shown = null; }
         return show('wrap');
       }
-      $('step').textContent = award ? 'Award' : `Q${s.qi + 1} of ${steps}`;
-      $('qk').textContent = award ? 'Improvement Award' : `Question ${s.qi + 1}`;
+      const checkin = s.group === 'checkin';
+      $('step').textContent = award ? 'Award' : checkin ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`;
+      $('qk').textContent = award ? 'Improvement Award' : checkin ? 'February check-in' : `Question ${s.qn}`;
       $('wordField').hidden = !!q.noWord;
       $('qt').textContent = q.title;
       $('qctx').hidden = !q.context; $('qctx').textContent = q.context || '';
@@ -2989,6 +3714,59 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         show('done');
       } else show('pick');
     }
+    // ---------- anonymous Q&A ----------
+    let qaKey = '';
+    function renderAsk() {
+      const list = s.qa || [], mineA = s.mineAsk || { q: [], up: [] };
+      const myQ = new Set((mineA.q || []).map(x => x.id)), myUp = new Set(mineA.up || []);
+      $('qaCount').textContent = list.length ? String(list.length) : '';
+      const key = JSON.stringify([list, [...myQ], [...myUp]]);
+      if (key === qaKey) return;
+      qaKey = key;
+      $('qaList').innerHTML = list.length ? '' : '<p class="qa-empty">No questions yet. Be the first!</p>';
+      list.forEach(x => {
+        const row = document.createElement('div');
+        row.className = 'qa-item' + (myQ.has(x.id) ? ' mine' : '') + (x.done ? ' qa-done' : '');
+        const p = document.createElement('p'); p.textContent = x.text; row.appendChild(p);
+        if (x.done) { const t = document.createElement('span'); t.className = 'qa-tag'; t.textContent = 'Answered'; row.appendChild(t); }
+        if (myQ.has(x.id)) { const t = document.createElement('span'); t.className = 'qa-tag'; t.textContent = `Your question · ${x.votes} vote${x.votes === 1 ? '' : 's'}`; row.appendChild(t); }
+        else {
+          const b = document.createElement('button');
+          const on = myUp.has(x.id);
+          b.className = 'qa-up' + (on ? ' on' : ''); b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', (on ? 'Remove your vote for: ' : 'Vote for: ') + x.text);
+          b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 L13.5 10 H2.5 Z" fill="currentColor"/></svg><b></b>';
+          b.querySelector('b').textContent = x.votes;
+          b.onclick = async () => {
+            b.classList.toggle('on'); b.disabled = true;
+            if (navigator.vibrate) navigator.vibrate(8);
+            await T.upvote(x.id, !on);
+            await load();
+          };
+          row.appendChild(b);
+        }
+        $('qaList').appendChild(row);
+      });
+    }
+    $('askText').oninput = () => {
+      const n = $('askText').value.trim().length;
+      $('askLeft').textContent = `${140 - $('askText').value.length} characters`;
+      $('askSend').disabled = n < 3;
+      $('askErr').hidden = true;
+    };
+    $('askSend').onclick = async () => {
+      $('askSend').disabled = true;
+      const res = await T.ask($('askText').value);
+      if (res === 'ok') {
+        const rect = $('askSend').getBoundingClientRect();
+        confetti.burst('point', { x: rect.left + rect.width / 2, y: rect.top });
+        $('askText').value = ''; $('askLeft').textContent = '140 characters';
+      } else {
+        $('askErr').textContent = res === 'limit' ? 'You can ask up to three questions. Vote for others instead!' : res === 'short' ? 'Type a little more.' : 'Your question could not be sent. Check your connection and try again.';
+        $('askErr').hidden = false; $('askSend').disabled = false;
+      }
+      await load();
+    };
+
     function markChoice() {
       document.querySelectorAll('.opt').forEach(x => {
         const on = x.dataset.id === choice;
@@ -3027,7 +3805,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 })(typeof self !== 'undefined' ? self : this);
 
 </script>
-<script>window.PULSE_CONFIG = {"team":"Finance Operations","event":"Year-End All-Hands 2026","holidayDate":"2026-12-25","countdown":{"date":"2027-01-04","label":"year-end close","after":"Year-end close: we've got this!"},"timer":25,"reactions":["👏","🎉","🔥","💪","😂","🚀"],"ticker":["Reconciling the audience… 98% matched","Applying holiday accruals…","Rounding difference detected: within tolerance","Coffee consumption: ahead of forecast","Loading final_FINAL_v3.xlsx…","Meetings that could have been an email: in line with guidance","Variance analysis: vibes are up","Audit trail confirms: you were here","Outlook 2027: strong buy"],"show":[{"type":"title","nav":"Title","kicker":"Finance Operations","title":"Year-End All-Hands 2026","subtitle":"Closing a record year, together","meta":"[Date] · [Location]"},{"type":"lobby","nav":"Join"},{"type":"agenda","nav":"Agenda","title":"Today's agenda","items":[{"time":"[10:00]","title":"Welcome and warm-up","who":"[Host]","live":true},{"time":"[10:10]","title":"2026 in review","who":"[Speaker]"},{"time":"[10:25]","title":"Shout-outs","who":"[Speaker]"},{"time":"[10:35]","title":"Improvement Award","who":"Three nominees, your vote","live":true},{"time":"[10:55]","title":"The road ahead: peak season","who":"[Speaker]","live":true},{"time":"[11:10]","title":"Q&A","who":"Everyone"},{"time":"[11:20]","title":"Yes we can!","who":"All of us"}]},{"type":"question","question":"erp","nav":"Q1 ERP movie"},{"type":"section","nav":"01 Review","number":"01","title":"2026 in review","subtitle":"A record year, and how we got there"},{"type":"bullets","nav":"Highlights","title":"Highlights of 2026","subtitle":"[Replace with your own highlights]","points":[{"icon":"chart:rocket","title":"Record sales year","text":"[What made it possible]"},{"icon":"help:target","title":"[Highlight 2]","text":"[One line about it]"},{"icon":"help:team","title":"[Highlight 3]","text":"[One line about it]"},{"icon":"help:trophy","title":"[Highlight 4]","text":"[One line about it]"}]},{"type":"stats","nav":"Numbers","title":"2026 by the numbers","subtitle":"[Replace XX with the real figures]","stats":[{"value":"XX","label":"Invoices processed","note":"[vs 2025]"},{"value":"XX","label":"Month-end closes on time","note":"[out of 12]"},{"value":"XX","label":"Journal entries booked","note":"[vs 2025]"},{"value":"XX","label":"Cups of coffee","note":"Ahead of forecast"}]},{"type":"question","question":"energy","nav":"Q2 Energy"},{"type":"section","nav":"02 Shout-outs","number":"02","title":"Shout-outs","subtitle":"Thank you for making it happen"},{"type":"shoutouts","nav":"Thank you","title":"Thank you!","subtitle":"[Replace with your own shout-outs]","people":[{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"},{"name":"[Name]","team":"[Team]","reason":"[What they did]"}]},{"type":"section","nav":"03 Award","number":"03","title":"Improvement Award","subtitle":"Three improvements. One winner. Your vote."},{"type":"nominees","nav":"Nominees","question":"award","title":"Meet the nominees","subtitle":"Each shares their improvement. Then you vote."},{"type":"question","question":"award","nav":"Award vote"},{"type":"section","nav":"04 Road ahead","number":"04","title":"The road ahead","subtitle":"DR2, FDM testing, the financial close, SOX, the annual report and the S/4HANA go-live"},{"type":"roadmap","nav":"Timeline"},{"type":"bullets","nav":"Peak plan","title":"How we'll get through the peak","subtitle":"[Replace with your plan]","points":[{"icon":"help:target","title":"Clear priorities","text":"[What comes first, what can wait]"},{"icon":"help:focus","title":"Protected focus time","text":"[e.g. meeting-free mornings during the close]"},{"icon":"help:team","title":"Backing each other up","text":"[Buddy system or coverage plan]"},{"icon":"help:snow","title":"Recharge moments","text":"[Christmas and New Year days off: who is off when]"}]},{"type":"question","question":"weather","nav":"Q3 Weather"},{"type":"recap","nav":"Recap"},{"type":"qa","nav":"Q&A","title":"Questions?","subtitle":"Ask anything. No question is too small, or too big."},{"type":"finale","nav":"Finale"}],"lobby":{"title":"Peak Season Pulse","intro":"Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"},"recap":{"title":"Thank you for your honesty!","subtitle":"Here's what you told us, and what we'll do with it."},"roadmap":{"title":"The road ahead","subtitle":"A demanding stretch with a lot to deliver. We get through it together.","style":"gantt","start":"2026-12-01","end":"2027-02-21","source":"Planning as of today · FDM UAT dates TBD","workloadLabel":"Team workload","peakLabel":"Peak","holidays":[{"label":"Christmas","start":"2026-12-25","end":"2026-12-27","factor":0.35},{"label":"New Year · back Mon 4 Jan","start":"2026-12-31","end":"2027-01-03","factor":0.35}],"rows":[{"label":"ERP · S/4HANA","items":[{"type":"bar","label":"DR2 finalization & ramp-up","start":"2026-12-17","end":"2026-12-18","weight":1.2},{"type":"bar","key":true,"label":"Blackout & cutover","start":"2027-01-29","end":"2027-01-31","when":"29 Jan – 1 Feb","weight":1.6},{"type":"milestone","key":true,"label":"Go-live S/4HANA","date":"2027-02-01","weight":1},{"type":"bar","label":"Ramp-up & hypercare","start":"2027-02-01","end":"2027-02-15","weight":1.2,"fade":true}]},{"label":"FDM","items":[{"type":"bar","label":"UAT testing","start":"2026-12-07","end":"2026-12-23","when":"before Christmas","weight":0.8},{"type":"bar","label":"End-to-end testing","start":"2027-01-04","end":"2027-01-22","when":"Jan, to week 3","weight":0.8}]},{"label":"Close & reporting","items":[{"type":"milestone","label":"Standard cost prices","date":"2027-01-01","weight":0.5},{"type":"bar","label":"Financial close 2026","start":"2027-01-05","end":"2027-01-06","weight":1.6},{"type":"milestone","label":"Annual report deadline","date":"2027-01-14","when":"14 Jan, internal","weight":1},{"type":"milestone","label":"Quarterly results","date":"2027-01-27","weight":0.9}]},{"label":"Controls","items":[{"type":"milestone","label":"SOX execution deadline","date":"2027-01-19","weight":0.9},{"type":"milestone","label":"Disclosure controls deadline","date":"2027-01-25","when":"25 Jan, annual report","weight":0.8}]}],"overview":"Peak season, mapped","steps":[{"type":"start","when":"Today","label":"We're here","note":"One team, ready to go","load":60,"month":"Dec"},{"type":"level","when":"December · TBD","label":"DR2","note":"Second dress rehearsal","load":75,"month":"Dec"},{"type":"rest","when":"Late December","label":"Christmas","note":"Laptops closed, batteries recharged","load":20,"month":"Dec"},{"type":"level","when":"Early January · TBD","label":"Year-end close","note":"Closing a record year","load":90,"month":"Jan"},{"type":"level","when":"January · TBD","label":"SOX controls","note":"Controls tested, evidence ready","load":85,"month":"Jan"},{"type":"level","when":"Jan – Feb · TBD","label":"Annual report","note":"Telling our record-year story","load":85,"month":"Jan"},{"type":"level","when":"End of January · TBD","label":"Ramp-down","note":"Closing out the old system","load":90,"month":"Jan","group":"ERP migration"},{"type":"boss","when":"End Jan / early Feb · TBD","label":"Cutover","note":"The big switch-over","load":100,"month":"Feb","group":"ERP migration"},{"type":"level","when":"Early February · TBD","label":"Ramp-up","note":"Live in the new system","load":95,"month":"Feb","group":"ERP migration"},{"type":"level","when":"February onwards","label":"Hypercare","note":"Extra support as it settles","load":75,"month":"Feb","group":"ERP migration"},{"type":"finish","when":"Spring · TBD","label":"Peak conquered!","note":"Celebrate together","load":40,"month":"Mar"}],"peakZoneLabel":"Peak weeks","peakZoneNote":"look out for each other"},"finale":{"lines":["Record year? Delivered.","Peak season? Bring it on.","One team. Together."],"title":"YES WE CAN!","thanks":"Happy holidays, Finance Operations!"},"questions":[{"id":"erp","title":"If the ERP migration were a movie, which one would it be?","wordPrompt":"Your movie tagline in one word (optional)","takeaways":[{"text":"ERP migration, the movie: “{top}”. Popcorn ready!"}],"pledge":"Celebrate every ERP milestone together, popcorn included","options":[{"id":"mission","label":"Mission: Impossible","icon":"movie:mission","note":"…made possible!"},{"id":"oceans","label":"Ocean's Eleven","icon":"movie:heist","note":"Great team, perfect plan"},{"id":"rings","label":"The Lord of the Rings","icon":"movie:quest","note":"Long road, happy ending"},{"id":"fast","label":"Fast & Furious","icon":"movie:race","note":"Family. And deadlines."},{"id":"toy","label":"Toy Story","icon":"movie:toy","note":"To go-live and beyond!"}],"demo":{"weights":[12,9,8,5,7],"words":["epic","teamwork","sequel","blockbuster","thriller","popcorn","plot-twist","heroes","adventure","epic"]}},{"id":"energy","title":"How charged are you for peak season?","context":"Year-end close · annual report · ERP migration","wordPrompt":"What keeps you going? (one word, optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% are charged for the peak. Bring it on!"},{"minTopBox":35,"text":"Charging up nicely. We'll pace the peak together"},{"text":"Recharge first, then we go, and we go together"}],"pledge":"Protect the days off at Christmas and New Year: laptops closed, batteries recharged","options":[{"id":"full","label":"Fully charged, bring it on!","icon":"battery:100","score":5,"note":"Let's gooo!"},{"id":"ready","label":"Charged and ready","icon":"battery:70","score":4,"note":"Ready to roll!"},{"id":"charging","label":"Charging up","icon":"battery:35","score":3,"note":"Almost there!"},{"id":"holiday","label":"Need a recharge","icon":"battery:10","score":2,"note":"Christmas days, here I come"}],"demo":{"weights":[8,14,9,5],"words":["coffee","team","holiday","coffee","family","music","team","sports","chocolate","sleep","coffee","colleagues"]},"meterLabel":"Team energy"},{"id":"weather","title":"What's the weather forecast for January?","context":"Your outlook for the start of 2027","wordPrompt":"What will you bring? (one word, optional)","meterLabel":"Team forecast","takeaways":[{"minTopBox":60,"text":"{topBox}% expect sunshine. Sunglasses on!"},{"minTopBox":35,"text":"Mixed forecast, and we've got umbrellas for everyone"},{"text":"Storm first, rainbow after. We'll weather it together"}],"pledge":"Short weekly check-ins, so nobody gets caught in the rain","options":[{"id":"sunny","label":"Sunny, bring it on","icon":"weather:sun","score":5,"note":"Sunglasses on!"},{"id":"mostly","label":"Mostly sunny, some deadlines","icon":"weather:partly","score":4,"note":"Light jacket weather"},{"id":"showers","label":"Showers, but we brought umbrellas","icon":"weather:rain","score":3,"note":"Umbrellas ready!"},{"id":"rainbow","label":"Storm first, rainbow after","icon":"weather:rainbow","score":2,"note":"Rainbow incoming!"}],"demo":{"weights":[7,15,9,6],"words":["umbrella","coffee","optimism","snacks","sunglasses","energy","patience","teamwork","humour","coffee"]}},{"id":"award","type":"award","title":"Which improvement wins the award?","context":"Three improvements, one winner. Vote for the one that impressed you most.","timer":0,"noWord":true,"prize":"[Prize]","winnerText":"And the Improvement Award goes to… {winner}!","options":[{"id":"n1","label":"[Nominee 1]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"},{"id":"n2","label":"[Nominee 2]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"},{"id":"n3","label":"[Nominee 3]","team":"[Team]","idea":"[Their improvement idea or result, in one or two lines]"}],"demo":{"weights":[13,10,8],"words":[]}}],"spareQuestions":[{"title":"How are you feeling right now?","wordPrompt":"One word for your mood (optional)","takeaways":[{"minTopBox":60,"text":"{topBox}% feel positive or energised. What a team!"},{"minTopBox":35,"text":"Honest answers, strong team. Thank you!"},{"text":"Thanks for being honest. Now let's look after each other"}],"pledge":"Short weekly check-ins through the peak, so nobody runs on empty","options":[{"id":"energised","label":"Energised","icon":"signal:5","score":5,"note":"Unstoppable!"},{"id":"positive","label":"Positive","icon":"signal:4","score":4,"note":"Love that energy!"},{"id":"steady","label":"Steady","icon":"signal:3","score":3,"note":"Rock solid!"},{"id":"stretched","label":"Stretched","icon":"signal:2","score":2,"note":"We've got your back"},{"id":"recharge","label":"Need a recharge","icon":"signal:1","score":1,"note":"Rest is part of the plan"}],"demo":{"weights":[5,11,7,6,2],"words":["proud","busy","grateful","tired","focused","proud","excited","busy","relieved","hectic","happy","proud","festive","stretched","motivated"]}},{"title":"If 2026 were a share price, what would the chart look like?","wordPrompt":"Describe 2026 in one word (optional)","takeaways":[{"text":"2026 in one chart: “{top}”. What a year!"}],"pledge":"Celebrate the record year together, because we earned it","options":[{"id":"rocket","label":"Exponential growth","icon":"chart:rocket","note":"To the moon!"},{"id":"bull","label":"Steady bull run","icon":"chart:bull","note":"Textbook growth!"},{"id":"volatile","label":"Volatile, but up","icon":"chart:volatile","note":"Up is up!"},{"id":"recovery","label":"Dip and recovery","icon":"chart:recovery","note":"Comeback kids!"},{"id":"sideways","label":"Building the base","icon":"chart:sideways","note":"Ready to break out!"}],"demo":{"weights":[8,7,12,4,2],"words":["record","intense","growth","rollercoaster","busy","record","wild","solid","intense","rewarding","record","fast"]}},{"title":"What will make us unstoppable through the peak?","context":"Your top picks go straight into our plan","wordPrompt":"Your own idea? (one word, optional)","takeaways":[{"text":"Power-up #1: “{top}”. Let's make it happen!"}],"pledge":"Your #1 power-up goes into our peak plan, starting next week","options":[{"id":"priorities","label":"Clear priorities","icon":"help:target","note":"Focus mode: ON"},{"id":"focus","label":"Protected focus time","icon":"help:focus","note":"Do not disturb!"},{"id":"backup","label":"Backing each other up","icon":"help:team","note":"Team power!"},{"id":"wins","label":"Celebrating every win","icon":"help:trophy","note":"Cake incoming!"},{"id":"break","label":"A real holiday break","icon":"help:snow","note":"Laptops closed ✓"}],"demo":{"weights":[9,11,6,4,8],"words":["clarity","templates","automation","patience","pizza","documentation","training","clarity","headcount","cake"]}}]}; window.PULSE_JOIN_URL = "https://pietjepizza.github.io/yearend/phone.html";</script>
+<script>window.PULSE_CONFIG = null; window.PULSE_JOIN_URL = "";</script>
 <script>
 // Transport for the claude.ai test build.
 // - Presenter state lives in the shared `db` document live/state (only editors can change it).
@@ -3055,7 +3833,9 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     if (!me) { me = Core.makePlayer(); store.set('mp-player' + sfx, JSON.stringify(me)); }
     me = Core.cleanPlayer(me);
 
-    const DEFAULT = { current: 0, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0 };
+    const simVotes = () => sim ? Object.fromEntries(Object.entries(sim.answers).filter(([, a]) => a.ask).map(([b, a]) => [b, { epoch: control.epoch, answers: { ask: a.ask } }])) : {};
+    const DEFAULT = { current: 0, revealedQ: {}, timerEnd: 0, hidden: [], epoch: 'e0', cleared: {}, rev: 0, qa: { done: [], hidden: [] } };
+    const isQaStep = i => { const st = Core.steps(config)[Math.max(0, Math.min(LAST, i))]; return !!(st && st.slide && st.slide.type === 'qa'); };
     let control = { ...DEFAULT };
     let votes = {};                // token -> { epoch, answers: { [qi]: { option, word, ts } } }
     let phonesHere = 0, roomPlayers = [], localPhones = new Map();
@@ -3073,7 +3853,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         for (const [qi, a] of Object.entries(v.answers || {})) add(tok, qi, a);
       }
       if (sim) for (const [bot, ans] of Object.entries(sim.answers)) for (const [qi, a] of Object.entries(ans)) add(bot, qi, a);
-      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], responses };
+      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], qa: control.qa || DEFAULT.qa, responses };
     }
     const publicState = () => Core.publicState(config, stateObj(), {
       joinUrl, connected: phonesHere + (sim ? sim.connected : 0),
@@ -3106,13 +3886,21 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     }
     function act(a, word) {
       const c = { ...control, hidden: [...(control.hidden || [])], cleared: { ...(control.cleared || {}) }, revealedQ: { ...(control.revealedQ || {}) } };
-      if (a === 'next') Core.enter(config, c, Math.min(c.current + 1, LAST));
-      else if (a === 'prev') Core.enter(config, c, Math.max(c.current - 1, 0));
+      if (a === 'next') Core.enter(config, c, Core.nextIndex(config, c.current));
+      else if (a === 'prev') Core.enter(config, c, Core.prevIndex(config, c.current));
       else if (a === 'goto') Core.enter(config, c, Number(word) || 0);
       else if (a === 'reveal') { const qi = Core.qiAt(config, c.current); if (qi >= 0) c.revealedQ[qi] = true; c.timerEnd = 0; }
       else if (a === 'conceal') { delete c.revealedQ[Core.qiAt(config, c.current)]; c.timerEnd = 0; }
       else if (a === 'hide') { const w = Core.norm(word); if (w && !c.hidden.includes(w)) c.hidden.push(w); }
       else if (a === 'unhide') c.hidden = [];
+      else if (a === 'qa') {
+        // word = "done:<id>" (mark answered), "hide:<id>" (remove) or "undo:<id>"
+        const [what, id] = String(word || '').split(':');
+        const qa = { done: [...((c.qa && c.qa.done) || [])], hidden: [...((c.qa && c.qa.hidden) || [])] };
+        qa.done = qa.done.filter(x => x !== id); qa.hidden = qa.hidden.filter(x => x !== id);
+        if (what === 'done') qa.done.push(id); else if (what === 'hide') qa.hidden.push(id);
+        c.qa = what === 'reset' ? { done: [], hidden: [] } : qa;
+      }
       else if (a === 'clear') { const qi = Core.qiAt(config, c.current); if (qi < 0) return; c.cleared[qi] = Date.now(); delete c.revealedQ[qi]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[qi]; }
       else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
       else return;
@@ -3137,6 +3925,37 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       if (bc) bc.postMessage({ t: 'vote', token, v: body });
       return 'ok';
     }
+    // Q&A: a phone keeps its own questions and upvotes under answers.ask, written like a vote.
+    async function saveMine() {
+      const body = { epoch: mine.epoch, answers: mine.answers };
+      store.set('mp-mine' + sfx, JSON.stringify(mine));
+      if (db) { try { await db.doc('votes/' + token).set(body); } catch (e) { return 'error'; } }
+      if (bc) bc.postMessage({ t: 'vote', token, v: body });
+      votes[token] = body;
+      emit();
+      return 'ok';
+    }
+    function myAsk() {
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const a = mine.answers.ask || { q: [], up: [] };
+      return { q: [...(a.q || [])], up: [...(a.up || [])] };
+    }
+    async function ask(text) {
+      const t = Core.clean(text, 140);
+      if (t.length < 3) return 'short';
+      const a = myAsk();
+      if (a.q.length >= 3) return 'limit';
+      a.q.push({ id: 'q' + Math.random().toString(36).slice(2, 9), text: t, ts: Date.now() });
+      mine.answers.ask = { ...a, ts: Date.now() };
+      return saveMine();
+    }
+    async function upvote(id, on) {
+      const a = myAsk();
+      a.up = a.up.filter(x => x !== id);
+      if (on) a.up.push(id);
+      mine.answers.ask = { ...a, ts: Date.now() };
+      return saveMine();
+    }
     function react(r) {
       if (room) room.emit('react', { r }).catch(() => {});
       if (bc) bc.postMessage({ t: 'react', r });
@@ -3145,6 +3964,7 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       const s = publicState();
       const qi = s.qi, a = mine.answers[qi];
       s.mine = s.stage === 'question' && mine.epoch === control.epoch && a && a.ts > ((control.cleared || {})[qi] || 0) ? a : null;
+      s.mineAsk = mine.epoch === control.epoch ? mine.answers.ask || null : null;
       return Promise.resolve(s);
     }
 
@@ -3159,8 +3979,14 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
         }
         if (m.t === 'react' && !room && config.reactions.includes(m.r)) subs.react.forEach(f => f(m.r));
         if (m.t === 'here' && !room) { localPhones.set(m.token, { t: Date.now(), p: Core.cleanPlayer(m.p) }); countLocal(); }
-        if (m.t === 'hello' && !db) bc.postMessage({ t: 'control', control });
-      } else if (m.t === 'control' && !db && m.control) { control = { ...DEFAULT, ...m.control }; emit(); }
+        if (m.t === 'hello' && !db) { bc.postMessage({ t: 'control', control }); bc.postMessage({ t: 'votes', votes: { ...votes, ...simVotes() } }); }
+        // a second presenter window (the presenter view) on this computer: follow it at once
+        if (m.t === 'control' && m.control && (m.control.rev || 0) > (control.rev || 0)) { control = { ...DEFAULT, ...m.control }; emit(); }
+      } else {
+        if (m.t === 'control' && !db && m.control) { control = { ...DEFAULT, ...m.control }; emit(); }
+        if (m.t === 'vote' && !db && m.v && typeof m.token === 'string') { votes[m.token] = m.v; emit(); }
+        if (m.t === 'votes' && !db && m.votes && typeof m.votes === 'object') { Object.assign(votes, m.votes); emit(); }
+      }
     };
     function countLocal() {
       const now = Date.now();
@@ -3170,6 +3996,26 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
     }
     if (bc && role === 'phone') { bc.postMessage({ t: 'hello' }); const here = () => bc.postMessage({ t: 'here', token, p: me }); here(); setInterval(here, 5000); }
     if (role === 'host') setInterval(() => { if (!room) countLocal(); }, 4000);
+
+    // ---------- the votes: always for the presenter, only on the Q&A screen for phones ----------
+    let unwatch = null, firstVotes = true;
+    function watchVotes(on) {
+      if (!db || on === !!unwatch) return;
+      if (!on) { try { unwatch(); } catch {} unwatch = null; votes = {}; return; }
+      firstVotes = true;
+      unwatch = db.collection('votes').onSnapshot(qs => {
+        let pop = null;
+        for (const ch of qs.docChanges()) {
+          if (ch.type === 'removed') { delete votes[ch.doc.id]; continue; }
+          const d = ch.doc.data(), prev = votes[ch.doc.id];
+          votes[ch.doc.id] = d;
+          const a = d && d.answers && d.answers[qiNow()], pa = prev && prev.answers && prev.answers[qiNow()];
+          if (a && a.option && d.epoch === control.epoch && (!pa || pa.ts !== a.ts)) pop = a.option;
+        }
+        emit(pop && !firstVotes ? { pop } : {});
+        firstVotes = false;
+      }, () => {}) || (() => {});
+    }
 
     // ---------- claude.ai capabilities ----------
     (async () => {
@@ -3187,23 +4033,10 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
           const d = snap.data() || {};
           if (role === 'host' && (d.rev || 0) < (control.rev || 0)) return; // an older echo of our own writes
           control = { ...DEFAULT, ...d };
+          if (role === 'phone') watchVotes(isQaStep(control.current));
           emit();
         }, () => { clearTimeout(timer); });
-        if (role === 'host') {
-          let first = true;
-          db.collection('votes').onSnapshot(qs => {
-            let pop = null;
-            for (const ch of qs.docChanges()) {
-              if (ch.type === 'removed') { delete votes[ch.doc.id]; continue; }
-              const d = ch.doc.data(), prev = votes[ch.doc.id];
-              votes[ch.doc.id] = d;
-              const a = d && d.answers && d.answers[qiNow()], pa = prev && prev.answers && prev.answers[qiNow()];
-              if (a && d.epoch === control.epoch && (!pa || pa.ts !== a.ts)) pop = a.option;
-            }
-            emit(pop && !first ? { pop } : {});
-            first = false;
-          }, () => {});
-        }
+        watchVotes(role === 'host');
       } else if (role === 'host') {
         if (!opts.local) T.onStatus && T.onStatus('Test mode: phones in this browser only. Sign in to claude.ai to connect other devices.');
         if (bc) setTimeout(() => bc.postMessage({ t: 'control', control }), 300);
@@ -3244,6 +4077,18 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
           emit({ pop: option });
         }
       }
+      if (isQaStep(control.current) && Math.random() < .35) {
+        const demo = (Core.steps(config)[control.current].slide.demo) || [];
+        const k = (Math.random() * sim.connected) | 0, bot = (sim.answers['bot' + k] ||= {});
+        const a = bot.ask || { q: [], up: [], ts: 0 };
+        const all = Object.values(sim.answers).flatMap(b => (b.ask && b.ask.q) || []);
+        const unused = demo.filter(t => !all.some(x => x.text === t));
+        if (unused.length && Math.random() < .3 && !a.q.length) a.q = [{ id: 'q' + Math.random().toString(36).slice(2, 9), text: unused[0], ts: Date.now() }];
+        else if (all.length) { const pick = all[Math.min(all.length - 1, (Math.random() ** 1.6 * all.length) | 0)]; if (!a.up.includes(pick.id)) a.up = [...a.up, pick.id]; }
+        bot.ask = { ...a, ts: Date.now() };
+        if (bc) bc.postMessage({ t: 'votes', votes: simVotes() });
+        emit();
+      }
       const party = stage === 'finale' || stage === 'recap';
       if (Math.random() < (party ? .5 : qi >= 0 ? .14 : .08)) {
         const n = 1 + ((Math.random() * (party ? 4 : 2)) | 0);
@@ -3275,7 +4120,9 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
       controlHint: '',
       qrHtml: () => '',
       subscribe(onState, onReact) { subs.state.push(onState); if (onReact) subs.react.push(onReact); emit(); },
-      act, vote, react, getState,
+      act, vote, react, getState, ask, upvote,
+      config,
+      summary: () => Core.summary(config, stateObj()),
       simulate: role === 'host' && !opts.noSim ? simulate : undefined,
       simulating: () => !!sim,
       simReact: role === 'host' ? simReact : undefined,
@@ -3286,45 +4133,64 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 
 </script>
 <script>
-// Entry point for the claude.ai test build: "" shows the phone view, anything else the presenter screen.
-// Inside the simulator, window.SIM = { role: 'host' | 'phone', slot } picks the view instead, runs fully
-// locally (no shared database), and the presenter exposes window.__sim for the simulator's control panel.
+// Entry point for the bundled app.
+// - claude.ai test build: "#join" shows the phone view, anything else the presenter screen; the content is inlined.
+// - Simulator: window.SIM = { role: 'host' | 'phone', slot, config } picks the view, runs fully locally, and the
+//   presenter exposes window.__sim for the simulator's control panel.
+// - Public website (window.PULSE_LIVE): the content is NOT in the page. The presenter screen asks for the presenter
+//   key and loads the content from Supabase; phones load the poll questions with the join code from the QR code.
+// "#notes" on a presenter page opens the presenter view (speaker notes, next screen, controls) instead.
 (function () {
   const app = document.getElementById('app');
   const SIM = window.SIM || null;
   const LIVE = window.PULSE_LIVE || null;   // { url, key, role }: the static website talking to Supabase
   const isPhone = SIM ? SIM.role === 'phone' : LIVE && LIVE.role ? LIVE.role === 'phone' : location.hash === '#join';
+  const isNotes = !isPhone && location.hash === '#notes';
   if (!SIM && !LIVE) addEventListener('hashchange', () => location.reload());
-  const config = window.PULSE_CONFIG;
-  let opts = {};
-  if (SIM) opts = { local: true, slot: SIM.slot };
-  else if (LIVE && window.SupabaseBackend) {
-    const params = new URLSearchParams(location.search);
-    opts = {
-      backend: SupabaseBackend({ url: LIVE.url, key: LIVE.key, hostKey: isPhone ? '' : params.get('key') || '' }),
-      controlHint: 'View only: open this page with ?key=<presenter key> to control it',
-      noSim: params.get('sim') !== '1',
-    };
-  }
-  const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', window.PULSE_JOIN_URL || '', opts);
-  const qr = document.getElementById('qr-template');
-  T.qrHtml = () => (qr ? qr.innerHTML : '<div style="color:#0b0b3b;font:600 13px/1.4 Inter,sans-serif;padding:8px">Open this page with #join on your phone</div>');
-  if (SIM && !isPhone) T.joinLabel = SIM.label || 'Simulator: vote on the phones beside this screen';
-  if (isPhone) mountJoin(app, T); else mountHost(app, T);
 
-  if (SIM && !isPhone) {
-    window.__sim = {
-      act: (a, arg) => T.act(a, arg),
-      goto: i => T.act('goto', i),
-      simulate: (on, o) => T.simulate(on, o),
-      simulating: () => T.simulating(),
-      react: r => T.simReact(r),
-      setTimer: sec => { config.timer = sec; config.questions.forEach(q => delete q.timer); },
-      onState: cb => T.subscribe(cb),
-      stages: () => PulseCore.steps(config).map((st, i) => ({ i, kind: st.kind, label: PulseCore.navLabel(config, st),
-        title: st.kind === 'question' ? config.questions[st.qi].title : st.kind === 'slide' ? st.slide.title : '' })),
-      reactions: config.reactions,
-    };
+  function start(config, extra = {}) {
+    let opts = {};
+    if (SIM) opts = { local: true, slot: SIM.slot };
+    else if (LIVE && window.SupabaseBackend) {
+      opts = {
+        backend: SupabaseBackend({ url: LIVE.url, key: LIVE.key, hostKey: isPhone ? '' : extra.key || '' }),
+        controlHint: 'This screen is view only',
+        noSim: new URLSearchParams(location.search).get('sim') !== '1',
+      };
+    }
+    const T = ArtifactTransport(config, isPhone ? 'phone' : 'host', extra.joinUrl || window.PULSE_JOIN_URL || '', opts);
+    const tpl = document.getElementById('qr-template');
+    const qr = extra.qr || (tpl ? tpl.innerHTML : '');
+    T.qrHtml = () => qr || '<div style="color:#0b0b3b;font:600 13px/1.4 Inter,sans-serif;padding:8px">Open this page with #join on your phone</div>';
+    if (extra.lock) T.lock = extra.lock;
+    if (!isPhone && !SIM) T.notesUrl = () => location.pathname + location.search + '#notes';
+    if (SIM && !isPhone) T.joinLabel = SIM.label || 'Simulator: vote on the phones beside this screen';
+    if (isPhone) mountJoin(app, T);
+    else if (isNotes) mountNotes(app, T);
+    else mountHost(app, T);
+
+    if (SIM && !isPhone) {
+      window.__sim = {
+        act: (a, arg) => T.act(a, arg),
+        goto: i => T.act('goto', i),
+        simulate: (on, o) => T.simulate(on, o),
+        simulating: () => T.simulating(),
+        react: r => T.simReact(r),
+        setTimer: sec => { config.timer = sec; config.questions.forEach(q => delete q.timer); },
+        onState: cb => T.subscribe(cb),
+        stages: () => PulseCore.steps(config).map((st, i) => ({ i, kind: st.kind, label: PulseCore.navLabel(config, st), extra: st.extra,
+          title: st.kind === 'question' ? config.questions[st.qi].title : st.kind === 'slide' ? st.slide.title : '' })),
+        reactions: config.reactions,
+      };
+    }
+  }
+
+  const inline = (SIM && SIM.config) || window.PULSE_CONFIG;
+  if (inline) start(inline);
+  else if (LIVE && window.PulseLock) {
+    if (isPhone) PulseLock.phone({ url: LIVE.url, anon: LIVE.key, el: app }).then(data => start(data.config));
+    else PulseLock.presenter({ url: LIVE.url, anon: LIVE.key, el: app, what: isNotes ? 'presenter view' : 'presenter screen' })
+      .then(({ key, data }) => start(data.config, { key, qr: data.qr, joinUrl: data.joinUrl, lock: PulseLock.forget }));
   }
 })();
 

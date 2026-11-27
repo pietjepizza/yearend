@@ -11,7 +11,8 @@ const Core = require('./public/core.js');
 const PORT = Number(process.env.PORT) || 3000;
 const HOST_KEY = process.env.HOST_KEY || crypto.randomBytes(3).toString('hex');
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
-const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
+const CONFIG_FILE = [process.env.CONFIG_FILE, path.join(__dirname, 'questions.json'), path.join(__dirname, 'questions.example.json')].find(f => f && fs.existsSync(f));
+const CONFIG = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 const QUESTIONS = CONFIG.questions;
 const REACTIONS = CONFIG.reactions || ['👏', '🎉', '🔥', '💙', '😂', '🚀'];
 const LAST = Core.lastIndex(CONFIG);
@@ -27,11 +28,12 @@ const PUBLIC_URL = (process.env.PUBLIC_URL || `http://${lanAddress()}:${PORT}`).
 
 // ---- state -------------------------------------------------------------
 // responses[questionIndex] = { anonymousDeviceToken: { option, word, ts } }. No names are collected.
-const fresh = () => ({ current: 0, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [] });
+const fresh = () => ({ current: 0, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [], qa: { done: [], hidden: [] } });
 let state = fresh();
 try { state = { ...state, ...JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) }; } catch {}
 for (const r of Object.values(state.responses)) for (const a of Object.values(r || {})) delete a.name;
 state.revealedQ ||= {};
+state.qa ||= { done: [], hidden: [] };
 state.current = Math.max(0, Math.min(LAST, Number(state.current) || 0));
 let saveTimer;
 function save() {
@@ -75,6 +77,7 @@ const STATIC = {
   '/style.css': ['style.css', 'text/css; charset=utf-8'],
   '/core.js': ['core.js', JS], '/icons.js': ['icons.js', JS], '/fx.js': ['fx.js', JS],
   '/host.js': ['host.js', JS], '/join.js': ['join.js', JS], '/transport-server.js': ['transport-server.js', JS],
+  '/notes.js': ['notes.js', JS], '/help.js': ['help.js', JS],
 };
 function sendFile(res, file, type) {
   fs.readFile(path.join(__dirname, 'public', file), (err, buf) => {
@@ -103,6 +106,7 @@ const server = http.createServer(async (req, res) => {
     const s = publicState();
     const me = url.searchParams.get('id');
     s.mine = me && s.stage === 'question' ? (state.responses[s.qi] || {})[me] || null : null;
+    s.mineAsk = me ? (state.responses.ask || {})[me] || null : null;
     return json(res, 200, s);
   }
 
@@ -133,6 +137,35 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: true });
   }
 
+  // Anonymous Q&A: a phone may ask up to three questions and upvote any question once.
+  if (req.method === 'POST' && (p === '/api/ask' || p === '/api/upvote')) {
+    let b;
+    try { b = await readBody(req); } catch { return json(res, 400, { error: 'bad json' }); }
+    const id = Core.clean(b.id, 64);
+    if (!id) return json(res, 400, { error: 'missing id' });
+    const mine = ((state.responses.ask ||= {})[id] ||= { q: [], up: [], ts: 0 });
+    if (p === '/api/ask') {
+      const text = Core.clean(b.text, 140);
+      if (text.length < 3) return json(res, 400, { error: 'too short' });
+      if (mine.q.length >= 3) return json(res, 429, { error: 'limit' });
+      mine.q.push({ id: 'q' + crypto.randomBytes(4).toString('hex'), text, ts: Date.now() });
+    } else {
+      const qid = Core.clean(b.qid, 24);
+      mine.up = mine.up.filter(x => x !== qid);
+      if (b.on) mine.up.push(qid);
+    }
+    mine.ts = Date.now();
+    save();
+    send(toAll, publicState());
+    return json(res, 200, { ok: true });
+  }
+
+  // The presenter tools: the full content (for the content check) and the results summary.
+  if (req.method === 'GET' && (p === '/api/config' || p === '/api/summary')) {
+    if (url.searchParams.get('key') !== HOST_KEY) return json(res, 403, { error: 'wrong host key' });
+    return json(res, 200, p === '/api/config' ? CONFIG : Core.summary(CONFIG, state));
+  }
+
   if (req.method === 'POST' && p === '/api/react') {
     let b;
     try { b = await readBody(req); } catch { return json(res, 400, { error: 'bad json' }); }
@@ -148,14 +181,21 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && p.startsWith('/api/host/')) {
     if (url.searchParams.get('key') !== HOST_KEY) return json(res, 403, { error: 'wrong host key' });
     const action = p.slice('/api/host/'.length);
-    if (action === 'next') Core.enter(CONFIG, state, Math.min(state.current + 1, LAST));
-    else if (action === 'prev') Core.enter(CONFIG, state, Math.max(state.current - 1, 0));
+    if (action === 'next') Core.enter(CONFIG, state, Core.nextIndex(CONFIG, state.current));
+    else if (action === 'prev') Core.enter(CONFIG, state, Core.prevIndex(CONFIG, state.current));
     else if (action === 'goto') Core.enter(CONFIG, state, Number(url.searchParams.get('word')));
     else if (action === 'reveal') { if (qiNow() >= 0) state.revealedQ[qiNow()] = true; state.timerEnd = 0; }
     else if (action === 'conceal') { delete state.revealedQ[qiNow()]; state.timerEnd = 0; }
     else if (action === 'clear') { if (qiNow() >= 0) { delete state.responses[qiNow()]; delete state.revealedQ[qiNow()]; Core.enter(CONFIG, state, state.current); } }
     else if (action === 'hide') { const w = Core.norm(url.searchParams.get('word')); if (w && !state.hidden.includes(w)) state.hidden.push(w); }
     else if (action === 'unhide') state.hidden = [];
+    else if (action === 'qa') {
+      const [what, id] = String(url.searchParams.get('word') || '').split(':');
+      const qa = state.qa;
+      qa.done = qa.done.filter(x => x !== id); qa.hidden = qa.hidden.filter(x => x !== id);
+      if (what === 'done') qa.done.push(id); else if (what === 'hide') qa.hidden.push(id);
+      if (what === 'reset') state.qa = { done: [], hidden: [] };
+    }
     else if (action === 'reset') state = fresh();
     else return json(res, 404, { error: 'unknown action' });
     save();
