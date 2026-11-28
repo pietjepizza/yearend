@@ -1048,7 +1048,16 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 /* ---------- presenter view (second window on the laptop) ---------- */
 body.notes-mode { background: #07062f; overflow: auto; }
 .nv { min-height: 100vh; display: flex; flex-direction: column; color: #fff; font: 16px/1.5 var(--body); }
-.nv-top { display: flex; align-items: center; gap: 18px; padding: 14px 24px; border-bottom: 1px solid rgba(255, 255, 255, .12); background: #0b0950; position: sticky; top: 0; z-index: 2; }
+.nv-head { position: sticky; top: 0; z-index: 3; background: #0b0950; border-bottom: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 8px 24px rgba(0, 0, 20, .45); }
+.nv-top { display: flex; align-items: center; gap: 18px; padding: 12px 24px 8px; }
+.nv-ctl { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 24px 14px; }
+.nv-ctl button { flex: 1 1 0; max-width: 340px; min-height: 56px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #fff; border-radius: 14px; padding: 10px 16px; font: 700 18px var(--display); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.nv-ctl button:active { transform: scale(.97); }
+.nv-ctl #nvPrev { flex-grow: .8; max-width: 220px; }
+.nv-ctl .nv-go { flex-grow: 1.5; max-width: 420px; background: var(--blue); border-color: var(--sky); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
+.nv-ctl .nv-go small { font: 500 13px var(--body); color: rgba(255, 255, 255, .8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-ctl .nv-reveal { background: rgba(255, 196, 0, .15); border-color: rgba(255, 196, 0, .6); color: var(--gold); }
+.nv-ctl button[hidden] { display: none; }
 .nv-top > b { font: 700 18px var(--display); }
 .nv-top #nvPos { color: rgba(255, 255, 255, .7); }
 .nv-sp { flex: 1; }
@@ -1068,19 +1077,30 @@ body.notes-mode { background: #07062f; overflow: auto; }
 .nv-notes { margin-top: 8px; font-size: 24px; line-height: 1.5; max-width: 60ch; }
 .nv-empty { color: rgba(255, 255, 255, .5); font-size: 16px; }
 .nv-side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
-.nv-next { background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px; padding: 14px 16px; }
-.nv-next b { display: block; margin-top: 4px; font: 600 20px var(--display); }
-.nv-btns { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
-.nv-btns button, .nv-reveal { border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #fff; border-radius: 14px; padding: 16px; font: 700 18px var(--display); cursor: pointer; }
-.nv-btns .nv-go { background: var(--blue); border-color: var(--sky); }
-.nv-reveal { background: rgba(255, 196, 0, .15); border-color: rgba(255, 196, 0, .6); color: var(--gold); }
-.nv-btns button:focus-visible, .nv-reveal:focus-visible, .nv-list li:focus-visible, .nv-ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.nv-list { margin: 0; padding: 0; list-style: none; overflow: auto; max-height: 44vh; border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; }
+.nv-ctl button:focus-visible, .nv-list li:focus-visible, .nv-ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.nv-list { position: relative; margin: 0; padding: 0; list-style: none; overflow: auto; max-height: 44vh; border: 1px solid rgba(255, 255, 255, .1); border-radius: 12px; }
 .nv-list li { padding: 7px 12px; font-size: 14px; color: rgba(255, 255, 255, .75); cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, .06); }
 .nv-list li:hover { background: rgba(255, 255, 255, .06); }
 .nv-list li.on { background: rgba(95, 184, 255, .2); color: #fff; font-weight: 600; }
 .nv-list li.extra { color: rgba(255, 224, 138, .8); }
 @media (max-width: 860px) { .nv-main { grid-template-columns: 1fr; } .nv-top { flex-wrap: wrap; } }
+/* phone: a compact header and the buttons across the full width, right at hand */
+@media (max-width: 600px) {
+  .nv-top { gap: 10px 14px; padding: 8px 12px 6px; flex-wrap: nowrap; }
+  .nv-top > b, .nv-status:empty { display: none; }
+  .nv-status { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+  .nv-top #nvPos { font-size: 13px; }
+  .nv-clock b { font-size: 17px; }
+  .nv-clock small { font-size: 9px; }
+  .nv-ghost { padding: 5px 10px; font-size: 13px; }
+  .nv-ctl { gap: 8px; padding: 2px 12px 10px; }
+  .nv-ctl button, .nv-ctl #nvPrev, .nv-ctl .nv-go { max-width: none; min-height: 60px; font-size: 18px; padding: 8px 10px; }
+  .nv-ctl .nv-reveal { order: 3; flex-basis: 100%; min-height: 48px; }
+  .nv-kbd { display: none; }
+  .nv-main { padding: 16px 12px; gap: 18px; }
+  .nv-now h1 { font-size: 26px; }
+  .nv-notes { font-size: 20px; }
+}
 
 /* ---------- calm screens and the chapter bar ---------- */
 .deck .lights, .deck .backdrop i { transition: opacity 1.2s; }
@@ -2197,15 +2217,23 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
     document.body.classList.add('notes-mode');
     rootEl.innerHTML = `
       <div class="nv">
-        <header class="nv-top">
-          <b>Presenter view</b>
-          <span id="nvPos"></span>
-          <span class="nv-sp"></span>
-          <span id="nvStatus" class="nv-status"></span>
-          <span class="nv-clock" title="Time since you opened this view (click to restart)"><small>Running</small><b id="nvRun">0:00</b></span>
-          <span class="nv-clock"><small>Time</small><b id="nvNow"></b></span>
-          <button id="nvGuide" class="nv-ghost">Guide</button>
-        </header>
+        <div class="nv-head">
+          <header class="nv-top">
+            <b>Presenter view</b>
+            <span id="nvPos"></span>
+            <span class="nv-sp"></span>
+            <span id="nvStatus" class="nv-status"></span>
+            <span class="nv-clock" title="Time since you opened this view (click to restart)"><small>Running</small><b id="nvRun">0:00</b></span>
+            <span class="nv-clock"><small>Time</small><b id="nvNow"></b></span>
+            <button id="nvGuide" class="nv-ghost">Guide</button>
+          </header>
+          <!-- the controls stay at the top while you scroll, so the phone or laptop works as a clicker -->
+          <div class="nv-ctl">
+            <button id="nvPrev" aria-label="Previous screen">← Back</button>
+            <button id="nvReveal" class="nv-reveal" hidden></button>
+            <button id="nvNextBtn" class="nv-go" aria-label="Next screen"><span>Next →</span><small id="nvNext"></small></button>
+          </div>
+        </div>
         <div class="nv-main">
           <section class="nv-now">
             <div class="nv-k">On the big screen now · <span id="nvKind"></span></div>
@@ -2215,12 +2243,6 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
             <div class="nv-notes" id="nvNotes"></div>
           </section>
           <aside class="nv-side">
-            <div class="nv-next"><div class="nv-k">Next</div><b id="nvNext"></b></div>
-            <div class="nv-btns">
-              <button id="nvPrev" aria-label="Previous screen">← Back</button>
-              <button id="nvNextBtn" class="nv-go" aria-label="Next screen">Next →</button>
-            </div>
-            <button id="nvReveal" class="nv-reveal" hidden>Reveal results (H)</button>
             <div class="nv-k">Jump to</div>
             <ol class="nv-list" id="nvList"></ol>
           </aside>
@@ -2277,9 +2299,9 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       $('nvKind').textContent = kindOf(s);
       $('nvTitle').textContent = plain(titleOf(s));
       $('nvNotes').innerHTML = s.notes ? esc(s.notes).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>').replace(/\n/g, '<br>') : '<span class="nv-empty">No notes for this screen. Add them as "notes" in the running order.</span>';
-      $('nvNext').textContent = s.next || 'End of this part of the show';
+      $('nvNext').textContent = s.next ? 'then: ' + s.next : 'End of this part of the show';
       $('nvReveal').hidden = s.stage !== 'question' && !s.tug;
-      $('nvReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch (H)' : 'Start the tug of war (H)') : s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
+      $('nvReveal').innerHTML = (s.tug ? (s.tug.phase === 'done' ? 'Rematch' : 'Start the tug of war') : s.revealed ? 'Hide results' : s.question && s.question.type === 'award' ? 'Reveal the winner' : 'Reveal results') + '<span class="nv-kbd"> (H)</span>';
       liveInfo(s);
       // the running order, built once from the content
       const steps = T.config ? PulseCore.steps(T.config) : null;
@@ -2288,8 +2310,9 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         if (key !== listKey) {
           listKey = key;
           $('nvList').innerHTML = steps.map((st, i) => `<li data-i="${i}" class="${i === s.index ? 'on' : ''} ${st.extra ? 'extra' : ''}" tabindex="0">${i + 1}. ${esc(PulseCore.navLabel(T.config, st))}</li>`).join('');
-          const on = $('nvList').querySelector('.on');
-          if (on) on.scrollIntoView({ block: 'nearest' });
+          // scroll only the list itself, never the page, so the controls and notes stay where they are
+          const L = $('nvList'), on = L.querySelector('.on');
+          if (on && L.scrollHeight > L.clientHeight + 2) L.scrollTop = Math.max(0, on.offsetTop - L.clientHeight / 2);
         }
       }
     }

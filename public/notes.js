@@ -26,15 +26,23 @@
     document.body.classList.add('notes-mode');
     rootEl.innerHTML = `
       <div class="nv">
-        <header class="nv-top">
-          <b>Presenter view</b>
-          <span id="nvPos"></span>
-          <span class="nv-sp"></span>
-          <span id="nvStatus" class="nv-status"></span>
-          <span class="nv-clock" title="Time since you opened this view (click to restart)"><small>Running</small><b id="nvRun">0:00</b></span>
-          <span class="nv-clock"><small>Time</small><b id="nvNow"></b></span>
-          <button id="nvGuide" class="nv-ghost">Guide</button>
-        </header>
+        <div class="nv-head">
+          <header class="nv-top">
+            <b>Presenter view</b>
+            <span id="nvPos"></span>
+            <span class="nv-sp"></span>
+            <span id="nvStatus" class="nv-status"></span>
+            <span class="nv-clock" title="Time since you opened this view (click to restart)"><small>Running</small><b id="nvRun">0:00</b></span>
+            <span class="nv-clock"><small>Time</small><b id="nvNow"></b></span>
+            <button id="nvGuide" class="nv-ghost">Guide</button>
+          </header>
+          <!-- the controls stay at the top while you scroll, so the phone or laptop works as a clicker -->
+          <div class="nv-ctl">
+            <button id="nvPrev" aria-label="Previous screen">← Back</button>
+            <button id="nvReveal" class="nv-reveal" hidden></button>
+            <button id="nvNextBtn" class="nv-go" aria-label="Next screen"><span>Next →</span><small id="nvNext"></small></button>
+          </div>
+        </div>
         <div class="nv-main">
           <section class="nv-now">
             <div class="nv-k">On the big screen now · <span id="nvKind"></span></div>
@@ -44,12 +52,6 @@
             <div class="nv-notes" id="nvNotes"></div>
           </section>
           <aside class="nv-side">
-            <div class="nv-next"><div class="nv-k">Next</div><b id="nvNext"></b></div>
-            <div class="nv-btns">
-              <button id="nvPrev" aria-label="Previous screen">← Back</button>
-              <button id="nvNextBtn" class="nv-go" aria-label="Next screen">Next →</button>
-            </div>
-            <button id="nvReveal" class="nv-reveal" hidden>Reveal results (H)</button>
             <div class="nv-k">Jump to</div>
             <ol class="nv-list" id="nvList"></ol>
           </aside>
@@ -106,9 +108,9 @@
       $('nvKind').textContent = kindOf(s);
       $('nvTitle').textContent = plain(titleOf(s));
       $('nvNotes').innerHTML = s.notes ? esc(s.notes).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>').replace(/\n/g, '<br>') : '<span class="nv-empty">No notes for this screen. Add them as "notes" in the running order.</span>';
-      $('nvNext').textContent = s.next || 'End of this part of the show';
+      $('nvNext').textContent = s.next ? 'then: ' + s.next : 'End of this part of the show';
       $('nvReveal').hidden = s.stage !== 'question' && !s.tug;
-      $('nvReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch (H)' : 'Start the tug of war (H)') : s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
+      $('nvReveal').innerHTML = (s.tug ? (s.tug.phase === 'done' ? 'Rematch' : 'Start the tug of war') : s.revealed ? 'Hide results' : s.question && s.question.type === 'award' ? 'Reveal the winner' : 'Reveal results') + '<span class="nv-kbd"> (H)</span>';
       liveInfo(s);
       // the running order, built once from the content
       const steps = T.config ? PulseCore.steps(T.config) : null;
@@ -117,8 +119,9 @@
         if (key !== listKey) {
           listKey = key;
           $('nvList').innerHTML = steps.map((st, i) => `<li data-i="${i}" class="${i === s.index ? 'on' : ''} ${st.extra ? 'extra' : ''}" tabindex="0">${i + 1}. ${esc(PulseCore.navLabel(T.config, st))}</li>`).join('');
-          const on = $('nvList').querySelector('.on');
-          if (on) on.scrollIntoView({ block: 'nearest' });
+          // scroll only the list itself, never the page, so the controls and notes stay where they are
+          const L = $('nvList'), on = L.querySelector('.on');
+          if (on && L.scrollHeight > L.clientHeight + 2) L.scrollTop = Math.max(0, on.offsetTop - L.clientHeight / 2);
         }
       }
     }
