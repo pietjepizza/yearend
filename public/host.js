@@ -165,7 +165,9 @@
 
     // ---------- BAR CHART slide: stacked columns (e.g. reported quarters + an outlook), one axis, with a takeaway ----------
     // slide = { type: 'chart', bars: [{ label, note, parts: [{ label, value, max?, outlook? }], total? }], unit, callout, source }
-    const CHART_COLORS = ['#3f5fe8', '#38a0ea'];   // validated against the dark slide surface (dataviz validator)
+    // Colour shows what kind of figure it is, not the year: reported is solid, the outlook is the same hue hatched.
+    // Validated against the dark slide surface (dataviz validator).
+    const CHART_COLOR = '#38a0ea';
     function drawBarChart(sl) {
       const box = $('chBox');
       if (!box) return;
@@ -180,11 +182,10 @@
       const bw = Math.min(u * 11, pw / (bars.length * 2.2)), gap = 2;
       const cx = i => padL + pw * (i + .5) / bars.length;
       const fmt = v => (Math.round(v * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-      let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLORS[1]}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLORS[1]}" stroke-width="3"/></pattern></defs>`;
+      let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLOR}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLOR}" stroke-width="3"/></pattern></defs>`;
       for (let v = 0; v <= maxV; v += step) svg += `<line class="ch-grid ${v ? '' : 'base'}" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-ylab" x="${padL - u * .7}" y="${y(v)}" dy=".35em">${v}</text>`;
       let html = '', k = 0;
       bars.forEach((b, i) => {
-        const color = CHART_COLORS[Math.min(i, CHART_COLORS.length - 1)];
         let acc = 0;
         b.parts.forEach((p, j) => {
           const v = p.max != null ? (p.value + p.max) / 2 : p.value;
@@ -193,9 +194,10 @@
           const x = cx(i) - bw / 2, yTop = y1;
           const r = last ? 4 : 0;
           const path = `M${x} ${yTop + h} V${yTop + r} Q${x} ${yTop} ${x + r} ${yTop} H${x + bw - r} Q${x + bw} ${yTop} ${x + bw} ${yTop + r} V${yTop + h} Z`;
-          const tip = `${b.label} ${p.label}: €${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)} bn${p.outlook ? ' (outlook)' : ''}`;
-          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''}" style="--k:${k};transform-origin:${cx(i)}px ${y(0)}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : color}" ${p.outlook ? `stroke="${CHART_COLORS[1]}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
-          if (h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''} ${i === 0 ? 'dark' : ''}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--k:${k}"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
+          const tip = `${b.label}${p.label ? ' ' + p.label : ''}: €${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)} bn${p.outlook ? ' (outlook)' : ''}`;
+          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''}" style="--k:${k};transform-origin:${cx(i)}px ${y(0)}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : CHART_COLOR}" ${p.outlook ? `stroke="${CHART_COLOR}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
+          // a bar of one part needs no label inside: its total sits on top
+          if (b.parts.length > 1 && h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--k:${k}"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
           // the outlook range shows in the segment label and the total (a whisker of a few pixels would only look like noise)
           acc += v; k++;
         });
@@ -960,7 +962,7 @@
             ${co.label ? `<div class="ch-biglab">${esc(co.label)}</div>` : ''}
             ${(co.points || []).map(t => `<p class="ch-pt">${ph(t)}</p>`).join('')}
             ${co.tagline ? `<p class="ch-tag">${ph(co.tagline)}</p>` : ''}
-            <div class="ch-legend"><span><i class="sw" style="background:linear-gradient(90deg, ${CHART_COLORS[0]} 50%, ${CHART_COLORS[1]} 50%)"></i>Reported</span><span><i class="sw hatch"></i>Outlook</span></div>
+            <div class="ch-legend"><span><i class="sw" style="background:${CHART_COLOR}"></i>Reported</span><span><i class="sw hatch"></i>Outlook</span></div>
           </div>
         </div>`;
         $('source').textContent = sl.source || '';

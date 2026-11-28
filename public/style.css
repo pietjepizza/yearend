@@ -1062,7 +1062,6 @@ body.notes-mode { background: #07062f; overflow: auto; }
 .ch-whisk { opacity: 0; animation: chfade .5s ease forwards; animation-delay: calc(var(--k) * .45s + .9s); }
 .ch-in { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: calc(var(--u) * 1.1); font-weight: 600; color: #05042a; opacity: 0; animation: chfade .4s ease forwards; animation-delay: calc(var(--k) * .45s + .8s); }
 .ch-in b { font-family: var(--display); font-weight: 700; margin-right: .25em; }
-.ch-in.dark { color: #fff; }
 .ch-in.outlook { color: #fff; text-shadow: 0 0 6px #0b0848, 0 0 10px #0b0848; }
 .ch-total { position: absolute; transform: translate(-50%, calc(-100% - var(--u) * .6)); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 2.2); color: var(--fg); opacity: 0; animation: chfade .6s var(--ease) forwards; animation-delay: calc(var(--k) * .45s + .5s); }
 .ch-xlab { position: absolute; transform: translate(-50%, calc(var(--u) * .8)); text-align: center; white-space: nowrap; }
