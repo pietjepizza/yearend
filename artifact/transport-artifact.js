@@ -106,7 +106,7 @@
         c.kudosHidden = what === 'reset' ? [] : [...new Set([...(c.kudosHidden || []), id])];
       }
       else if (a === 'clear') { const qi = Core.qiAt(config, c.current); if (qi < 0) return; c.cleared[qi] = Date.now(); delete c.revealedQ[qi]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[qi]; }
-      else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
+      else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev, kudosHidden: [] }); delete c.tug; if (sim) { sim.answers = {}; } }
       else return;
       c.rev = (control.rev || 0) + 1;
       control = c;
