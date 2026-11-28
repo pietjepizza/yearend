@@ -182,8 +182,6 @@
       const fmt = v => (Math.round(v * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
       let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLORS[1]}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLORS[1]}" stroke-width="3"/></pattern></defs>`;
       for (let v = 0; v <= maxV; v += step) svg += `<line class="ch-grid ${v ? '' : 'base'}" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-ylab" x="${padL - u * .7}" y="${y(v)}" dy=".35em">${v}</text>`;
-      // the earlier bar's level, carried across as a dashed reference
-      if (bars.length > 1) { const ref = sum(bars[0]); svg += `<line class="ch-ref" x1="${cx(0) + bw / 2}" x2="${cx(bars.length - 1) + bw / 2 + u}" y1="${y(ref)}" y2="${y(ref)}"/>`; }
       let html = '', k = 0;
       bars.forEach((b, i) => {
         const color = CHART_COLORS[Math.min(i, CHART_COLORS.length - 1)];
@@ -955,12 +953,13 @@
         T2.innerHTML = head();
         const co = sl.callout || {};
         C.innerHTML = `<div class="s-chart">
-          <div class="card ch-card st" style="--i:0"><div class="ch-box" id="chBox"></div></div>
+          <div class="ch-card st" style="--i:0"><div class="ch-box" id="chBox"></div></div>
           <div class="ch-side st" style="--i:1">
             ${co.badge ? `<div class="ch-badge">${TROPHY}<span>${esc(co.badge)}</span></div>` : ''}
             ${co.value ? `<div class="ch-big">${esc(co.value)}</div>` : ''}
             ${co.label ? `<div class="ch-biglab">${esc(co.label)}</div>` : ''}
             ${(co.points || []).map(t => `<p class="ch-pt">${ph(t)}</p>`).join('')}
+            ${co.tagline ? `<p class="ch-tag">${ph(co.tagline)}</p>` : ''}
             <div class="ch-legend"><span><i class="sw" style="background:linear-gradient(90deg, ${CHART_COLORS[0]} 50%, ${CHART_COLORS[1]} 50%)"></i>Reported</span><span><i class="sw hatch"></i>Outlook</span></div>
           </div>
         </div>`;
