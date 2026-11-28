@@ -170,10 +170,10 @@
     // Colour shows what kind of figure it is, not the year: reported is solid, the outlook is the same hue hatched.
     // Validated against the dark slide surface (dataviz validator).
     const CHART_COLOR = '#38a0ea';
-    // The reveal: the earlier years grow in quickly. After a pause the last bar (this year) builds up part by part
-    // with a live counter riding on its top; the counter turns gold the moment it passes the year before. A beat,
-    // then the outlook rises slowly, and the record moment: the total pops in gold with a burst of light, confetti
-    // and the lights, and the takeaway appears beside it. On a resize the chart is redrawn in its final state.
+    // The reveal, kept calm and businesslike: the earlier years grow in quickly. After a pause the last bar (this
+    // year) builds up part by part with a live counter on its top, which turns gold once it passes the year before.
+    // A short pause, the outlook rises, the total settles in gold and the takeaway fades in beside it.
+    // No confetti, flashes or shaking here. On a resize the chart is redrawn in its final state.
     let chartRun = 0;
     function drawBarChart(sl, animate = true) {
       const box = $('chBox');
@@ -197,13 +197,13 @@
 
       // the timeline of the reveal, in ms
       const plan = [];   // per segment: { i, j, start, dur }
-      let t = 300, heroStart = 0, beatAt = 0;
+      let t = 300, heroStart = 0;
       bars.forEach((b, i) => {
         if (i === hero) {
           t += 700; heroStart = t;
           b.parts.forEach((p, j) => {
-            if (p.outlook) { t += 650; beatAt = t - 650; plan.push({ i, j, start: t, dur: 1400 }); t += 1400; }
-            else { plan.push({ i, j, start: t, dur: 620 }); t += 620 + 230; }
+            if (p.outlook) { t += 500; plan.push({ i, j, start: t, dur: 1300 }); t += 1300; }
+            else { plan.push({ i, j, start: t, dur: 650 }); t += 650 + 200; }
           });
         } else {
           b.parts.forEach((p, j) => plan.push({ i, j, start: t + j * 300, dur: 700 }));
@@ -234,7 +234,7 @@
           if (i === hero) heroSegs.push({ j, acc, v, shown: p.value, outlook: !!p.outlook, ...q });
           acc += v; end = q.start + q.dur;
         });
-        if (i === hero) html += `<div class="ch-total ch-count" id="chCount" style="left:${cx(i)}px;top:${y(0)}px"></div><div class="ch-burst" id="chBurst" style="left:${cx(i)}px;top:${y(sum(b))}px"><i></i><i></i><i></i></div>`;
+        if (i === hero) html += `<div class="ch-total ch-count" id="chCount" style="left:${cx(i)}px;top:${y(0)}px"></div>`;
         else html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--t:${end}ms">${esc(totalText(b))}</div>`;
         html += `<div class="ch-xlab" style="left:${cx(i)}px;top:${y(0)}px"><b>${esc(b.label)}</b>${b.note ? `<span>${esc(b.note)}</span>` : ''}</div>`;
       });
@@ -246,7 +246,7 @@
       const bigText = big ? big.dataset.v || (big.dataset.v = big.textContent) : '';
       const count = $('chCount');
       const finish = () => {
-        if (count) { const hb = bars[hero]; count.textContent = totalText(hb); count.style.top = y(sum(hb)) + 'px'; count.classList.add('past', 'record'); }
+        if (count) { const hb = bars[hero]; count.textContent = totalText(hb); count.style.top = y(sum(hb)) + 'px'; count.classList.add('past'); }
         heroSegs.forEach(g => { const el = $(`chS${hero}_${g.j}`); if (el) el.style.transform = 'none'; const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on'); });
         if (big) big.textContent = bigText;
         if (side) side.classList.add('go');
@@ -256,7 +256,7 @@
 
       // this year's bar, driven frame by frame so the counter rides exactly on its top
       const prevTop = sum(bars[hero - 1]);
-      const easeThunk = k => { const c = 1.25; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };   // a little overshoot
+      const easeOut = k => 1 - Math.pow(1 - k, 3);
       const easeRise = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
       const t0 = performance.now();
       let passed = false, done = false, landed = new Set();
@@ -267,44 +267,30 @@
         let topV = 0, shown = 0;
         heroSegs.forEach(g => {
           const k = Math.max(0, Math.min(1, (el - g.start) / g.dur));
-          const e = k <= 0 ? 0 : g.outlook ? easeRise(k) : easeThunk(k);
+          const e = k <= 0 ? 0 : g.outlook ? easeRise(k) : easeOut(k);
           const seg = $(`chS${hero}_${g.j}`);
           if (seg) seg.style.transform = `scaleY(${e.toFixed(4)})`;
           if (k > 0) { topV = g.acc + g.v * Math.min(e, 1); shown = g.acc + g.shown * Math.min(e, 1); }
           if (k >= 1 && !landed.has(g.j)) {
             landed.add(g.j);
             const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on');
-            if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); }
-            if (!g.outlook) pulse.spike(.5);
           }
         });
         if (el >= heroStart) {
           count.style.opacity = '1';
           count.style.top = y(topV) + 'px';
           count.textContent = '€' + fmt(shown) + ' bn';
-          const og = heroSegs.find(g => g.outlook);
-          count.style.setProperty('--sc', og && el > og.start ? (1 + .14 * Math.min(1, (el - og.start) / og.dur)).toFixed(3) : '1');
-          if (!passed && shown >= prevTop) { passed = true; count.classList.add('past'); flashLights(); pulse.spike(.8); }
+          if (!passed && shown >= prevTop) { passed = true; count.classList.add('past'); }
         }
         if (el < recordAt) requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
-      if (beatAt) later(() => { if (run === chartRun) count.classList.add('tense'); }, beatAt);
 
-      // the record moment
+      // the total settles, then the takeaway
       later(() => {
         if (run !== chartRun || !box.isConnected) return;
         done = true;
-        count.classList.remove('tense'); count.style.setProperty('--sc', '1');
         finish(); side && side.classList.remove('go');
-        count.classList.remove('record'); void count.offsetWidth; count.classList.add('record');
-        const burst = $('chBurst'); if (burst) burst.classList.add('go');
-        heroSegs.forEach(g => { const seg = $(`chS${hero}_${g.j}`); if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); } });
-        const r = box.getBoundingClientRect();
-        confetti.burst('point', { x: r.left + cx(hero), y: r.top + y(sum(bars[hero])) });
-        later(() => run === chartRun && confetti.burst('cannons'), 220);
-        flashLights(); pulse.spike(1);
-        $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
         later(() => {
           if (run !== chartRun || !side) return;
           side.classList.add('go');
@@ -321,7 +307,7 @@
             big.textContent = `${m[1]}0${suf}`;
             requestAnimationFrame(tick);
           }
-        }, 450);
+        }, 350);
       }, recordAt);
     }
 
