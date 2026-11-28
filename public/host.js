@@ -170,12 +170,20 @@
     // Colour shows what kind of figure it is, not the year: reported is solid, the outlook is the same hue hatched.
     // Validated against the dark slide surface (dataviz validator).
     const CHART_COLOR = '#38a0ea';
-    function drawBarChart(sl) {
+    // The reveal: the earlier years grow in quickly. After a pause the last bar (this year) builds up part by part
+    // with a live counter riding on its top; the counter turns gold the moment it passes the year before. A beat,
+    // then the outlook rises slowly, and the record moment: the total pops in gold with a burst of light, confetti
+    // and the lights, and the takeaway appears beside it. On a resize the chart is redrawn in its final state.
+    let chartRun = 0;
+    function drawBarChart(sl, animate = true) {
       const box = $('chBox');
       if (!box) return;
+      const run = ++chartRun;
+      const still = !animate || matchMedia('(prefers-reduced-motion: reduce)').matches;
       const W = box.clientWidth, H = box.clientHeight, u = U();
       const bars = sl.bars || [];
-      const sum = b => b.parts.reduce((t, p) => t + (p.max != null ? (p.value + p.max) / 2 : p.value), 0);
+      const partV = p => p.max != null ? (p.value + p.max) / 2 : p.value;
+      const sum = b => b.parts.reduce((t, p) => t + partV(p), 0);
       const top = b => b.parts.reduce((t, p) => t + (p.max != null ? p.max : p.value), 0);
       const step = 10, maxV = Math.ceil(Math.max(...bars.map(top)) * 1.08 / step) * step;
       const padL = u * 4.2, padR = u * 1, padT = u * 4.4, padB = u * 4.6;
@@ -184,30 +192,137 @@
       const bw = Math.min(u * 11, pw / (bars.length * 2.2)), gap = 2;
       const cx = i => padL + pw * (i + .5) / bars.length;
       const fmt = v => (Math.round(v * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      const hero = bars.length > 1 ? bars.length - 1 : -1;   // this year: the last bar gets the big reveal
+      const totalText = b => b.total || '€' + fmt(sum(b)) + ' bn';
+
+      // the timeline of the reveal, in ms
+      const plan = [];   // per segment: { i, j, start, dur }
+      let t = 300, heroStart = 0, beatAt = 0;
+      bars.forEach((b, i) => {
+        if (i === hero) {
+          t += 700; heroStart = t;
+          b.parts.forEach((p, j) => {
+            if (p.outlook) { t += 650; beatAt = t - 650; plan.push({ i, j, start: t, dur: 1400 }); t += 1400; }
+            else { plan.push({ i, j, start: t, dur: 620 }); t += 620 + 230; }
+          });
+        } else {
+          b.parts.forEach((p, j) => plan.push({ i, j, start: t + j * 300, dur: 700 }));
+          t += 550 + (b.parts.length - 1) * 300;
+        }
+      });
+      const recordAt = Math.max(...plan.map(q => q.start + q.dur)) + 120;
+      const planOf = (i, j) => plan.find(q => q.i === i && q.j === j);
+
       let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLOR}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLOR}" stroke-width="3"/></pattern></defs>`;
       for (let v = 0; v <= maxV; v += step) svg += `<line class="ch-grid ${v ? '' : 'base'}" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-ylab" x="${padL - u * .7}" y="${y(v)}" dy=".35em">${v}</text>`;
-      let html = '', k = 0;
+      let html = '';
+      const heroSegs = [];
       bars.forEach((b, i) => {
-        let acc = 0;
+        let acc = 0, end = 0;
         b.parts.forEach((p, j) => {
-          const v = p.max != null ? (p.value + p.max) / 2 : p.value;
+          const v = partV(p), q = planOf(i, j);
           const y0 = y(acc), y1 = y(acc + v), last = j === b.parts.length - 1;
           const h = Math.max(1, y0 - y1 - (acc > 0 ? gap : 0));
           const x = cx(i) - bw / 2, yTop = y1;
           const r = last ? 4 : 0;
           const path = `M${x} ${yTop + h} V${yTop + r} Q${x} ${yTop} ${x + r} ${yTop} H${x + bw - r} Q${x + bw} ${yTop} ${x + bw} ${yTop + r} V${yTop + h} Z`;
           const tip = `${b.label}${p.label ? ' ' + p.label : ''}: €${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)} bn${p.outlook ? ' (outlook)' : ''}`;
-          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''}" style="--k:${k};transform-origin:${cx(i)}px ${y(0)}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : CHART_COLOR}" ${p.outlook ? `stroke="${CHART_COLOR}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
+          // each segment grows up from its own base, so the stack builds upward
+          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''} ${i === hero ? 'ch-hero' : ''}" id="chS${i}_${j}" style="--t:${q.start}ms;--dur:${q.dur}ms;transform-origin:${cx(i)}px ${y0}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : CHART_COLOR}" ${p.outlook ? `stroke="${CHART_COLOR}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
           // a bar of one part needs no label inside: its total sits on top
-          if (b.parts.length > 1 && h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--k:${k}"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
-          // the outlook range shows in the segment label and the total (a whisker of a few pixels would only look like noise)
-          acc += v; k++;
+          if (b.parts.length > 1 && h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''} ${i === hero ? 'ch-hero' : ''}" id="chL${i}_${j}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--t:${q.start + q.dur - 150}ms"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
+          if (i === hero) heroSegs.push({ j, acc, v, shown: p.value, outlook: !!p.outlook, ...q });
+          acc += v; end = q.start + q.dur;
         });
-        html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--k:${k}">${esc(b.total || '€' + fmt(sum(b)) + ' bn')}</div>`;
+        if (i === hero) html += `<div class="ch-total ch-count" id="chCount" style="left:${cx(i)}px;top:${y(0)}px"></div><div class="ch-burst" id="chBurst" style="left:${cx(i)}px;top:${y(sum(b))}px"><i></i><i></i><i></i></div>`;
+        else html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--t:${end}ms">${esc(totalText(b))}</div>`;
         html += `<div class="ch-xlab" style="left:${cx(i)}px;top:${y(0)}px"><b>${esc(b.label)}</b>${b.note ? `<span>${esc(b.note)}</span>` : ''}</div>`;
       });
-      box.innerHTML = `<svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc((sl.title || '') + ': ' + bars.map(b => `${b.label} ${b.total || fmt(sum(b))}`).join(', '))}">${svg}</svg>${html}
+      box.classList.toggle('still', still);
+      box.innerHTML = `<svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc((sl.title || '') + ': ' + bars.map(b => `${b.label} ${totalText(b)}`).join(', '))}">${svg}</svg>${html}
         <div class="ch-unit" style="left:${padL - u * .7}px;top:${padT - u * 2.2}px">${esc(sl.unit || '')}</div>`;
+
+      const side = document.querySelector('.ch-side'), big = side && side.querySelector('.ch-big');
+      const bigText = big ? big.dataset.v || (big.dataset.v = big.textContent) : '';
+      const count = $('chCount');
+      const finish = () => {
+        if (count) { const hb = bars[hero]; count.textContent = totalText(hb); count.style.top = y(sum(hb)) + 'px'; count.classList.add('past', 'record'); }
+        heroSegs.forEach(g => { const el = $(`chS${hero}_${g.j}`); if (el) el.style.transform = 'none'; const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on'); });
+        if (big) big.textContent = bigText;
+        if (side) side.classList.add('go');
+      };
+      if (still || hero < 0) { if (side) side.classList.add('still'); finish(); return; }
+      if (side) side.classList.remove('go', 'still');
+
+      // this year's bar, driven frame by frame so the counter rides exactly on its top
+      const prevTop = sum(bars[hero - 1]);
+      const easeThunk = k => { const c = 1.25; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };   // a little overshoot
+      const easeRise = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      const t0 = performance.now();
+      let passed = false, done = false, landed = new Set();
+      count.style.opacity = '0';
+      const frame = now => {
+        if (run !== chartRun || !box.isConnected || done) return;
+        const el = now - t0;
+        let topV = 0, shown = 0;
+        heroSegs.forEach(g => {
+          const k = Math.max(0, Math.min(1, (el - g.start) / g.dur));
+          const e = k <= 0 ? 0 : g.outlook ? easeRise(k) : easeThunk(k);
+          const seg = $(`chS${hero}_${g.j}`);
+          if (seg) seg.style.transform = `scaleY(${e.toFixed(4)})`;
+          if (k > 0) { topV = g.acc + g.v * Math.min(e, 1); shown = g.acc + g.shown * Math.min(e, 1); }
+          if (k >= 1 && !landed.has(g.j)) {
+            landed.add(g.j);
+            const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on');
+            if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); }
+            if (!g.outlook) pulse.spike(.5);
+          }
+        });
+        if (el >= heroStart) {
+          count.style.opacity = '1';
+          count.style.top = y(topV) + 'px';
+          count.textContent = '€' + fmt(shown) + ' bn';
+          const og = heroSegs.find(g => g.outlook);
+          count.style.setProperty('--sc', og && el > og.start ? (1 + .14 * Math.min(1, (el - og.start) / og.dur)).toFixed(3) : '1');
+          if (!passed && shown >= prevTop) { passed = true; count.classList.add('past'); flashLights(); pulse.spike(.8); }
+        }
+        if (el < recordAt) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+      if (beatAt) later(() => { if (run === chartRun) count.classList.add('tense'); }, beatAt);
+
+      // the record moment
+      later(() => {
+        if (run !== chartRun || !box.isConnected) return;
+        done = true;
+        count.classList.remove('tense'); count.style.setProperty('--sc', '1');
+        finish(); side && side.classList.remove('go');
+        count.classList.remove('record'); void count.offsetWidth; count.classList.add('record');
+        const burst = $('chBurst'); if (burst) burst.classList.add('go');
+        heroSegs.forEach(g => { const seg = $(`chS${hero}_${g.j}`); if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); } });
+        const r = box.getBoundingClientRect();
+        confetti.burst('point', { x: r.left + cx(hero), y: r.top + y(sum(bars[hero])) });
+        later(() => run === chartRun && confetti.burst('cannons'), 220);
+        flashLights(); pulse.spike(1);
+        $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+        later(() => {
+          if (run !== chartRun || !side) return;
+          side.classList.add('go');
+          // count the big figure up, e.g. "+35–38%": 0 → 35, then the full text
+          const m = /^(\D*)(\d+)(.*)$/.exec(bigText);
+          if (big && m) {
+            const to = Number(m[2]), suf = /%/.test(m[3]) ? '%' : '', s0 = performance.now();
+            const tick = now => {
+              if (run !== chartRun) return;
+              const k = Math.min(1, (now - s0) / 1100), e = 1 - Math.pow(1 - k, 3);
+              big.textContent = k < 1 ? `${m[1]}${Math.round(to * e)}${suf}` : bigText;
+              if (k < 1) requestAnimationFrame(tick);
+            };
+            big.textContent = `${m[1]}0${suf}`;
+            requestAnimationFrame(tick);
+          }
+        }, 450);
+      }, recordAt);
     }
 
     // ---------- TUG OF WAR: Team Debit vs Team Credit ----------
@@ -1775,7 +1890,7 @@
       if (!latest) return;
       if (latest.stage === 'question') layoutCloud(latest);
       if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoadmap(latest.roadmap); }
-      if (latest.stage === 'slide' && latest.slide && latest.slide.type === 'chart') drawBarChart(latest.slide);
+      if (latest.stage === 'slide' && latest.slide && latest.slide.type === 'chart') drawBarChart(latest.slide, false);
     });
     document.fonts && document.fonts.ready.then(() => latest && latest.stage === 'question' && layoutCloud(latest));
 

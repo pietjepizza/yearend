@@ -1236,24 +1236,54 @@ body.notes-mode { background: #07062f; overflow: auto; }
 .ch-grid.base { stroke: rgba(255, 255, 255, .45); }
 .ch-ylab { fill: var(--fg-3); font-family: var(--body); font-weight: 500; font-size: calc(var(--u) * .95); text-anchor: end; }
 .ch-unit { position: absolute; transform: translateX(-100%); white-space: nowrap; font-size: calc(var(--u) * .95); color: var(--fg-3); font-weight: 600; }
-.ch-seg { transform: scaleY(0); animation: chgrow .7s cubic-bezier(.3, 0, .2, 1) forwards; animation-delay: calc(var(--k) * .45s + .3s); }
+.ch-seg { transform: scaleY(0); animation: chgrow var(--dur, .7s) cubic-bezier(.3, 0, .2, 1) forwards; animation-delay: var(--t, .3s); }
+.ch-seg.ch-hero { animation: none; }
+.ch-seg.hit { animation: chhit .7s ease-out; }
+@keyframes chhit { 0% { filter: brightness(1.9) drop-shadow(0 0 12px rgba(143, 211, 255, .9)); } 100% { filter: none; } }
 @keyframes chgrow { to { transform: scaleY(1); } }
 .ch-whisk line { stroke: #fff; stroke-width: 2; }
 .ch-whisk { opacity: 0; animation: chfade .5s ease forwards; animation-delay: calc(var(--k) * .45s + .9s); }
-.ch-in { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: calc(var(--u) * 1.1); font-weight: 600; color: #05042a; opacity: 0; animation: chfade .4s ease forwards; animation-delay: calc(var(--k) * .45s + .8s); }
+.ch-in { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: calc(var(--u) * 1.1); font-weight: 600; color: #05042a; opacity: 0; animation: chfade .4s ease forwards; animation-delay: var(--t, .8s); }
+.ch-in.ch-hero { animation: none; transition: opacity .35s; }
+.ch-in.ch-hero.on { opacity: 1; }
 .ch-in b { font-family: var(--display); font-weight: 700; margin-right: .25em; }
 .ch-in.outlook { color: #fff; text-shadow: 0 0 6px #0b0848, 0 0 10px #0b0848; }
-.ch-total { position: absolute; transform: translate(-50%, calc(-100% - var(--u) * .6)); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 2.2); color: var(--fg); opacity: 0; animation: chfade .6s var(--ease) forwards; animation-delay: calc(var(--k) * .45s + .5s); }
+.ch-total { position: absolute; transform: translate(-50%, calc(-100% - var(--u) * .6)); white-space: nowrap; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 2.2); color: var(--fg); opacity: 0; animation: chfade .6s var(--ease) forwards; animation-delay: var(--t, .5s); }
+/* this year's total: a live counter riding on top of the bar, gold once it passes last year, popping at the record */
+.ch-total.ch-count { z-index: 2; animation: none; opacity: 1; transform: translate(-50%, calc(-100% - var(--u) * .6)) scale(var(--sc, 1)); transform-origin: 50% 100%; font-variant-numeric: tabular-nums; transition: color .35s, text-shadow .35s; }
+.ch-count.past { color: var(--gold); text-shadow: 0 0 calc(var(--u) * .8) rgba(255, 196, 0, .45); }
+.ch-count.tense { animation: chtense .5s ease-in-out infinite; }
+@keyframes chtense { 50% { text-shadow: 0 0 calc(var(--u) * 1.6) rgba(255, 196, 0, .9); filter: brightness(1.2); } }
+.ch-count.record { --sc: 1; color: var(--gold); text-shadow: 0 0 calc(var(--u) * 1.4) rgba(255, 196, 0, .7); animation: chrec .8s var(--spring); }
+@keyframes chrec { 0% { transform: translate(-50%, calc(-100% - var(--u) * .6)) scale(1.7); filter: brightness(1.8); } 100% { transform: translate(-50%, calc(-100% - var(--u) * .6)) scale(1); filter: none; } }
+.ch-burst { position: absolute; z-index: 1; width: 0; height: 0; pointer-events: none; }
+.ch-burst i { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: translate(-50%, -50%); border-radius: 50%; opacity: 0; }
+.ch-burst i:nth-child(1), .ch-burst i:nth-child(2) { border: 3px solid var(--gold); }
+.ch-burst i:nth-child(3) { background: radial-gradient(circle, rgba(255, 214, 90, .55), rgba(255, 196, 0, .18) 40%, transparent 68%); }
+.ch-burst.go i:nth-child(1) { animation: chring 1.1s cubic-bezier(.1, .6, .3, 1) forwards; }
+.ch-burst.go i:nth-child(2) { animation: chring 1.3s cubic-bezier(.1, .6, .3, 1) .18s forwards; border-color: #fff; border-width: 2px; }
+.ch-burst.go i:nth-child(3) { animation: chglow 1.8s ease-out forwards; }
+@keyframes chring { 0% { width: 0; height: 0; opacity: 1; } 100% { width: calc(var(--u) * 24); height: calc(var(--u) * 24); opacity: 0; } }
+@keyframes chglow { 0% { width: 0; height: 0; opacity: 0; } 25% { opacity: 1; } 100% { width: calc(var(--u) * 30); height: calc(var(--u) * 30); opacity: 0; } }
+.ch-box.still .ch-seg { animation: none; transform: none; }
+.ch-box.still .ch-in, .ch-box.still .ch-total { animation: none; opacity: 1; }
 .ch-xlab { position: absolute; transform: translate(-50%, calc(var(--u) * .8)); text-align: center; white-space: nowrap; }
 .ch-xlab b { display: block; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.6); }
 .ch-xlab span { font-size: calc(var(--u) * .95); color: var(--fg-2); }
 .ch-side { display: flex; flex-direction: column; justify-content: center; gap: calc(var(--u) * .9); }
-.ch-badge { align-self: flex-start; display: inline-flex; align-items: center; gap: .5em; background: var(--gold); color: #1d1300; border-radius: 999px; padding: .25em 1em .25em .6em; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.3); opacity: 0; animation: chpop .6s var(--spring) forwards 2.6s; }
+.ch-badge { align-self: flex-start; display: inline-flex; align-items: center; gap: .5em; background: var(--gold); color: #1d1300; border-radius: 999px; padding: .25em 1em .25em .6em; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.3); opacity: 0; }
+.ch-side.go .ch-badge { animation: chpop .7s var(--spring) forwards; }
 .ch-badge .ico { width: 1.5em; height: auto; }
-.ch-big { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 6); line-height: 1; letter-spacing: -.02em; color: var(--fg); opacity: 0; animation: chup .7s var(--ease) forwards 2.3s; }
-.ch-biglab { font-size: calc(var(--u) * 1.3); color: var(--fg-2); margin-top: calc(var(--u) * -.3); opacity: 0; animation: chfade .6s ease forwards 2.5s; }
-.ch-pt { margin: 0; padding-left: calc(var(--u) * 1); border-left: 3px solid var(--sky); font-size: calc(var(--u) * 1.25); line-height: 1.45; color: var(--fg); opacity: 0; animation: chfade .6s ease forwards 2.8s; }
-.ch-tag { margin: calc(var(--u) * .2) 0 0; padding-left: calc(var(--u) * 1); font-size: calc(var(--u) * 1.1); color: var(--fg-2); opacity: 0; animation: chfade .6s ease forwards 3.1s; }
+.ch-big { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 6); line-height: 1; letter-spacing: -.02em; color: var(--fg); opacity: 0; font-variant-numeric: tabular-nums; }
+.ch-side.go .ch-big { animation: chup .6s var(--ease) forwards .05s; }
+.ch-biglab { font-size: calc(var(--u) * 1.3); color: var(--fg-2); margin-top: calc(var(--u) * -.3); opacity: 0; }
+.ch-side.go .ch-biglab { animation: chfade .6s ease forwards .6s; }
+.ch-pt { margin: 0; padding-left: calc(var(--u) * 1); border-left: 3px solid var(--sky); font-size: calc(var(--u) * 1.25); line-height: 1.45; color: var(--fg); opacity: 0; }
+.ch-side.go .ch-pt { animation: chup .6s var(--ease) forwards .9s; }
+.ch-side.go .ch-pt + .ch-pt { animation-delay: 1.15s; }
+.ch-tag { margin: calc(var(--u) * .2) 0 0; padding-left: calc(var(--u) * 1); font-size: calc(var(--u) * 1.1); color: var(--fg-2); opacity: 0; }
+.ch-side.go .ch-tag { animation: chfade .7s ease forwards 1.6s; }
+.ch-side.still > * { animation: none !important; opacity: 1 !important; }
 .ch-legend { display: flex; gap: calc(var(--u) * 1.6); margin-top: calc(var(--u) * .6); font-size: calc(var(--u) * 1); color: var(--fg-2); }
 .ch-legend span { display: inline-flex; align-items: center; gap: .5em; }
 .ch-legend .sw { width: calc(var(--u) * 1.1); height: calc(var(--u) * 1.1); border-radius: 3px; display: inline-block; }
@@ -2470,12 +2500,20 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
     // Colour shows what kind of figure it is, not the year: reported is solid, the outlook is the same hue hatched.
     // Validated against the dark slide surface (dataviz validator).
     const CHART_COLOR = '#38a0ea';
-    function drawBarChart(sl) {
+    // The reveal: the earlier years grow in quickly. After a pause the last bar (this year) builds up part by part
+    // with a live counter riding on its top; the counter turns gold the moment it passes the year before. A beat,
+    // then the outlook rises slowly, and the record moment: the total pops in gold with a burst of light, confetti
+    // and the lights, and the takeaway appears beside it. On a resize the chart is redrawn in its final state.
+    let chartRun = 0;
+    function drawBarChart(sl, animate = true) {
       const box = $('chBox');
       if (!box) return;
+      const run = ++chartRun;
+      const still = !animate || matchMedia('(prefers-reduced-motion: reduce)').matches;
       const W = box.clientWidth, H = box.clientHeight, u = U();
       const bars = sl.bars || [];
-      const sum = b => b.parts.reduce((t, p) => t + (p.max != null ? (p.value + p.max) / 2 : p.value), 0);
+      const partV = p => p.max != null ? (p.value + p.max) / 2 : p.value;
+      const sum = b => b.parts.reduce((t, p) => t + partV(p), 0);
       const top = b => b.parts.reduce((t, p) => t + (p.max != null ? p.max : p.value), 0);
       const step = 10, maxV = Math.ceil(Math.max(...bars.map(top)) * 1.08 / step) * step;
       const padL = u * 4.2, padR = u * 1, padT = u * 4.4, padB = u * 4.6;
@@ -2484,30 +2522,137 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       const bw = Math.min(u * 11, pw / (bars.length * 2.2)), gap = 2;
       const cx = i => padL + pw * (i + .5) / bars.length;
       const fmt = v => (Math.round(v * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      const hero = bars.length > 1 ? bars.length - 1 : -1;   // this year: the last bar gets the big reveal
+      const totalText = b => b.total || '€' + fmt(sum(b)) + ' bn';
+
+      // the timeline of the reveal, in ms
+      const plan = [];   // per segment: { i, j, start, dur }
+      let t = 300, heroStart = 0, beatAt = 0;
+      bars.forEach((b, i) => {
+        if (i === hero) {
+          t += 700; heroStart = t;
+          b.parts.forEach((p, j) => {
+            if (p.outlook) { t += 650; beatAt = t - 650; plan.push({ i, j, start: t, dur: 1400 }); t += 1400; }
+            else { plan.push({ i, j, start: t, dur: 620 }); t += 620 + 230; }
+          });
+        } else {
+          b.parts.forEach((p, j) => plan.push({ i, j, start: t + j * 300, dur: 700 }));
+          t += 550 + (b.parts.length - 1) * 300;
+        }
+      });
+      const recordAt = Math.max(...plan.map(q => q.start + q.dur)) + 120;
+      const planOf = (i, j) => plan.find(q => q.i === i && q.j === j);
+
       let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLOR}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLOR}" stroke-width="3"/></pattern></defs>`;
       for (let v = 0; v <= maxV; v += step) svg += `<line class="ch-grid ${v ? '' : 'base'}" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-ylab" x="${padL - u * .7}" y="${y(v)}" dy=".35em">${v}</text>`;
-      let html = '', k = 0;
+      let html = '';
+      const heroSegs = [];
       bars.forEach((b, i) => {
-        let acc = 0;
+        let acc = 0, end = 0;
         b.parts.forEach((p, j) => {
-          const v = p.max != null ? (p.value + p.max) / 2 : p.value;
+          const v = partV(p), q = planOf(i, j);
           const y0 = y(acc), y1 = y(acc + v), last = j === b.parts.length - 1;
           const h = Math.max(1, y0 - y1 - (acc > 0 ? gap : 0));
           const x = cx(i) - bw / 2, yTop = y1;
           const r = last ? 4 : 0;
           const path = `M${x} ${yTop + h} V${yTop + r} Q${x} ${yTop} ${x + r} ${yTop} H${x + bw - r} Q${x + bw} ${yTop} ${x + bw} ${yTop + r} V${yTop + h} Z`;
           const tip = `${b.label}${p.label ? ' ' + p.label : ''}: €${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)} bn${p.outlook ? ' (outlook)' : ''}`;
-          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''}" style="--k:${k};transform-origin:${cx(i)}px ${y(0)}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : CHART_COLOR}" ${p.outlook ? `stroke="${CHART_COLOR}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
+          // each segment grows up from its own base, so the stack builds upward
+          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''} ${i === hero ? 'ch-hero' : ''}" id="chS${i}_${j}" style="--t:${q.start}ms;--dur:${q.dur}ms;transform-origin:${cx(i)}px ${y0}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : CHART_COLOR}" ${p.outlook ? `stroke="${CHART_COLOR}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
           // a bar of one part needs no label inside: its total sits on top
-          if (b.parts.length > 1 && h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--k:${k}"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
-          // the outlook range shows in the segment label and the total (a whisker of a few pixels would only look like noise)
-          acc += v; k++;
+          if (b.parts.length > 1 && h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''} ${i === hero ? 'ch-hero' : ''}" id="chL${i}_${j}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--t:${q.start + q.dur - 150}ms"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
+          if (i === hero) heroSegs.push({ j, acc, v, shown: p.value, outlook: !!p.outlook, ...q });
+          acc += v; end = q.start + q.dur;
         });
-        html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--k:${k}">${esc(b.total || '€' + fmt(sum(b)) + ' bn')}</div>`;
+        if (i === hero) html += `<div class="ch-total ch-count" id="chCount" style="left:${cx(i)}px;top:${y(0)}px"></div><div class="ch-burst" id="chBurst" style="left:${cx(i)}px;top:${y(sum(b))}px"><i></i><i></i><i></i></div>`;
+        else html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--t:${end}ms">${esc(totalText(b))}</div>`;
         html += `<div class="ch-xlab" style="left:${cx(i)}px;top:${y(0)}px"><b>${esc(b.label)}</b>${b.note ? `<span>${esc(b.note)}</span>` : ''}</div>`;
       });
-      box.innerHTML = `<svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc((sl.title || '') + ': ' + bars.map(b => `${b.label} ${b.total || fmt(sum(b))}`).join(', '))}">${svg}</svg>${html}
+      box.classList.toggle('still', still);
+      box.innerHTML = `<svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc((sl.title || '') + ': ' + bars.map(b => `${b.label} ${totalText(b)}`).join(', '))}">${svg}</svg>${html}
         <div class="ch-unit" style="left:${padL - u * .7}px;top:${padT - u * 2.2}px">${esc(sl.unit || '')}</div>`;
+
+      const side = document.querySelector('.ch-side'), big = side && side.querySelector('.ch-big');
+      const bigText = big ? big.dataset.v || (big.dataset.v = big.textContent) : '';
+      const count = $('chCount');
+      const finish = () => {
+        if (count) { const hb = bars[hero]; count.textContent = totalText(hb); count.style.top = y(sum(hb)) + 'px'; count.classList.add('past', 'record'); }
+        heroSegs.forEach(g => { const el = $(`chS${hero}_${g.j}`); if (el) el.style.transform = 'none'; const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on'); });
+        if (big) big.textContent = bigText;
+        if (side) side.classList.add('go');
+      };
+      if (still || hero < 0) { if (side) side.classList.add('still'); finish(); return; }
+      if (side) side.classList.remove('go', 'still');
+
+      // this year's bar, driven frame by frame so the counter rides exactly on its top
+      const prevTop = sum(bars[hero - 1]);
+      const easeThunk = k => { const c = 1.25; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };   // a little overshoot
+      const easeRise = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      const t0 = performance.now();
+      let passed = false, done = false, landed = new Set();
+      count.style.opacity = '0';
+      const frame = now => {
+        if (run !== chartRun || !box.isConnected || done) return;
+        const el = now - t0;
+        let topV = 0, shown = 0;
+        heroSegs.forEach(g => {
+          const k = Math.max(0, Math.min(1, (el - g.start) / g.dur));
+          const e = k <= 0 ? 0 : g.outlook ? easeRise(k) : easeThunk(k);
+          const seg = $(`chS${hero}_${g.j}`);
+          if (seg) seg.style.transform = `scaleY(${e.toFixed(4)})`;
+          if (k > 0) { topV = g.acc + g.v * Math.min(e, 1); shown = g.acc + g.shown * Math.min(e, 1); }
+          if (k >= 1 && !landed.has(g.j)) {
+            landed.add(g.j);
+            const l = $(`chL${hero}_${g.j}`); if (l) l.classList.add('on');
+            if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); }
+            if (!g.outlook) pulse.spike(.5);
+          }
+        });
+        if (el >= heroStart) {
+          count.style.opacity = '1';
+          count.style.top = y(topV) + 'px';
+          count.textContent = '€' + fmt(shown) + ' bn';
+          const og = heroSegs.find(g => g.outlook);
+          count.style.setProperty('--sc', og && el > og.start ? (1 + .14 * Math.min(1, (el - og.start) / og.dur)).toFixed(3) : '1');
+          if (!passed && shown >= prevTop) { passed = true; count.classList.add('past'); flashLights(); pulse.spike(.8); }
+        }
+        if (el < recordAt) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+      if (beatAt) later(() => { if (run === chartRun) count.classList.add('tense'); }, beatAt);
+
+      // the record moment
+      later(() => {
+        if (run !== chartRun || !box.isConnected) return;
+        done = true;
+        count.classList.remove('tense'); count.style.setProperty('--sc', '1');
+        finish(); side && side.classList.remove('go');
+        count.classList.remove('record'); void count.offsetWidth; count.classList.add('record');
+        const burst = $('chBurst'); if (burst) burst.classList.add('go');
+        heroSegs.forEach(g => { const seg = $(`chS${hero}_${g.j}`); if (seg) { seg.classList.remove('hit'); void seg.getBoundingClientRect(); seg.classList.add('hit'); } });
+        const r = box.getBoundingClientRect();
+        confetti.burst('point', { x: r.left + cx(hero), y: r.top + y(sum(bars[hero])) });
+        later(() => run === chartRun && confetti.burst('cannons'), 220);
+        flashLights(); pulse.spike(1);
+        $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+        later(() => {
+          if (run !== chartRun || !side) return;
+          side.classList.add('go');
+          // count the big figure up, e.g. "+35–38%": 0 → 35, then the full text
+          const m = /^(\D*)(\d+)(.*)$/.exec(bigText);
+          if (big && m) {
+            const to = Number(m[2]), suf = /%/.test(m[3]) ? '%' : '', s0 = performance.now();
+            const tick = now => {
+              if (run !== chartRun) return;
+              const k = Math.min(1, (now - s0) / 1100), e = 1 - Math.pow(1 - k, 3);
+              big.textContent = k < 1 ? `${m[1]}${Math.round(to * e)}${suf}` : bigText;
+              if (k < 1) requestAnimationFrame(tick);
+            };
+            big.textContent = `${m[1]}0${suf}`;
+            requestAnimationFrame(tick);
+          }
+        }, 450);
+      }, recordAt);
     }
 
     // ---------- TUG OF WAR: Team Debit vs Team Credit ----------
@@ -4075,7 +4220,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       if (!latest) return;
       if (latest.stage === 'question') layoutCloud(latest);
       if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoadmap(latest.roadmap); }
-      if (latest.stage === 'slide' && latest.slide && latest.slide.type === 'chart') drawBarChart(latest.slide);
+      if (latest.stage === 'slide' && latest.slide && latest.slide.type === 'chart') drawBarChart(latest.slide, false);
     });
     document.fonts && document.fonts.ready.then(() => latest && latest.stage === 'question' && layoutCloud(latest));
 
