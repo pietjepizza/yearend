@@ -163,6 +163,51 @@
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
     }
 
+    // ---------- BAR CHART slide: stacked columns (e.g. reported quarters + an outlook), one axis, with a takeaway ----------
+    // slide = { type: 'chart', bars: [{ label, note, parts: [{ label, value, max?, outlook? }], total? }], unit, callout, source }
+    const CHART_COLORS = ['#3f5fe8', '#38a0ea'];   // validated against the dark slide surface (dataviz validator)
+    function drawBarChart(sl) {
+      const box = $('chBox');
+      if (!box) return;
+      const W = box.clientWidth, H = box.clientHeight, u = U();
+      const bars = sl.bars || [];
+      const sum = b => b.parts.reduce((t, p) => t + (p.max != null ? (p.value + p.max) / 2 : p.value), 0);
+      const top = b => b.parts.reduce((t, p) => t + (p.max != null ? p.max : p.value), 0);
+      const step = 10, maxV = Math.ceil(Math.max(...bars.map(top)) * 1.08 / step) * step;
+      const padL = u * 4.2, padR = u * 1, padT = u * 4.4, padB = u * 4.6;
+      const pw = W - padL - padR, ph2 = H - padT - padB;
+      const y = v => padT + ph2 - (v / maxV) * ph2;
+      const bw = Math.min(u * 11, pw / (bars.length * 2.2)), gap = 2;
+      const cx = i => padL + pw * (i + .5) / bars.length;
+      const fmt = v => (Math.round(v * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      let svg = `<defs><pattern id="chHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="${CHART_COLORS[1]}" opacity=".28"/><line x1="0" y1="0" x2="0" y2="8" stroke="${CHART_COLORS[1]}" stroke-width="3"/></pattern></defs>`;
+      for (let v = 0; v <= maxV; v += step) svg += `<line class="ch-grid ${v ? '' : 'base'}" x1="${padL}" x2="${W - padR}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-ylab" x="${padL - u * .7}" y="${y(v)}" dy=".35em">${v}</text>`;
+      // the earlier bar's level, carried across as a dashed reference
+      if (bars.length > 1) { const ref = sum(bars[0]); svg += `<line class="ch-ref" x1="${cx(0) + bw / 2}" x2="${cx(bars.length - 1) + bw / 2 + u}" y1="${y(ref)}" y2="${y(ref)}"/>`; }
+      let html = '', k = 0;
+      bars.forEach((b, i) => {
+        const color = CHART_COLORS[Math.min(i, CHART_COLORS.length - 1)];
+        let acc = 0;
+        b.parts.forEach((p, j) => {
+          const v = p.max != null ? (p.value + p.max) / 2 : p.value;
+          const y0 = y(acc), y1 = y(acc + v), last = j === b.parts.length - 1;
+          const h = Math.max(1, y0 - y1 - (acc > 0 ? gap : 0));
+          const x = cx(i) - bw / 2, yTop = y1;
+          const r = last ? 4 : 0;
+          const path = `M${x} ${yTop + h} V${yTop + r} Q${x} ${yTop} ${x + r} ${yTop} H${x + bw - r} Q${x + bw} ${yTop} ${x + bw} ${yTop + r} V${yTop + h} Z`;
+          const tip = `${b.label} ${p.label}: €${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)} bn${p.outlook ? ' (outlook)' : ''}`;
+          svg += `<path class="ch-seg ${p.outlook ? 'outlook' : ''}" style="--k:${k};transform-origin:${cx(i)}px ${y(0)}px" d="${path}" fill="${p.outlook ? 'url(#chHatch)' : color}" ${p.outlook ? `stroke="${CHART_COLORS[1]}" stroke-width="1.5" stroke-dasharray="4 3"` : ''}><title>${esc(tip)}</title></path>`;
+          if (h > u * 2.4) html += `<div class="ch-in ${p.outlook ? 'outlook' : ''} ${i === 0 ? 'dark' : ''}" style="left:${cx(i)}px;top:${yTop + h / 2}px;--k:${k}"><b>${esc(p.label)}</b> ${p.max != null ? `${fmt(p.value)}–${fmt(p.max)}` : fmt(v)}</div>`;
+          // the outlook range shows in the segment label and the total (a whisker of a few pixels would only look like noise)
+          acc += v; k++;
+        });
+        html += `<div class="ch-total" style="left:${cx(i)}px;top:${y(top(b))}px;--k:${k}">${esc(b.total || '€' + fmt(sum(b)) + ' bn')}</div>`;
+        html += `<div class="ch-xlab" style="left:${cx(i)}px;top:${y(0)}px"><b>${esc(b.label)}</b>${b.note ? `<span>${esc(b.note)}</span>` : ''}</div>`;
+      });
+      box.innerHTML = `<svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc((sl.title || '') + ': ' + bars.map(b => `${b.label} ${b.total || fmt(sum(b))}`).join(', '))}">${svg}</svg>${html}
+        <div class="ch-unit" style="left:${padL - u * .7}px;top:${padT - u * 2.2}px">${esc(sl.unit || '')}</div>`;
+    }
+
     // ---------- TUG OF WAR: Team Debit vs Team Credit ----------
     // The presenter starts a round (H). The projector runs it: 3-2-1, then "PULL!" for `seconds`, then it freezes
     // the score. Phones tap; the rope follows the share of pulls. H again starts a rematch.
@@ -906,6 +951,21 @@
             ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
           </div>`;
         }).join('')}</div>`;
+      } else if (sl.type === 'chart') {
+        T2.innerHTML = head();
+        const co = sl.callout || {};
+        C.innerHTML = `<div class="s-chart">
+          <div class="card ch-card st" style="--i:0"><div class="ch-box" id="chBox"></div></div>
+          <div class="ch-side st" style="--i:1">
+            ${co.badge ? `<div class="ch-badge">${TROPHY}<span>${esc(co.badge)}</span></div>` : ''}
+            ${co.value ? `<div class="ch-big">${esc(co.value)}</div>` : ''}
+            ${co.label ? `<div class="ch-biglab">${esc(co.label)}</div>` : ''}
+            ${(co.points || []).map(t => `<p class="ch-pt">${ph(t)}</p>`).join('')}
+            <div class="ch-legend"><span><i class="sw" style="background:linear-gradient(90deg, ${CHART_COLORS[0]} 50%, ${CHART_COLORS[1]} 50%)"></i>Reported</span><span><i class="sw hatch"></i>Outlook</span></div>
+          </div>
+        </div>`;
+        $('source').textContent = sl.source || '';
+        requestAnimationFrame(() => drawBarChart(sl));
       } else if (sl.type === 'tug') {
         buildTug(s);
       } else if (sl.type === 'kudos') {
@@ -1668,6 +1728,7 @@
       if (!latest) return;
       if (latest.stage === 'question') layoutCloud(latest);
       if (latest.stage === 'roadmap') { timers.forEach(clearTimeout); timers = []; drawRoadmap(latest.roadmap); }
+      if (latest.stage === 'slide' && latest.slide && latest.slide.type === 'chart') drawBarChart(latest.slide);
     });
     document.fonts && document.fonts.ready.then(() => latest && latest.stage === 'question' && layoutCloud(latest));
 
