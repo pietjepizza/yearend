@@ -1,7 +1,7 @@
 // Builds the public GitHub Pages site into docs/. The pages hold the app only, never the content:
 //   index.html      landing page
 //   presenter.html  presenter screen: asks for the presenter key, then loads the content from Supabase
-//                   (presenter.html#notes is the presenter view with speaker notes)
+//                   (presenter.html#notes is the presenter view with speaker notes, also the phone remote)
 //   phone.html      phone view: loads the poll questions with the join code that the QR code carries
 //   simulator.html  presenter screen + phones + control panel, after the presenter key
 //   vendor/         supabase-js, hosted alongside so the day does not depend on a CDN
@@ -11,6 +11,15 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const QRCode = require('qrcode');
+
+// A QR code as inline SVG (for the phone remote card on the landing page; the link holds no secret).
+function qrSvg(text) {
+  const q = QRCode.create(text, { errorCorrectionLevel: 'M' }), n = q.modules.size, d = q.modules.data;
+  let p = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (d[r * n + c]) p += `M${c} ${r}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n} ${n}" role="img" aria-label="QR code for the phone remote"><path d="${p}" fill="#0b0b3b" shape-rendering="crispEdges"/></svg>`;
+}
 
 const root = path.join(__dirname, '..');
 const pagesUrl = (process.env.PAGES_URL || 'https://pietjepizza.github.io/yearend/').replace(/\/?$/, '/');
@@ -57,7 +66,7 @@ const vendor = path.join(out, 'vendor'), umd = path.join(root, 'node_modules', '
 fs.mkdirSync(vendor, { recursive: true });
 for (const f of fs.readdirSync(umd)) if (f.endsWith('.js')) fs.copyFileSync(path.join(umd, f), path.join(vendor, f));
 fs.writeFileSync(path.join(vendor, 'LICENSE-supabase-js.txt'), 'supabase-js is MIT licensed: https://github.com/supabase/supabase-js/blob/master/LICENSE\n');
-fs.writeFileSync(path.join(out, 'index.html'), page(fs.readFileSync(path.join(root, 'simulator', 'landing.html'), 'utf8')));
+fs.writeFileSync(path.join(out, 'index.html'), page(fs.readFileSync(path.join(root, 'simulator', 'landing.html'), 'utf8').replace('<!-- REMOTE_QR -->', qrSvg(pagesUrl + 'presenter.html#notes'))));
 fs.writeFileSync(path.join(out, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
 fs.writeFileSync(path.join(out, '.nojekyll'), '');
 

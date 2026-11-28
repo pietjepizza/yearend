@@ -11,7 +11,7 @@ The whole all-hands runs from this app: slides, live anonymous polls that race a
 3. Press **F** (or F11, or Ctrl ⌘ F on a Mac) for full screen.
 4. Click **Reset** twice to clear test votes.
 5. Optional: in the guide, click **Open presenter view**. It opens on your laptop with your speaker notes, the next screen, live counts, a clock and big Next/Back buttons. The projector follows it.
-6. Optional: use your **phone as a clicker**. Open `presenter.html#notes` on the phone and enter the presenter key. **Back**, **Next** and **Reveal** stay at the top while you scroll through your notes. Test it on the venue network first: if it blocks live connections, the big screen follows a couple of seconds later (mobile data avoids that).
+6. Optional: use your **phone as a clicker**. On the start page, scan the QR code on the **Phone remote** card with your phone (or open `presenter.html#notes` on it) and enter the presenter key. **Back**, **Next** and **Reveal** stay at the top while you scroll through your notes. Test it on the venue network first: if it blocks live connections, the big screen follows a couple of seconds later (mobile data avoids that).
 
 | Key | Action |
 | --- | --- |

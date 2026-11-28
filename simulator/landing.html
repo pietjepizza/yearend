@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Landing page for the GitHub Pages site: one deep-blue screen with three ways in. */
+  /* Landing page for the GitHub Pages site: one deep-blue screen with four ways in. */
   :root {
     --bg: #05042a; --panel: rgba(255, 255, 255, .06); --line: rgba(255, 255, 255, .16);
     --fg: #ffffff; --fg-2: rgba(255, 255, 255, .74); --fg-3: rgba(255, 255, 255, .5);
@@ -19,7 +19,8 @@
   h1 { font-family: var(--display); font-weight: 700; font-size: clamp(36px, 6vw, 64px); line-height: 1.02; letter-spacing: -.02em; margin: 12px 0 14px; text-wrap: balance; }
   h1 span { color: var(--sky); }
   .lead { font-size: 18px; line-height: 1.55; color: var(--fg-2); max-width: 62ch; margin: 0 0 36px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 680px) { .cards { grid-template-columns: 1fr; } }
   .card { display: flex; flex-direction: column; gap: 10px; padding: 22px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); color: inherit; text-decoration: none; transition: transform .15s, border-color .15s, background .15s; min-width: 0; }
   .card:hover { transform: translateY(-2px); border-color: rgba(95, 184, 255, .6); background: rgba(255, 255, 255, .09); }
   .card:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; }
@@ -28,6 +29,12 @@
   .card p { margin: 0; color: var(--fg-2); line-height: 1.5; font-size: 15px; }
   .card .go { margin-top: auto; padding-top: 8px; font-weight: 600; color: var(--sky); }
   .tag.live { background: #ff4d6d; color: #fff; }
+  .remote-row { display: flex; align-items: flex-start; gap: 16px; }
+  .remote-row p { flex: 1; }
+  .qr { flex: none; width: 112px; padding: 7px; background: #fff; border-radius: 12px; line-height: 0; box-shadow: 0 0 0 4px rgba(95, 184, 255, .25); }
+  .qr svg { width: 100%; height: auto; display: block; }
+  .qr-hint { display: block; margin-top: 6px; font-size: 12px; color: var(--fg-3); }
+  @media (max-width: 680px) { .qr, .qr-hint { display: none; } }
   .tag { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #05042a; background: var(--sky); border-radius: 999px; padding: 3px 10px; }
   .notes { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .note { border-top: 1px solid var(--line); padding-top: 14px; color: var(--fg-2); font-size: 14px; line-height: 1.6; }
@@ -52,6 +59,15 @@
       <b>Presenter screen</b>
       <p>The real thing, full screen on the projector. Opens with the presenter key. Press ? for the presenter guide.</p>
       <span class="go">Open the presenter screen →</span>
+    </a>
+    <a class="card" href="presenter.html#notes">
+      <span class="tag live">Live</span>
+      <b>Phone remote</b>
+      <div class="remote-row">
+        <p>Your phone as a clicker: Back, Next and Reveal always at the top, with your speaker notes and what comes next. The big screen follows. Needs the presenter key.<span class="qr-hint">Scan the code with your phone.</span></p>
+        <span class="qr" aria-hidden="true"><!-- REMOTE_QR --></span>
+      </div>
+      <span class="go">Open the phone remote →</span>
     </a>
     <a class="card" href="phone.html">
       <span class="tag live">Live</span>
