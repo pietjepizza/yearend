@@ -44,7 +44,7 @@
         for (const [qi, a] of Object.entries(v.answers || {})) add(tok, qi, a);
       }
       if (sim) for (const [bot, ans] of Object.entries(sim.answers)) for (const [qi, a] of Object.entries(ans)) add(bot, qi, a);
-      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], qa: control.qa || DEFAULT.qa, responses };
+      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], qa: control.qa || DEFAULT.qa, tug: control.tug || null, kudosHidden: control.kudosHidden || [], responses };
     }
     const publicState = () => Core.publicState(config, stateObj(), {
       joinUrl, connected: phonesHere + (sim ? sim.connected : 0),
@@ -91,6 +91,19 @@
         qa.done = qa.done.filter(x => x !== id); qa.hidden = qa.hidden.filter(x => x !== id);
         if (what === 'done') qa.done.push(id); else if (what === 'hide') qa.hidden.push(id);
         c.qa = what === 'reset' ? { done: [], hidden: [] } : qa;
+      }
+      else if (a === 'tug') {
+        // "start" (a new round, after a countdown), "go:<id>", "done:<id>:<a>:<b>" (freeze the score), "reset"
+        const [what, id, ta, tb] = String(word || '').split(':');
+        if (what === 'start') c.tug = { id: 'r' + Date.now().toString(36), phase: 'countdown', at: Date.now() };
+        else if (what === 'go' && c.tug && c.tug.id === id && c.tug.phase === 'countdown') c.tug = { ...c.tug, phase: 'go', goAt: Date.now() };
+        else if (what === 'done' && c.tug && c.tug.id === id && c.tug.phase === 'go') c.tug = { ...c.tug, phase: 'done', final: [Number(ta) || 0, Number(tb) || 0] };
+        else if (what === 'reset') delete c.tug;
+        else return;
+      }
+      else if (a === 'kudos') {
+        const [what, id] = String(word || '').split(':');
+        c.kudosHidden = what === 'reset' ? [] : [...new Set([...(c.kudosHidden || []), id])];
       }
       else if (a === 'clear') { const qi = Core.qiAt(config, c.current); if (qi < 0) return; c.cleared[qi] = Date.now(); delete c.revealedQ[qi]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[qi]; }
       else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
@@ -147,6 +160,35 @@
       mine.answers.ask = { ...a, ts: Date.now() };
       return saveMine();
     }
+    // Tug of war: taps are counted locally and written about every 0.7 s, like a vote.
+    const myTeam = Core.teamOf(token);
+    let tugTimer = null;
+    function tugJoin(id) {
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const a = mine.answers.tug;
+      if (a && (a.id === id || (!id && a.id))) return;
+      mine.answers.tug = { id: id || '', team: myTeam, taps: 0, ts: Date.now() };
+      saveMine();
+    }
+    function tugTap(id) {
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const a = mine.answers.tug && mine.answers.tug.id === id ? mine.answers.tug : { id, team: myTeam, taps: 0 };
+      a.taps = Math.min(400, (a.taps || 0) + 1); a.ts = Date.now();
+      mine.answers.tug = a;
+      if (!tugTimer) tugTimer = setTimeout(() => { tugTimer = null; saveMine(); }, 700);
+      return a.taps;
+    }
+    // Kudos: up to five cards per phone.
+    async function sendKudos(to, text, kind) {
+      const t = Core.clean(text, 140), who = Core.clean(to, 40);
+      if (t.length < 3 || !who) return 'short';
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const list = [...((mine.answers.kudos && mine.answers.kudos.list) || [])];
+      if (list.length >= 5) return 'limit';
+      list.push({ id: 'k' + Math.random().toString(36).slice(2, 9), to: who, text: t, kind: Core.clean(kind, 12), ts: Date.now() });
+      mine.answers.kudos = { list, ts: Date.now() };
+      return saveMine();
+    }
     function react(r) {
       if (room) room.emit('react', { r }).catch(() => {});
       if (bc) bc.postMessage({ t: 'react', r });
@@ -156,6 +198,9 @@
       const qi = s.qi, a = mine.answers[qi];
       s.mine = s.stage === 'question' && mine.epoch === control.epoch && a && a.ts > ((control.cleared || {})[qi] || 0) ? a : null;
       s.mineAsk = mine.epoch === control.epoch ? mine.answers.ask || null : null;
+      s.mineTug = mine.epoch === control.epoch ? mine.answers.tug || null : null;
+      s.mineKudos = mine.epoch === control.epoch && mine.answers.kudos ? mine.answers.kudos.list || [] : [];
+      s.myTeam = myTeam;
       return Promise.resolve(s);
     }
 
@@ -280,6 +325,22 @@
         if (bc) bc.postMessage({ t: 'votes', votes: simVotes() });
         emit();
       }
+      const st = Core.steps(config)[Math.max(0, Math.min(LAST, control.current))];
+      if (st && st.slide && st.slide.type === 'tug') {
+        const t = control.tug;
+        for (let k = 0; k < sim.connected; k++) {
+          const bot = (sim.answers['bot' + k] ||= {}), team = Core.teamOf('bot' + k);
+          const a = bot.tug && bot.tug.id === ((t && t.id) || '') ? bot.tug : { id: (t && t.id) || '', team, taps: 0 };
+          if (t && t.phase === 'go') a.taps = Math.min(400, a.taps + ((Math.random() * (team ? 3.4 : 3)) | 0));
+          a.ts = Date.now(); bot.tug = a;
+        }
+        emit();
+      }
+      if (st && st.slide && st.slide.type === 'kudos' && Math.random() < .18) {
+        const demo = st.slide.demo || [], all = Object.values(sim.answers).flatMap(b => (b.kudos && b.kudos.list) || []);
+        const next = demo.find(d => !all.some(x => x.text === d.text));
+        if (next) { const k = (Math.random() * sim.connected) | 0, bot = (sim.answers['bot' + k] ||= {}); bot.kudos = { list: [...((bot.kudos && bot.kudos.list) || []), { id: 'k' + Math.random().toString(36).slice(2, 9), ...next, ts: Date.now() }], ts: Date.now() }; emit(); }
+      }
       const party = stage === 'finale' || stage === 'recap';
       if (Math.random() < (party ? .5 : qi >= 0 ? .14 : .08)) {
         const n = 1 + ((Math.random() * (party ? 4 : 2)) | 0);
@@ -311,7 +372,7 @@
       controlHint: '',
       qrHtml: () => '',
       subscribe(onState, onReact) { subs.state.push(onState); if (onReact) subs.react.push(onReact); emit(); },
-      act, vote, react, getState, ask, upvote,
+      act, vote, react, getState, ask, upvote, tugJoin, tugTap, sendKudos,
       config,
       summary: () => Core.summary(config, stateObj()),
       simulate: role === 'host' && !opts.noSim ? simulate : undefined,

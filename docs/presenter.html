@@ -1073,6 +1073,128 @@ body.notes-mode { background: #07062f; overflow: auto; }
 .race.ranked .pct { font-size: calc(var(--u) * 2.5); }
 .race.ranked .lane:not(.top) .lab { color: var(--fg-2); }
 
+/* ---------- tug of war (presenter) ---------- */
+.tug { flex: 1; display: grid; grid-template-rows: auto 1fr auto; gap: calc(var(--u) * 1.2); min-height: 0; }
+.tug-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: calc(var(--u) * 2); }
+.tug-team { position: relative; padding: calc(var(--u) * 1.1) calc(var(--u) * 1.6); border-radius: var(--r); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 24%, transparent), rgba(255, 255, 255, .03)); border: 1px solid color-mix(in srgb, var(--c) 50%, transparent); transition: box-shadow .5s, border-color .5s, opacity .5s, background .5s; }
+.entering .tug-team { animation: rise .7s var(--ease) both .2s; }
+.tug-team.t1 { text-align: right; }
+.tug-name { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 2.1); color: var(--c); letter-spacing: -.01em; }
+.tug-n { margin-top: calc(var(--u) * .2); }
+.tug-n b { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 4.6); line-height: 1; font-variant-numeric: tabular-nums; }
+.tug-n span { margin-left: .5em; font-size: calc(var(--u) * 1.15); color: var(--fg-2); }
+.tug-p { font-size: calc(var(--u) * 1.05); color: var(--fg-2); }
+.tug-p b { color: var(--fg); }
+.tug-team.pull .tug-n b { animation: grow .38s var(--ease); }
+.tug-crown { display: none; position: absolute; top: calc(var(--u) * -1.3); left: calc(var(--u) * 1.4); align-items: center; gap: .4em; background: var(--gold); color: #1d1300; border-radius: 999px; padding: .15em .9em .15em .5em; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 1.1); }
+.tug-team.t1 .tug-crown { left: auto; right: calc(var(--u) * 1.4); }
+.tug-crown .ico { width: 1.5em; height: auto; }
+.won0 .tug-team.t0, .won1 .tug-team.t1 { border-color: var(--gold); background: linear-gradient(160deg, rgba(255, 196, 0, .28), rgba(255, 255, 255, .04)); box-shadow: 0 0 calc(var(--u) * 3) rgba(255, 196, 0, .45); }
+.won0 .tug-team.t0 .tug-crown, .won1 .tug-team.t1 .tug-crown { display: inline-flex; animation: chipin .5s var(--spring) both .3s; }
+.won0 .tug-team.t1, .won1 .tug-team.t0 { opacity: .5; }
+.tug-mid { text-align: center; min-width: calc(var(--u) * 16); }
+.tug-big { font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 6.4); line-height: 1; font-variant-numeric: tabular-nums; min-height: 1em; transition: color .3s; }
+.tug-big.beat { animation: tugbeat .9s var(--ease); }
+.tug-big.hurry { color: var(--gold); }
+@keyframes tugbeat { 0% { transform: scale(1.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(1); } }
+.tug-msg { margin-top: calc(var(--u) * .4); font-family: var(--display); font-weight: 600; font-size: calc(var(--u) * 1.4); color: var(--fg-2); }
+.tug[data-phase="go"] .tug-msg { color: var(--fg); }
+.tug.won0 .tug-msg, .tug.won1 .tug-msg, .tug.draw .tug-msg { color: var(--gold); font-size: calc(var(--u) * 2); }
+.tug-field { position: relative; min-height: calc(var(--u) * 13); border-radius: var(--r); background: radial-gradient(60% 120% at 50% 50%, rgba(95, 184, 255, .08), transparent 70%), rgba(255, 255, 255, .025); border: 1px solid var(--line); overflow: hidden; }
+.tug-zone { position: absolute; top: 0; bottom: 0; width: 26%; transition: opacity .6s; }
+.tug-zone.z0 { left: 0; background: linear-gradient(90deg, rgba(95, 184, 255, .16), transparent); }
+.tug-zone.z1 { right: 0; background: linear-gradient(270deg, rgba(160, 140, 255, .16), transparent); }
+.won0 .tug-zone.z0, .won1 .tug-zone.z1 { background: linear-gradient(90deg, rgba(255, 196, 0, .22), transparent); }
+.won1 .tug-zone.z1 { background: linear-gradient(270deg, rgba(255, 196, 0, .22), transparent); }
+.tug-line { position: absolute; left: 50%; top: 8%; bottom: 8%; width: 2px; margin-left: -1px; background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .55) 0 calc(var(--u) * .6), transparent 0 calc(var(--u) * 1.2)); }
+.tug-rope { position: absolute; left: 4%; right: 4%; top: 50%; height: 0; transform: translateX(calc(var(--p, 0) * 24%)); }
+.tug-cord { position: absolute; left: 15%; right: 15%; top: calc(var(--u) * -.75); height: calc(var(--u) * 1.5); border-radius: 999px; overflow: hidden; background: repeating-linear-gradient(115deg, #b8915a 0 calc(var(--u) * .45), #e9cc94 calc(var(--u) * .45) calc(var(--u) * .9), #9c7340 calc(var(--u) * .9) calc(var(--u) * 1.2)); background-size: calc(var(--u) * 2.4) 100%; box-shadow: inset 0 calc(var(--u) * -.3) calc(var(--u) * .4) rgba(0, 0, 0, .35), inset 0 calc(var(--u) * .2) calc(var(--u) * .3) rgba(255, 255, 255, .35), 0 calc(var(--u) * .5) calc(var(--u) * 1.2) rgba(0, 0, 20, .5); }
+.tug[data-phase="go"] .tug-cord { animation: ropeflow .5s linear infinite; }
+@keyframes ropeflow { to { background-position: calc(var(--u) * 2.4) 0; } }
+.tug-knot { position: absolute; left: 50%; top: 0; width: 0; height: 0; }
+.tug-knot i { position: absolute; left: calc(var(--u) * -1.2); top: calc(var(--u) * -1.2); width: calc(var(--u) * 2.4); height: calc(var(--u) * 2.4); border-radius: calc(var(--u) * .5); transform: rotate(45deg); background: linear-gradient(135deg, #ffe08a, var(--gold) 55%, #c99400); box-shadow: 0 0 calc(var(--u) * 1.6) rgba(255, 196, 0, .7); }
+.tug-knot::after { content: ''; position: absolute; left: calc(var(--u) * -.35); top: calc(var(--u) * .9); width: calc(var(--u) * .7); height: calc(var(--u) * 3.6); border-radius: 0 0 calc(var(--u) * .2) calc(var(--u) * .2); background: linear-gradient(var(--gold), rgba(255, 196, 0, .2)); transform-origin: 50% 0; animation: ribbon 2.4s ease-in-out infinite; }
+@keyframes ribbon { 50% { transform: rotate(6deg); } }
+.tug-crew { position: absolute; top: 0; transform: translateY(-50%); display: flex; gap: calc(var(--u) * .45); }
+.tug-crew.c0 { left: 0; }
+.tug-crew.c1 { right: 0; flex-direction: row-reverse; }
+.tug-crew i { display: block; width: calc(var(--u) * 3); animation: crewbob 1.8s ease-in-out infinite; animation-delay: calc(var(--i) * -.35s); }
+.tug-crew .orb { width: 100%; display: block; }
+@keyframes crewbob { 50% { transform: translateY(calc(var(--u) * -.35)); } }
+.tug.pull0 .tug-crew.c0 i, .tug.pull1 .tug-crew.c1 i { animation: crewtug .38s var(--ease); }
+.tug.pull1 .tug-crew.c1 i { --dir: 1; }
+@keyframes crewtug { 40% { transform: translateX(calc(var(--u) * -.7 * (1 - 2 * var(--dir, 0)))) scale(1.08); } }
+.tug-foot { display: flex; align-items: center; gap: calc(var(--u) * 1.2); font-size: calc(var(--u) * 1.15); color: var(--fg-2); }
+.tug-foot b { color: var(--fg); }
+.tug-foot .qr { width: calc(var(--u) * 6); flex: none; background: #fff; border-radius: calc(var(--u) * .5); padding: calc(var(--u) * .3); }
+
+/* ---------- kudos wall (presenter) ---------- */
+.kw { flex: 1; display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); gap: calc(var(--u) * 2.6); align-items: center; min-height: 0; }
+.kw-feature { align-self: center; }
+.kw-wall { align-self: stretch; column-count: 3; column-gap: calc(var(--u) * 1.1); overflow: hidden; padding: calc(var(--u) * .6) calc(var(--u) * .4) 0; -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent); mask-image: linear-gradient(180deg, #000 80%, transparent); }
+.kw-join { display: flex; align-items: center; gap: calc(var(--u) * 1.2); padding: calc(var(--u) * .8) calc(var(--u) * 1.2); border-radius: var(--r); background: rgba(12, 10, 80, .6); border: 1px solid var(--line); }
+.kw-join .qr { width: calc(var(--u) * 6.4); flex: none; background: #fff; border-radius: calc(var(--u) * .5); padding: calc(var(--u) * .3); }
+.kw-join b { display: block; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 3.2); line-height: 1; }
+.kw-join span { display: block; font-size: calc(var(--u) * 1.05); color: var(--fg-2); }
+.kw-join small { display: block; margin-top: .3em; font-size: calc(var(--u) * .95); color: var(--sky); font-weight: 600; }
+.kd-card { position: relative; break-inside: avoid; margin: 0 0 calc(var(--u) * 1.1); padding: calc(var(--u) * 1) calc(var(--u) * 1.2) calc(var(--u) * 1.1); border-radius: calc(var(--u) * 1); background: linear-gradient(165deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .04)); border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 calc(var(--u) * .8) calc(var(--u) * 2) rgba(0, 0, 20, .35), inset 0 1px 0 rgba(255, 255, 255, .12); transform: rotate(var(--t, 0deg)); overflow: hidden; transition: box-shadow .5s, border-color .5s; }
+.presenting .kd-card[data-id] { cursor: pointer; }
+.kd-card::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--c, var(--sky)), transparent); }
+.kd-top { display: flex; align-items: center; gap: .6em; margin-bottom: calc(var(--u) * .6); }
+.kd-ico { flex: none; width: calc(var(--u) * 2); height: calc(var(--u) * 2); border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--c, var(--sky)) 22%, transparent); color: var(--c, var(--sky)); }
+.kd-ico .ico { width: 72%; height: auto; }
+.kd-kind { font-family: var(--display); font-weight: 600; font-size: calc(var(--u) * .85); letter-spacing: .12em; text-transform: uppercase; color: var(--c, var(--sky)); }
+.kd-to { font-size: calc(var(--u) * 1); color: var(--fg-2); margin-bottom: calc(var(--u) * .35); }
+.kd-to b { color: var(--fg); font-family: var(--display); font-weight: 600; }
+.kd-text { margin: 0; font-size: calc(var(--u) * 1.15); line-height: 1.4; color: var(--fg); overflow-wrap: anywhere; }
+.kd-card.new { animation: kdin .8s var(--spring) both; }
+@keyframes kdin { from { opacity: 0; transform: translateY(calc(var(--u) * 1.5)) scale(.85) rotate(var(--t, 0deg)); filter: blur(4px); } to { opacity: 1; transform: rotate(var(--t, 0deg)); filter: none; } }
+.kd-card.is-feat { border-color: color-mix(in srgb, var(--c) 75%, transparent); box-shadow: 0 0 calc(var(--u) * 1.8) color-mix(in srgb, var(--c) 45%, transparent), 0 calc(var(--u) * .8) calc(var(--u) * 2) rgba(0, 0, 20, .35); }
+.kd-card.feat { transform: none; margin: 0; padding: calc(var(--u) * 2.4) calc(var(--u) * 2.6) calc(var(--u) * 2.6); border-radius: calc(var(--u) * 1.6); background: radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--c, var(--sky)) 28%, transparent), transparent 60%), linear-gradient(165deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, .05)); border-color: color-mix(in srgb, var(--c, var(--sky)) 55%, transparent); box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 20, .5), 0 0 calc(var(--u) * 4) color-mix(in srgb, var(--c, var(--sky)) 25%, transparent); animation: kdfeat .9s var(--ease) both; }
+.kd-card.feat::after { content: '“'; position: absolute; right: calc(var(--u) * 1.4); top: calc(var(--u) * -1.8); font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 15); line-height: 1; color: var(--c, var(--sky)); opacity: .2; }
+.kd-card.feat .kd-ico { width: calc(var(--u) * 3); height: calc(var(--u) * 3); }
+.kd-card.feat .kd-kind { font-size: calc(var(--u) * 1.05); }
+.kd-card.feat .kd-to { font-size: calc(var(--u) * 1.4); margin: calc(var(--u) * .9) 0 calc(var(--u) * .7); }
+.kd-card.feat .kd-text { font-family: var(--display); font-weight: 600; font-size: calc(var(--u) * 2.5); line-height: 1.3; letter-spacing: -.01em; }
+@keyframes kdfeat { from { opacity: 0; transform: translateY(calc(var(--u) * 1)) scale(.97); filter: blur(6px); } }
+.kd-invite .kd-text { font-size: calc(var(--u) * 3); margin-bottom: calc(var(--u) * .8); }
+.kd-ghost { border-style: dashed; background: transparent; box-shadow: none; }
+.kd-ghost::before { display: none; }
+.kd-ghost i { display: block; height: calc(var(--u) * .8); border-radius: 999px; background: rgba(255, 255, 255, .08); margin: calc(var(--u) * .5) 0 calc(var(--u) * .7); }
+.kd-ghost i:nth-child(1) { width: 40%; } .kd-ghost i:nth-child(2) { width: 88%; } .kd-ghost i:nth-child(3) { width: 64%; }
+.kd-ghost:nth-child(3n + 2) { padding-bottom: calc(var(--u) * 3); }
+
+/* ---------- phone: tug of war and kudos ---------- */
+.tg { text-align: center; padding-top: 8px; }
+.tg-team { display: inline-block; padding: 6px 16px; border-radius: 999px; background: color-mix(in srgb, var(--c) 22%, transparent); border: 1px solid var(--c); color: #fff; font: 700 14px var(--display); letter-spacing: .08em; text-transform: uppercase; }
+.tg-phase { font: 700 30px/1.15 var(--display); margin: 18px 0 6px; }
+.tg-sub { color: var(--fg-2); margin: 0; }
+.tg-btn { width: min(68vw, 280px); aspect-ratio: 1; border-radius: 50%; border: 0; margin: 26px auto 12px; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .55), transparent 42%), var(--c); color: #05042a; font: 800 42px var(--display); letter-spacing: .02em; box-shadow: 0 0 0 10px color-mix(in srgb, var(--c) 25%, transparent), 0 20px 60px color-mix(in srgb, var(--c) 50%, transparent); touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+.tg-btn:disabled { filter: grayscale(.6) brightness(.55); box-shadow: none; cursor: default; }
+.tg-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.tg[data-phase="go"] .tg-btn { animation: tgpulse 1s ease-in-out infinite; }
+.tg-btn.hit { animation: tghit .14s ease-out !important; }
+@keyframes tgpulse { 50% { box-shadow: 0 0 0 18px color-mix(in srgb, var(--c) 18%, transparent), 0 20px 60px color-mix(in srgb, var(--c) 60%, transparent); } }
+@keyframes tghit { 50% { transform: scale(.93); } }
+.tg-count { color: var(--fg-2); }
+.tg-count b { font: 700 34px var(--display); color: #fff; margin-right: 6px; }
+.kd-kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 6px; }
+.kd-k { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .05); color: #fff; font: 600 14px var(--body); text-align: left; cursor: pointer; }
+.kd-k .ico { width: 22px; height: auto; flex: none; color: var(--c); }
+.kd-k.sel { border-color: var(--c); background: color-mix(in srgb, var(--c) 20%, transparent); }
+.kd-k:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.kd-form label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 6px; }
+.kd-form input, .kd-form textarea { width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, .07); color: #fff; padding: 12px; font: 500 16px/1.4 var(--body); resize: none; }
+.kd-form input:focus, .kd-form textarea:focus { outline: 2px solid var(--sky); outline-offset: 1px; }
+.kd-sendbtn { width: 100%; margin-top: 14px; border: 0; border-radius: 14px; padding: 14px; background: var(--sky); color: #05042a; font: 700 17px var(--display); cursor: pointer; }
+.kd-sendbtn:disabled { opacity: .45; cursor: default; }
+.kd-mine { margin: 22px 0 24px; display: flex; flex-direction: column; gap: 8px; }
+.kd-mine .kd-card { transform: none; margin: 0; }
+.kd-mine .kd-text { font-size: 15px; }
+.kd-mine .kd-to { font-size: 13px; }
+.kd-mine .kd-kind { font-size: 11px; }
+.kd-mine .kd-ico { width: 26px; height: 26px; }
+
 </style>
 <div id="app"></div>
 <template id="qr-template"></template>
@@ -1214,6 +1336,30 @@ body.notes-mode { background: #07062f; overflow: auto; }
     return [...list.values()].sort((p, q) => (p.done - q.done) || (q.votes - p.votes) || (p.ts - q.ts));
   }
 
+  // Tug of war: every phone is on team 0 or 1, decided by its anonymous token (about half and half).
+  // responses.tug[token] = { id: round id, team, taps }. state.tug = { id, phase: countdown|go|done, at, goAt, final }.
+  const teamOf = t => { let h = 7; for (const ch of String(t || '')) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h) % 2; };
+  function tugState(byToken, tug) {
+    const t = tug || { phase: 'ready' };
+    const players = [0, 0], taps = [0, 0];
+    for (const a of Object.values(byToken || {})) {
+      if (!a) continue;
+      const team = a.team === 1 ? 1 : 0;
+      players[team]++;
+      if (t.id && a.id === t.id) taps[team] += Math.max(0, Math.min(400, Number(a.taps) || 0));
+    }
+    return { ...t, players, taps: Array.isArray(t.final) ? t.final : taps };
+  }
+
+  // Kudos wall: responses.kudos[token] = { list: [{ id, to, text, kind, ts }] }; the presenter can hide cards.
+  function kudosList(byToken, hidden) {
+    const hide = new Set(hidden || []), out = [];
+    for (const a of Object.values(byToken || {})) for (const k of (a && a.list) || []) {
+      if (k && k.id && k.text && !hide.has(k.id)) out.push({ id: String(k.id).slice(0, 24), to: clean(k.to, 40), text: clean(k.text, 140), kind: clean(k.kind, 12), ts: Number(k.ts) || 0 });
+    }
+    return out.sort((p, q) => q.ts - p.ts);
+  }
+
   // Everything worth keeping after the event, for the downloadable summary.
   function summary(config, state) {
     const Q = config.questions;
@@ -1222,6 +1368,8 @@ body.notes-mode { background: #07062f; overflow: auto; }
       participants: new Set(Object.entries(state.responses || {}).filter(([k]) => k !== 'ask').flatMap(([, r]) => Object.keys(r || {}))).size,
       questions: Q.map((q, i) => ({ id: q.id, title: q.title, type: q.type || 'poll', group: groupOf(q), pledge: q.pledge, options: q.options, ...analyse(q, (state.responses || {})[i], state.hidden) })),
       qa: qaList((state.responses || {}).ask, state.qa),
+      kudos: kudosList((state.responses || {}).kudos, state.kudosHidden),
+      tug: state.tug && state.tug.final ? { teams: ((config.show || []).find(st => st.type === 'tug') || {}).teams || ['Debit', 'Credit'], final: state.tug.final } : null,
     };
   }
   const clampIndex = (config, i) => Math.max(0, Math.min(lastIndex(config), Number(i) || 0));
@@ -1265,8 +1413,11 @@ body.notes-mode { background: #07062f; overflow: auto; }
     if (step.kind === 'slide') {
       // a "nominees" slide shows the candidates of the award vote it names
       const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
-      const qa = step.slide.type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
-      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, participants };
+      const type = step.slide.type;
+      const qa = type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
+      const tug = type === 'tug' ? tugState((state.responses || {}).tug, state.tug) : undefined;
+      const kudos = type === 'kudos' ? kudosList((state.responses || {}).kudos, state.kudosHidden) : undefined;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, tug, kudos, participants };
     }
     if (step.kind !== 'question') {
       const items = Q.map((q, i) => groupOf(q) !== 'main' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
@@ -1281,7 +1432,7 @@ body.notes-mode { background: #07062f; overflow: auto; }
     };
   }
 
-  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
+  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, teamOf, tugState, kudosList, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
 });
 
 </script>
@@ -1378,6 +1529,8 @@ body.notes-mode { background: #07062f; overflow: auto; }
         team: '<circle cx="18" cy="10" r="4.5"/><path d="M8 29 c0-6.5 4.5-10 10-10 s10 3.5 10 10"/><circle class="h" cx="32" cy="11" r="4"/><path class="h" d="M28 20.5 c1.2-.6 2.6-.9 4-.9 c5 0 8.5 3.2 8.5 9.4"/>',
         trophy: '<path d="M16 4 h16 v7 a8 8 0 0 1 -16 0 z"/><path d="M16 7 h-4.5 a4.5 4.5 0 0 0 5 6.5 M32 7 h4.5 a4.5 4.5 0 0 1 -5 6.5 M24 19 v5 M18 28.5 h12 M20 24.5 h8"/><path class="h" d="M24 7.5 l1.2 2.4 2.6.4 -1.9 1.8 .5 2.6 -2.4-1.3 -2.4 1.3 .5-2.6 -1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/>',
         snow: `<path class="h" d="${snowflake(24, 16, 13)}" stroke-width="2.2"/>`,
+        heart: '<path d="M24 30 C 14 23, 8 18, 8 11.5 A 6.5 6.5 0 0 1 24 8 A 6.5 6.5 0 0 1 40 11.5 C 40 18, 34 23, 24 30 Z"/><path class="h" d="M15 11.5 a3 3 0 0 1 3-3"/>',
+        boost: '<path d="M27 3 L12 19 h10 l-4 11 L36 13 h-10 z"/><path class="h" d="M8 8 l3 2 M40 22 l-3-2" />',
       };
       return svg('i-help help-' + arg, bodies[arg] || bodies.target);
     }
@@ -1866,10 +2019,10 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
               <table class="help-keys">
                 <tr><td><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></td><td>Next screen (phones follow)</td></tr>
                 <tr><td><kbd>←</kbd> <kbd>PgUp</kbd></td><td>Previous screen</td></tr>
-                <tr><td><kbd>H</kbd></td><td>Reveal the results, or hide them again. Award: the drumroll. Timeline: skip the animation.</td></tr>
+                <tr><td><kbd>H</kbd></td><td>Reveal the results, or hide them again. Award: the drumroll. Timeline: skip the animation. Tug of war: start, and again for a rematch.</td></tr>
                 <tr><td><kbd>F</kbd></td><td>Full screen on or off</td></tr>
                 <tr><td><kbd>S</kbd></td><td>Snow on or off</td></tr>
-                <tr><td><kbd>U</kbd></td><td>Bring back removed words and Q&amp;A questions</td></tr>
+                <tr><td><kbd>U</kbd></td><td>Bring back removed words, Q&amp;A questions and kudos</td></tr>
                 <tr><td><kbd>C</kbd> then <kbd>C</kbd></td><td>Clear the votes of the current question</td></tr>
                 <tr><td><kbd>?</kbd> / <kbd>Esc</kbd></td><td>Open or close this guide</td></tr>
               </table>
@@ -1878,6 +2031,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
                 <li>Move the mouse to show the bar at the bottom: <i>←</i> <i>→</i>, <i>Reveal now</i>, <i>Snow</i>, <i>Reset</i> (click twice), <i>Full screen</i> and <i>Guide</i>.</li>
                 <li>Click a word in the word cloud to remove it.</li>
                 <li>Q&amp;A: click a question once to mark it answered, again to hide it.</li>
+                <li>Kudos wall: click a card to remove it.</li>
               </ul>
             </section>
             <section>
@@ -1951,7 +2105,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
   }
   function kindOf(s) {
     if (s.stage === 'question') return s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in poll ${s.qn} of ${s.qtotal}` : `Poll ${s.qn} of ${s.qtotal}`;
-    if (s.stage === 'slide') return s.slide && s.slide.type === 'qa' ? 'Live Q&A' : 'Slide';
+    if (s.stage === 'slide') return s.slide && s.slide.type === 'qa' ? 'Live Q&A' : s.slide && s.slide.type === 'tug' ? 'Tug of war' : s.slide && s.slide.type === 'kudos' ? 'Kudos wall' : 'Slide';
     return KIND[s.stage] || s.stage;
   }
 
@@ -1997,6 +2151,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
 
     function act(a, arg) {
       if (!T.canControl) { $('nvStatus').textContent = T.controlHint || 'Enter the presenter key to control the show'; return; }
+      if (a === 'reveal' && latest && latest.tug) { if (!['countdown', 'go'].includes(latest.tug.phase)) T.act('tug', 'start'); return; }
       if (a === 'reveal') a = latest && latest.revealed ? 'conceal' : 'reveal';
       T.act(a, arg);
     }
@@ -2025,6 +2180,8 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         parts.push(`<span>${s.revealed ? 'Results shown' : 'Results hidden'}</span>`);
         if (s.revealed && s.stats.n) parts.push(`<span>Top: <b>${esc(plain(s.stats.top))}</b> (${s.stats.topPct}%)</span>`);
       } else if (s.stage === 'lobby') parts.push(`<span><b>${s.connected || 0}</b> phones connected</span>`);
+      else if (s.tug) parts.push(`<span>Phase: <b>${esc(s.tug.phase || 'ready')}</b></span>`, `<span>Players <b>${s.tug.players[0]}</b> vs <b>${s.tug.players[1]}</b></span>`, `<span>Pulls <b>${s.tug.taps[0]}</b> vs <b>${s.tug.taps[1]}</b></span>`);
+      else if (s.kudos) parts.push(`<span><b>${s.kudos.length}</b> kudos</span>`, ...s.kudos.slice(0, 3).map(k => `<span class="nv-q">For ${esc(k.to)} · ${esc(k.text)}</span>`));
       else if (s.qa) parts.push(`<span><b>${s.qa.length}</b> question${s.qa.length === 1 ? '' : 's'}</span>`, ...s.qa.slice(0, 3).map(x => `<span class="nv-q">▲ ${x.votes} · ${esc(x.text)}</span>`));
       else if (s.participants != null) parts.push(`<span><b>${s.participants}</b> people have voted so far</span>`);
       $('nvLive').innerHTML = parts.join('');
@@ -2038,8 +2195,8 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       $('nvTitle').textContent = plain(titleOf(s));
       $('nvNotes').innerHTML = s.notes ? esc(s.notes).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>').replace(/\n/g, '<br>') : '<span class="nv-empty">No notes for this screen. Add them as "notes" in the running order.</span>';
       $('nvNext').textContent = s.next || 'End of this part of the show';
-      $('nvReveal').hidden = s.stage !== 'question';
-      $('nvReveal').textContent = s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
+      $('nvReveal').hidden = s.stage !== 'question' && !s.tug;
+      $('nvReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch (H)' : 'Start the tug of war (H)') : s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
       liveInfo(s);
       // the running order, built once from the content
       const steps = T.config ? PulseCore.steps(T.config) : null;
@@ -2062,7 +2219,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       if (help && help.isOpen()) { if (k === 'escape') help.close(); return; }
       if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); act('next'); }
       else if (['arrowleft', 'pageup'].includes(k)) act('prev');
-      else if (k === 'h' && latest && latest.stage === 'question') act('reveal');
+      else if (k === 'h' && latest && (latest.stage === 'question' || latest.tug)) act('reveal');
       else if (k === 'enter' && e.target.closest && e.target.closest('li[data-i]')) act('goto', Number(e.target.closest('li[data-i]').dataset.i));
     });
     T.onStatus = msg => ($('nvStatus').textContent = msg || '');
@@ -2193,8 +2350,8 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
-      $('ctlReveal').hidden = s.stage !== 'question';
-      $('ctlReveal').textContent = s.revealed ? 'Hide results' : 'Reveal now';
+      $('ctlReveal').hidden = s.stage !== 'question' && !s.tug;
+      $('ctlReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch' : 'Start the tug of war') : s.revealed ? 'Hide results' : 'Reveal now';
       if (meta.pop) { pulse.spike(1); flashLights(); }
 
       const v = s.stage === 'question' || s.stage === 'slide' ? s.stage + s.index : s.stage;
@@ -2233,10 +2390,193 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       $('deck').dataset.layout = s.stage === 'slide' ? s.slide.type : '';
       // festive screens (opening, sections, joining, the award, the finale) get the full effects; the rest stays calm
       const layout = s.stage === 'slide' ? (s.slide || {}).type : '';
-      const festive = s.stage === 'lobby' || s.stage === 'finale' || ['title', 'section'].includes(layout) || (s.stage === 'question' && s.question.type === 'award');
+      const festive = s.stage === 'lobby' || s.stage === 'finale' || ['title', 'section', 'tug'].includes(layout) || (s.stage === 'question' && s.question.type === 'award');
       $('deck').dataset.mood = festive ? 'festive' : 'calm';
       snow.setIntensity(festive ? ({ lobby: 1, finale: 1.8 }[s.stage] ?? .9) : s.stage === 'recap' ? .5 : (s.roadmap && s.roadmap.style) === 'peak' && s.stage === 'roadmap' ? .8 : .15);
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
+    }
+
+    // ---------- TUG OF WAR: Team Debit vs Team Credit ----------
+    // The presenter starts a round (H). The projector runs it: 3-2-1, then "PULL!" for `seconds`, then it freezes
+    // the score. Phones tap; the rope follows the share of pulls. H again starts a rematch.
+    const TUG_COLORS = ['#5fb8ff', '#a08cff'];
+    let tugRun = {}, tugPos = 0, tugAim = 0, tugRaf = 0, tugLast = [0, 0];
+    function buildTug(s) {
+      const sl = s.slide || {}, teams = sl.teams || ['Debit', 'Credit'], secs = sl.seconds || 20;
+      $('titleblock').innerHTML = `${bouncy(sl.title || 'Tug of war', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}`;
+      const crew = k => Array.from({ length: 5 }, (_, i) => `<i style="--i:${i}">${orb(TUG_COLORS[k])}</i>`).join('');
+      const team = k => `
+        <div class="tug-team t${k}" id="tugT${k}" style="--c:${TUG_COLORS[k]}">
+          <div class="tug-name">Team ${esc(teams[k])}</div>
+          <div class="tug-n"><b id="tugN${k}" data-v="0">0</b><span>pulls</span></div>
+          <div class="tug-p"><b id="tugP${k}">0</b> players</div>
+          <div class="tug-crown">${TROPHY}<span>Winner</span></div>
+        </div>`;
+      $('content').innerHTML = `
+        <div class="tug" id="tug" data-phase="ready">
+          <div class="tug-head">${team(0)}
+            <div class="tug-mid"><div class="tug-big" id="tugBig">${secs}</div><div class="tug-msg" id="tugMsg">Get your thumbs ready</div></div>
+          ${team(1)}</div>
+          <div class="tug-field">
+            <div class="tug-zone z0"></div><div class="tug-zone z1"></div><div class="tug-line"></div>
+            <div class="tug-rope" id="tugRope">
+              <div class="tug-crew c0" style="--c:${TUG_COLORS[0]}">${crew(0)}</div>
+              <div class="tug-cord"><i></i></div>
+              <div class="tug-knot"><i></i></div>
+              <div class="tug-crew c1" style="--c:${TUG_COLORS[1]}">${crew(1)}</div>
+            </div>
+          </div>
+          <div class="tug-foot"><div class="qr">${T.qrHtml()}</div><span>Your phone already picked your team. When the screen says <b>PULL!</b>, tap as fast as you can.</span></div>
+        </div>`;
+      $('source').textContent = T.canControl ? 'Press H to start · H again for a rematch' : 'Tug of war';
+      $('ticker').innerHTML = '';
+      tugRun = {}; tugPos = tugAim = 0; tugLast = [0, 0];
+      cancelAnimationFrame(tugRaf);
+      const loop = () => {
+        const rope = $('tugRope');
+        if (!rope) return;
+        tugPos += (tugAim - tugPos) * .07;
+        rope.style.setProperty('--p', tugPos.toFixed(4));
+        tugRaf = requestAnimationFrame(loop);
+      };
+      loop();
+    }
+    function tugAct(what) { if (T.canControl) T.act('tug', what); }
+    function paintTug(s) {
+      const el = $('tug');
+      if (!el) return;
+      const t = s.tug, sl = s.slide || {}, teams = sl.teams || ['Debit', 'Credit'], secs = sl.seconds || 20;
+      const [a, b] = t.taps;
+      el.dataset.phase = t.phase || 'ready';
+      FX.tween($('tugN0'), a); FX.tween($('tugN1'), b);
+      $('tugP0').textContent = t.players[0]; $('tugP1').textContent = t.players[1];
+      [a, b].forEach((v, k) => { if (v > tugLast[k]) { const tm = $('tugT' + k); tm.classList.remove('pull'); void tm.offsetWidth; tm.classList.add('pull'); el.classList.toggle('pull' + k, true); setTimeout(() => el.classList.remove('pull' + k), 380); } });
+      tugLast = [a, b];
+      const total = a + b;
+      if (t.phase !== 'done') tugAim = total ? Math.max(-1, Math.min(1, ((b - a) / Math.max(total, 24)) * 1.8)) : 0;
+      if (!t.id || t.phase === 'ready') {
+        el.classList.remove('won0', 'won1', 'draw');
+        $('tugBig').textContent = secs;
+        $('tugMsg').textContent = t.players[0] + t.players[1] ? `${t.players[0] + t.players[1]} players on the rope` : 'Get your thumbs ready';
+      } else if (t.phase === 'countdown' && tugRun.id !== t.id) {
+        tugRun = { id: t.id };
+        el.classList.remove('won0', 'won1', 'draw');
+        $('tugMsg').textContent = 'Get ready…';
+        [3, 2, 1].forEach((n, i) => later(() => { if (latest.tug && latest.tug.id === t.id && latest.tug.phase === 'countdown') { const big = $('tugBig'); big.textContent = n; big.classList.remove('beat'); void big.offsetWidth; big.classList.add('beat'); pulse.spike(.6); } }, i * 1000));
+        later(() => tugAct('go:' + t.id), 3000);
+      } else if (t.phase === 'go') {
+        if (tugRun.go !== t.id) {
+          tugRun = { id: t.id, go: t.id };
+          slam('PULL!'); flashLights();
+          const tick = () => {
+            const cur = latest && latest.tug;
+            if (!$('tugBig') || !cur || cur.id !== t.id || cur.phase !== 'go') return;
+            const left = Math.max(0, secs * 1000 - (Date.now() - (cur.goAt || Date.now())));
+            $('tugBig').textContent = Math.ceil(left / 1000);
+            $('tugBig').classList.toggle('hurry', left < 5500);
+            if (left > 0) later(tick, 200);
+            else tugAct(`done:${t.id}:${cur.taps[0]}:${cur.taps[1]}`);
+          };
+          tick();
+        }
+        $('tugMsg').textContent = a === b ? 'Neck and neck!' : `Team ${teams[a > b ? 0 : 1]} is pulling ahead!`;
+      } else if (t.phase === 'done' && tugRun.done !== t.id) {
+        tugRun = { id: t.id, go: t.id, done: t.id };
+        const w = a === b ? -1 : a > b ? 0 : 1;
+        tugAim = w < 0 ? 0 : w ? 1.15 : -1.15;
+        el.classList.add(w < 0 ? 'draw' : 'won' + w);
+        $('tugBig').textContent = '';
+        $('tugBig').classList.remove('hurry');
+        $('tugMsg').textContent = w < 0 ? `A draw: ${a} – ${b}` : `${Math.max(a, b)} to ${Math.min(a, b)}`;
+        slam(w < 0 ? "IT'S A DRAW!" : `TEAM ${String(teams[w]).toUpperCase()} WINS!`); flashLights();
+        $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+        later(() => { confetti.burst('cannons'); flashLights(); fireworks.start(); }, 500);
+        later(() => fireworks.stop(), 6500);
+      }
+    }
+
+    // ---------- KUDOS WALL ----------
+    // Colleagues thank each other from their phones. One card at a time is in the spotlight (a new one goes there
+    // straight away); the rest form a living wall. The presenter can remove a card with a click (U brings it back).
+    const KUDOS_KINDS = {
+      thanks: { label: 'Thank you', icon: 'help:heart', c: '#5fb8ff' },
+      hero: { label: 'Hero of the year', icon: 'help:trophy', c: '#ffc400' },
+      team: { label: 'Team player', icon: 'help:team', c: '#a08cff' },
+      calm: { label: 'Calm in the storm', icon: 'help:snow', c: '#8fd3ff' },
+      boost: { label: 'Energy boost', icon: 'help:boost', c: '#2fc6e0' },
+    };
+    const kudosKind = k => KUDOS_KINDS[k] || KUDOS_KINDS.thanks;
+    const kudosTilt = id => { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) | 0; return ((Math.abs(h) % 7) - 3) * .4; };
+    const kudosCard = (k, cls = '') => {
+      const m = kudosKind(k.kind);
+      return `<div class="kd-card ${cls}" data-id="${esc(k.id)}" style="--c:${m.c};--t:${kudosTilt(k.id)}deg">
+        <div class="kd-top"><span class="kd-ico">${icon(m.icon)}</span><span class="kd-kind">${esc(m.label)}</span></div>
+        <div class="kd-to">For <b>${esc(k.to)}</b></div>
+        <p class="kd-text">${esc(k.text)}</p>
+      </div>`;
+    };
+    let kwKey = null, kwFeat = 0, kwSeen = new Set(), kwFeatId = '', kwSince = 0;
+    function buildKudos(s) {
+      const sl = s.slide || {};
+      $('titleblock').innerHTML = `
+        <div class="pk-head">
+          <div>${bouncy(sl.title || 'Kudos wall', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}</div>
+          <div class="kw-join st" style="--i:1"><div class="qr">${T.qrHtml()}</div><div><b id="kwN" data-v="0">0</b><span>kudos sent</span><small>Scan to send one</small></div></div>
+        </div>`;
+      $('content').innerHTML = `<div class="kw" id="kw"><div class="kw-feature" id="kwFeature"></div><div class="kw-wall" id="kwWall"></div></div>`;
+      $('source').textContent = T.canControl ? 'Click a card to remove it · U brings removed cards back' : 'Kudos wall';
+      $('ticker').innerHTML = '';
+      kwKey = null; kwFeat = 0; kwSeen = new Set(); kwFeatId = ''; kwSince = Date.now();
+      // every card gets about seven seconds in the spotlight; a new kudos starts its own seven seconds
+      const rotate = () => { if (!$('kw')) return; if (Date.now() - kwSince > 7000) { kwFeat++; showFeature(latest, true); kwSince = Date.now(); } later(rotate, 500); };
+      later(rotate, 500);
+      $('kw').addEventListener('click', e => {
+        const c = e.target.closest('.kd-card[data-id]');
+        if (c && T.canControl) T.act('kudos', 'hide:' + c.dataset.id);
+      });
+    }
+    function showFeature(s, rotating) {
+      const list = (s && s.kudos) || [], box = $('kwFeature');
+      if (!box || !list.length) return;
+      const f = list[kwFeat % list.length];
+      if (f.id === kwFeatId) return;
+      kwFeatId = f.id;
+      kwSince = Date.now();
+      box.innerHTML = kudosCard(f, 'feat');
+      document.querySelectorAll('#kwWall .kd-card').forEach(c => c.classList.toggle('is-feat', c.dataset.id === f.id));
+      if (!rotating) pulse.spike(.6);
+    }
+    function paintKudos(s) {
+      const list = s.kudos || [], wall = $('kwWall');
+      if (!wall) return;
+      FX.tween($('kwN'), list.length);
+      const key = list.map(k => k.id).join(',');
+      if (key === kwKey) return;
+      kwKey = key;
+      if (!list.length) {
+        $('kwFeature').innerHTML = `<div class="kd-card feat kd-invite"><div class="kd-top"><span class="kd-ico">${icon('help:heart')}</span><span class="kd-kind">Kudos</span></div>
+          <p class="kd-text">Who deserves a thank-you?</p><div class="kd-to">Scan the code and send a kudos to a colleague or a whole team. It appears right here.</div></div>`;
+        wall.innerHTML = [0, 1, 2, 3, 4, 5].map(i => `<div class="kd-card kd-ghost" style="--t:${(i % 3 - 1) * .5}deg"><i></i><i></i><i></i></div>`).join('');
+        kwFeatId = '';
+        return;
+      }
+      wall.querySelectorAll('.kd-ghost').forEach(g => g.remove());
+      const fresh = list.filter(k => !kwSeen.has(k.id));
+      const had = kwSeen.size > 0;
+      fresh.forEach(k => kwSeen.add(k.id));
+      // the wall: the latest cards, keeping the ones already there
+      const old = new Map([...wall.querySelectorAll('.kd-card[data-id]')].map(c => [c.dataset.id, c]));
+      const shown = list.slice(0, 14);
+      shown.forEach(k => {
+        let c = old.get(k.id);
+        if (!c) { wall.insertAdjacentHTML('beforeend', kudosCard(k, had ? 'new' : '')); c = wall.lastElementChild; }
+        wall.appendChild(c);
+        old.delete(k.id);
+      });
+      old.forEach(c => c.remove());
+      // a new kudos goes straight into the spotlight
+      if (had && fresh.length) { kwFeat = list.indexOf(fresh[0]); kwFeatId = ''; }
+      showFeature(s, !(had && fresh.length));
     }
 
     // ---------- live Q&A board ----------
@@ -2284,6 +2624,8 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
 
     function paint(s, meta) {
       if (s.stage === 'slide' && s.qa) paintQa(s);
+      if (s.stage === 'slide' && s.tug) paintTug(s);
+      if (s.stage === 'slide' && s.kudos) paintKudos(s);
       if (s.stage === 'lobby') paintLobby(s);
       else if (s.stage === 'question') paintQuestion(s, meta);
       else if (s.stage === 'recap') paintRecap(s);
@@ -2797,6 +3139,10 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
             ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
           </div>`;
         }).join('')}</div>`;
+      } else if (sl.type === 'tug') {
+        buildTug(s);
+      } else if (sl.type === 'kudos') {
+        buildKudos(s);
       } else if (sl.type === 'nominees') {
         T2.innerHTML = head();
         const list = s.nominees || [];
@@ -3519,6 +3865,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       if (a === 'snow') { const on = snow.toggle(); $('ctlSnow').textContent = on ? 'Snow on' : 'Snow off'; return; }
       if (a === 'sim') { const on = T.simulate(!T.simulating()); $('ctlSim').textContent = on ? '■ Stop simulation' : '▶ Simulate the room'; return; }
       if (!T.canControl) { $('status').textContent = T.controlHint || 'Only the presenter can control this screen'; return; }
+      if (a === 'reveal' && latest && latest.tug) { if (!['countdown', 'go'].includes(latest.tug.phase)) T.act('tug', 'start'); return; }
       if (a === 'reveal') { if (!latest || latest.stage !== 'question') return; a = latest.revealed ? 'conceal' : 'reveal'; }
       if (a === 'reset') {
         if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); $('ctlReset').textContent = 'Click again to reset'; setTimeout(() => ($('ctlReset').textContent = 'Reset'), 3000); return; }
@@ -3547,7 +3894,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       else if (['arrowleft', 'pageup'].includes(k)) control('prev');
       else if (k === 'h') { if (latest && latest.stage === 'roadmap') { if (skipRoad) skipRoad(); } else control('reveal'); }
       else if (k === 's') control('snow');
-      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); }
+      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); if (latest && latest.kudos) T.act('kudos', 'reset:'); }
       else if (k === 'c') control('clear');
     });
     addEventListener('resize', () => {
@@ -3643,6 +3990,31 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         <div class="qa-list" id="qaList"></div>
       </section>
 
+      <section id="tug" class="tg" hidden>
+        <span class="tg-team" id="tgTeam"></span>
+        <h2 class="tg-phase" id="tgPhase">Get ready…</h2>
+        <p class="tg-sub" id="tgSub"></p>
+        <button class="tg-btn" id="tgBtn" disabled aria-label="Pull: tap as fast as you can">TAP!</button>
+        <p class="tg-count"><b id="tgN">0</b>pulls from you</p>
+      </section>
+
+      <section id="kudos" hidden>
+        <div class="anon st" style="--i:0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Sent anonymously</div>
+        <div><span class="q-k st" style="--i:0">Kudos wall</span></div>
+        <h1 class="q-t st" style="--i:1">Send a kudos</h1>
+        <p class="q-ctx st" style="--i:1">Thank a colleague or a whole team. Your card appears on the big screen.</p>
+        <div class="kd-form st" style="--i:2">
+          <div class="kd-kinds" id="kdKinds" role="radiogroup" aria-label="Kind of kudos"></div>
+          <label for="kdTo">For</label>
+          <input id="kdTo" maxlength="40" placeholder="A name or a team" autocomplete="off">
+          <label for="kdText">Your message</label>
+          <textarea id="kdText" maxlength="140" rows="3" placeholder="What do you want to thank them for?"></textarea>
+          <button class="kd-sendbtn" id="kdSend" disabled>Send kudos</button>
+          <p class="err" id="kdErr" hidden></p>
+        </div>
+        <div class="kd-mine" id="kdMine"></div>
+      </section>
+
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
         <p>Make some noise for the team!</p>
@@ -3674,7 +4046,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
     let s = null, current = null, choice = null, editing = false, reactionsBuilt = false, shown = null, cheers = 0;
 
     function show(which) {
-      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask']) $(k).hidden = k !== which;
+      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask', 'tug', 'kudos']) $(k).hidden = k !== which;
       $('ctaWrap').hidden = which !== 'pick';
       if (which !== shown) {
         shown = which;
@@ -3742,6 +4114,8 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
       if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'tug' && T.tugTap) { $('step').textContent = 'Tug of war'; renderTug(); return show('tug'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'kudos' && T.sendKudos) { $('step').textContent = 'Kudos'; renderKudos(); return show('kudos'); }
       if (s.stage !== 'question') {
         const sl = s.stage === 'slide' ? s.slide || {} : null;
         $('step').textContent = sl ? `${s.index + 1} / ${s.stepCount}` : 'Done!';
@@ -3799,6 +4173,81 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         show('done');
       } else show('pick');
     }
+    // ---------- tug of war ----------
+    const TUG_COLORS = ['#5fb8ff', '#a08cff'];
+    let tugJoined = null, myTaps = 0, tapRound = null;
+    function renderTug() {
+      const t = s.tug || { phase: 'ready' }, teams = (s.slide && s.slide.teams) || ['Debit', 'Credit'];
+      const team = s.myTeam === 1 ? 1 : 0, id = t.id || '';
+      $('tug').style.setProperty('--c', TUG_COLORS[team]);
+      $('tug').dataset.phase = t.phase || 'ready';
+      $('tgTeam').textContent = `Team ${teams[team]}`;
+      if (tugJoined !== id) { tugJoined = id; T.tugJoin(id); }
+      if (tapRound !== id) { tapRound = id; myTaps = s.mineTug && s.mineTug.id === id ? s.mineTug.taps || 0 : 0; }
+      $('tgN').textContent = myTaps;
+      const go = t.phase === 'go';
+      $('tgBtn').disabled = !go;
+      if (t.phase === 'countdown') { $('tgPhase').textContent = 'Get ready…'; $('tgSub').textContent = 'Thumbs on the button!'; }
+      else if (go) { $('tgPhase').textContent = 'PULL!'; $('tgSub').textContent = 'Tap as fast as you can'; }
+      else if (t.phase === 'done' && Array.isArray(t.final)) {
+        const [a, b] = t.final, w = a === b ? -1 : a > b ? 0 : 1;
+        $('tgPhase').textContent = w < 0 ? "It's a draw!" : w === team ? 'Your team won!' : `Team ${teams[w]} won`;
+        $('tgSub').textContent = `${a} – ${b}. Thanks for pulling!`;
+        if (w === team && $('tug').dataset.won !== id) { $('tug').dataset.won = id; confetti.burst('cannons'); }
+      } else { $('tgPhase').textContent = 'You are on the rope'; $('tgSub').textContent = 'Wait for the start on the big screen'; }
+    }
+    $('tgBtn').addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (!s || !s.tug || s.tug.phase !== 'go') return;
+      myTaps = T.tugTap(s.tug.id);
+      $('tgN').textContent = myTaps;
+      const b = $('tgBtn'); b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
+      if (navigator.vibrate) navigator.vibrate(6);
+    });
+
+    // ---------- kudos ----------
+    const KUDOS_KINDS = [['thanks', 'Thank you', 'help:heart', '#5fb8ff'], ['hero', 'Hero of the year', 'help:trophy', '#ffc400'], ['team', 'Team player', 'help:team', '#a08cff'], ['calm', 'Calm in the storm', 'help:snow', '#8fd3ff'], ['boost', 'Energy boost', 'help:boost', '#2fc6e0']];
+    let kdKind = 'thanks', kdKey = '';
+    $('kdKinds').innerHTML = KUDOS_KINDS.map(([id, label, ic, c]) => `<button class="kd-k ${id === kdKind ? 'sel' : ''}" data-k="${id}" role="radio" aria-checked="${id === kdKind}" style="--c:${c}">${icon(ic)}<span>${label}</span></button>`).join('');
+    $('kdKinds').onclick = e => {
+      const b = e.target.closest('.kd-k'); if (!b) return;
+      kdKind = b.dataset.k;
+      $('kdKinds').querySelectorAll('.kd-k').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); });
+    };
+    const kdReady = () => { $('kdSend').disabled = $('kdTo').value.trim().length < 1 || $('kdText').value.trim().length < 3; $('kdErr').hidden = true; };
+    $('kdTo').oninput = kdReady; $('kdText').oninput = kdReady;
+    $('kdSend').onclick = async () => {
+      $('kdSend').disabled = true;
+      const res = await T.sendKudos($('kdTo').value, $('kdText').value, kdKind);
+      if (res === 'ok') {
+        const r = $('kdSend').getBoundingClientRect();
+        confetti.burst('point', { x: r.left + r.width / 2, y: r.top });
+        $('kdTo').value = ''; $('kdText').value = '';
+      } else {
+        $('kdErr').textContent = res === 'limit' ? 'You have sent five kudos. Thank you for the love!' : res === 'short' ? 'Add who it is for and a short message.' : 'Your kudos could not be sent. Check your connection and try again.';
+        $('kdErr').hidden = false;
+      }
+      kdReady();
+      await load();
+    };
+    function renderKudos() {
+      const list = (s.mineKudos || []).slice().reverse();
+      const key = list.map(k => k.id).join(',');
+      if (key === kdKey) return;
+      kdKey = key;
+      $('kdMine').innerHTML = list.length ? '<div class="qa-h"><span>Sent by you</span><span></span></div>' : '';
+      list.forEach(k => {
+        const m = KUDOS_KINDS.find(x => x[0] === k.kind) || KUDOS_KINDS[0];
+        const card = document.createElement('div');
+        card.className = 'kd-card'; card.style.setProperty('--c', m[3]);
+        card.innerHTML = `<div class="kd-top"><span class="kd-ico">${icon(m[2])}</span><span class="kd-kind"></span></div><div class="kd-to">For <b></b></div><p class="kd-text"></p>`;
+        card.querySelector('.kd-kind').textContent = m[1];
+        card.querySelector('.kd-to b').textContent = k.to;
+        card.querySelector('.kd-text').textContent = k.text;
+        $('kdMine').appendChild(card);
+      });
+    }
+
     // ---------- anonymous Q&A ----------
     let qaKey = '';
     function renderAsk() {
@@ -3938,7 +4387,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         for (const [qi, a] of Object.entries(v.answers || {})) add(tok, qi, a);
       }
       if (sim) for (const [bot, ans] of Object.entries(sim.answers)) for (const [qi, a] of Object.entries(ans)) add(bot, qi, a);
-      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], qa: control.qa || DEFAULT.qa, responses };
+      return { current: control.current, revealedQ: control.revealedQ || {}, timerEnd: control.timerEnd || 0, hidden: control.hidden || [], qa: control.qa || DEFAULT.qa, tug: control.tug || null, kudosHidden: control.kudosHidden || [], responses };
     }
     const publicState = () => Core.publicState(config, stateObj(), {
       joinUrl, connected: phonesHere + (sim ? sim.connected : 0),
@@ -3985,6 +4434,19 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         qa.done = qa.done.filter(x => x !== id); qa.hidden = qa.hidden.filter(x => x !== id);
         if (what === 'done') qa.done.push(id); else if (what === 'hide') qa.hidden.push(id);
         c.qa = what === 'reset' ? { done: [], hidden: [] } : qa;
+      }
+      else if (a === 'tug') {
+        // "start" (a new round, after a countdown), "go:<id>", "done:<id>:<a>:<b>" (freeze the score), "reset"
+        const [what, id, ta, tb] = String(word || '').split(':');
+        if (what === 'start') c.tug = { id: 'r' + Date.now().toString(36), phase: 'countdown', at: Date.now() };
+        else if (what === 'go' && c.tug && c.tug.id === id && c.tug.phase === 'countdown') c.tug = { ...c.tug, phase: 'go', goAt: Date.now() };
+        else if (what === 'done' && c.tug && c.tug.id === id && c.tug.phase === 'go') c.tug = { ...c.tug, phase: 'done', final: [Number(ta) || 0, Number(tb) || 0] };
+        else if (what === 'reset') delete c.tug;
+        else return;
+      }
+      else if (a === 'kudos') {
+        const [what, id] = String(word || '').split(':');
+        c.kudosHidden = what === 'reset' ? [] : [...new Set([...(c.kudosHidden || []), id])];
       }
       else if (a === 'clear') { const qi = Core.qiAt(config, c.current); if (qi < 0) return; c.cleared[qi] = Date.now(); delete c.revealedQ[qi]; Core.enter(config, c, c.current); if (sim) for (const b of Object.values(sim.answers)) delete b[qi]; }
       else if (a === 'reset') { Object.assign(c, DEFAULT, { epoch: 'e' + Date.now().toString(36), rev: c.rev }); if (sim) { sim.answers = {}; } }
@@ -4041,6 +4503,35 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       mine.answers.ask = { ...a, ts: Date.now() };
       return saveMine();
     }
+    // Tug of war: taps are counted locally and written about every 0.7 s, like a vote.
+    const myTeam = Core.teamOf(token);
+    let tugTimer = null;
+    function tugJoin(id) {
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const a = mine.answers.tug;
+      if (a && (a.id === id || (!id && a.id))) return;
+      mine.answers.tug = { id: id || '', team: myTeam, taps: 0, ts: Date.now() };
+      saveMine();
+    }
+    function tugTap(id) {
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const a = mine.answers.tug && mine.answers.tug.id === id ? mine.answers.tug : { id, team: myTeam, taps: 0 };
+      a.taps = Math.min(400, (a.taps || 0) + 1); a.ts = Date.now();
+      mine.answers.tug = a;
+      if (!tugTimer) tugTimer = setTimeout(() => { tugTimer = null; saveMine(); }, 700);
+      return a.taps;
+    }
+    // Kudos: up to five cards per phone.
+    async function sendKudos(to, text, kind) {
+      const t = Core.clean(text, 140), who = Core.clean(to, 40);
+      if (t.length < 3 || !who) return 'short';
+      if (mine.epoch !== control.epoch) mine = { epoch: control.epoch, answers: {} };
+      const list = [...((mine.answers.kudos && mine.answers.kudos.list) || [])];
+      if (list.length >= 5) return 'limit';
+      list.push({ id: 'k' + Math.random().toString(36).slice(2, 9), to: who, text: t, kind: Core.clean(kind, 12), ts: Date.now() });
+      mine.answers.kudos = { list, ts: Date.now() };
+      return saveMine();
+    }
     function react(r) {
       if (room) room.emit('react', { r }).catch(() => {});
       if (bc) bc.postMessage({ t: 'react', r });
@@ -4050,6 +4541,9 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       const qi = s.qi, a = mine.answers[qi];
       s.mine = s.stage === 'question' && mine.epoch === control.epoch && a && a.ts > ((control.cleared || {})[qi] || 0) ? a : null;
       s.mineAsk = mine.epoch === control.epoch ? mine.answers.ask || null : null;
+      s.mineTug = mine.epoch === control.epoch ? mine.answers.tug || null : null;
+      s.mineKudos = mine.epoch === control.epoch && mine.answers.kudos ? mine.answers.kudos.list || [] : [];
+      s.myTeam = myTeam;
       return Promise.resolve(s);
     }
 
@@ -4174,6 +4668,22 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
         if (bc) bc.postMessage({ t: 'votes', votes: simVotes() });
         emit();
       }
+      const st = Core.steps(config)[Math.max(0, Math.min(LAST, control.current))];
+      if (st && st.slide && st.slide.type === 'tug') {
+        const t = control.tug;
+        for (let k = 0; k < sim.connected; k++) {
+          const bot = (sim.answers['bot' + k] ||= {}), team = Core.teamOf('bot' + k);
+          const a = bot.tug && bot.tug.id === ((t && t.id) || '') ? bot.tug : { id: (t && t.id) || '', team, taps: 0 };
+          if (t && t.phase === 'go') a.taps = Math.min(400, a.taps + ((Math.random() * (team ? 3.4 : 3)) | 0));
+          a.ts = Date.now(); bot.tug = a;
+        }
+        emit();
+      }
+      if (st && st.slide && st.slide.type === 'kudos' && Math.random() < .18) {
+        const demo = st.slide.demo || [], all = Object.values(sim.answers).flatMap(b => (b.kudos && b.kudos.list) || []);
+        const next = demo.find(d => !all.some(x => x.text === d.text));
+        if (next) { const k = (Math.random() * sim.connected) | 0, bot = (sim.answers['bot' + k] ||= {}); bot.kudos = { list: [...((bot.kudos && bot.kudos.list) || []), { id: 'k' + Math.random().toString(36).slice(2, 9), ...next, ts: Date.now() }], ts: Date.now() }; emit(); }
+      }
       const party = stage === 'finale' || stage === 'recap';
       if (Math.random() < (party ? .5 : qi >= 0 ? .14 : .08)) {
         const n = 1 + ((Math.random() * (party ? 4 : 2)) | 0);
@@ -4205,7 +4715,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       controlHint: '',
       qrHtml: () => '',
       subscribe(onState, onReact) { subs.state.push(onState); if (onReact) subs.react.push(onReact); emit(); },
-      act, vote, react, getState, ask, upvote,
+      act, vote, react, getState, ask, upvote, tugJoin, tugTap, sendKudos,
       config,
       summary: () => Core.summary(config, stateObj()),
       simulate: role === 'host' && !opts.noSim ? simulate : undefined,

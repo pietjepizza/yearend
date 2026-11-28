@@ -63,6 +63,22 @@
         try { const r = await fetch('/api/upvote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, qid, on }) }); return r.ok ? 'ok' : 'error'; }
         catch { return 'error'; }
       },
+      tugJoin(round) { return T.tugTap(round, true); },
+      tugTap(round, joinOnly) {
+        T._tug = T._tug && T._tug.round === round ? T._tug : { round, taps: 0 };
+        if (!joinOnly) T._tug.taps = Math.min(400, T._tug.taps + 1);
+        if (!T._tugTimer) T._tugTimer = setTimeout(() => {
+          T._tugTimer = null;
+          fetch('/api/tug', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, round: T._tug.round, taps: T._tug.taps }) }).catch(() => {});
+        }, joinOnly ? 0 : 700);
+        return T._tug.taps;
+      },
+      async sendKudos(to, text, kind) {
+        try {
+          const r = await fetch('/api/kudos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, to, text, kind }) });
+          return r.ok ? 'ok' : r.status === 429 ? 'limit' : r.status === 400 ? 'short' : 'error';
+        } catch { return 'error'; }
+      },
       loadConfig: () => fetch('/api/config?key=' + encodeURIComponent(key)).then(r => (r.ok ? r.json() : null)).then(c => (T.config = c)).catch(() => null),
       summary: () => fetch('/api/summary?key=' + encodeURIComponent(key)).then(r => r.json()),
       react(r) {

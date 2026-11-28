@@ -39,7 +39,7 @@ function phoneConfig(c) {
     })),
     show: c.show.map(st => st.type === 'question' ? pick(st, ['type', 'question', 'nav', 'extra'])
       : SPECIAL.includes(st.type) ? pick(st, ['type', 'nav', 'extra'])
-      : { ...pick(st, ['type', 'nav', 'extra', 'question']), ...(st.type === 'qa' ? pick(st, ['title']) : {}) }),
+      : { ...pick(st, ['type', 'nav', 'extra', 'question']), ...(st.type === 'qa' || st.type === 'kudos' ? pick(st, ['title']) : st.type === 'tug' ? pick(st, ['title', 'teams', 'seconds']) : {}) }),
   };
 }
 

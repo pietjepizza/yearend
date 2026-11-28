@@ -17,7 +17,7 @@
   }
   function kindOf(s) {
     if (s.stage === 'question') return s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in poll ${s.qn} of ${s.qtotal}` : `Poll ${s.qn} of ${s.qtotal}`;
-    if (s.stage === 'slide') return s.slide && s.slide.type === 'qa' ? 'Live Q&A' : 'Slide';
+    if (s.stage === 'slide') return s.slide && s.slide.type === 'qa' ? 'Live Q&A' : s.slide && s.slide.type === 'tug' ? 'Tug of war' : s.slide && s.slide.type === 'kudos' ? 'Kudos wall' : 'Slide';
     return KIND[s.stage] || s.stage;
   }
 
@@ -63,6 +63,7 @@
 
     function act(a, arg) {
       if (!T.canControl) { $('nvStatus').textContent = T.controlHint || 'Enter the presenter key to control the show'; return; }
+      if (a === 'reveal' && latest && latest.tug) { if (!['countdown', 'go'].includes(latest.tug.phase)) T.act('tug', 'start'); return; }
       if (a === 'reveal') a = latest && latest.revealed ? 'conceal' : 'reveal';
       T.act(a, arg);
     }
@@ -91,6 +92,8 @@
         parts.push(`<span>${s.revealed ? 'Results shown' : 'Results hidden'}</span>`);
         if (s.revealed && s.stats.n) parts.push(`<span>Top: <b>${esc(plain(s.stats.top))}</b> (${s.stats.topPct}%)</span>`);
       } else if (s.stage === 'lobby') parts.push(`<span><b>${s.connected || 0}</b> phones connected</span>`);
+      else if (s.tug) parts.push(`<span>Phase: <b>${esc(s.tug.phase || 'ready')}</b></span>`, `<span>Players <b>${s.tug.players[0]}</b> vs <b>${s.tug.players[1]}</b></span>`, `<span>Pulls <b>${s.tug.taps[0]}</b> vs <b>${s.tug.taps[1]}</b></span>`);
+      else if (s.kudos) parts.push(`<span><b>${s.kudos.length}</b> kudos</span>`, ...s.kudos.slice(0, 3).map(k => `<span class="nv-q">For ${esc(k.to)} · ${esc(k.text)}</span>`));
       else if (s.qa) parts.push(`<span><b>${s.qa.length}</b> question${s.qa.length === 1 ? '' : 's'}</span>`, ...s.qa.slice(0, 3).map(x => `<span class="nv-q">▲ ${x.votes} · ${esc(x.text)}</span>`));
       else if (s.participants != null) parts.push(`<span><b>${s.participants}</b> people have voted so far</span>`);
       $('nvLive').innerHTML = parts.join('');
@@ -104,8 +107,8 @@
       $('nvTitle').textContent = plain(titleOf(s));
       $('nvNotes').innerHTML = s.notes ? esc(s.notes).replace(/\[([^\]]*)\]/g, '<span class="ph">[$1]</span>').replace(/\n/g, '<br>') : '<span class="nv-empty">No notes for this screen. Add them as "notes" in the running order.</span>';
       $('nvNext').textContent = s.next || 'End of this part of the show';
-      $('nvReveal').hidden = s.stage !== 'question';
-      $('nvReveal').textContent = s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
+      $('nvReveal').hidden = s.stage !== 'question' && !s.tug;
+      $('nvReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch (H)' : 'Start the tug of war (H)') : s.revealed ? 'Hide results (H)' : s.question && s.question.type === 'award' ? 'Reveal the winner (H)' : 'Reveal results (H)';
       liveInfo(s);
       // the running order, built once from the content
       const steps = T.config ? PulseCore.steps(T.config) : null;
@@ -128,7 +131,7 @@
       if (help && help.isOpen()) { if (k === 'escape') help.close(); return; }
       if (['arrowright', ' ', 'pagedown'].includes(k)) { e.preventDefault(); act('next'); }
       else if (['arrowleft', 'pageup'].includes(k)) act('prev');
-      else if (k === 'h' && latest && latest.stage === 'question') act('reveal');
+      else if (k === 'h' && latest && (latest.stage === 'question' || latest.tug)) act('reveal');
       else if (k === 'enter' && e.target.closest && e.target.closest('li[data-i]')) act('goto', Number(e.target.closest('li[data-i]').dataset.i));
     });
     T.onStatus = msg => ($('nvStatus').textContent = msg || '');

@@ -16,10 +16,10 @@ The whole all-hands runs from this app: slides, live anonymous polls that race a
 | --- | --- |
 | → / Space / Page Down (clicker) | Next screen; phones follow |
 | ← / Page Up | Previous screen |
-| H | Reveal results, or hide them again. Award: the drumroll. Timeline: skip the animation. |
+| H | Reveal results, or hide them again. Award: the drumroll. Timeline: skip the animation. Tug of war: start, and again for a rematch. |
 | F | Full screen on or off |
 | S | Snow on or off |
-| U | Bring back removed words and Q&A questions |
+| U | Bring back removed words, Q&A questions and kudos |
 | C, then C | Clear the votes of the current question |
 | ? / Esc | Open or close the presenter guide |
 
@@ -35,6 +35,8 @@ Move the mouse to show the control bar: ← →, Reveal now, Snow, Reset (click 
 | **Improvement Award** | "Meet the nominees" (three cards), then a secret audience vote. On the reveal a spotlight jumps between the cards and lands on the winner: confetti, fireworks and the prize. Phones show the winner; ties are called as ties. |
 | **The road ahead** | A clean Gantt-style timeline: workstreams as thin bars and milestones on a month axis, holidays shaded, the key milestone as a gold line, and the peak weeks shaded gold with "look out for each other". Underneath, a team workload line worked out from how everything overlaps. Key figures (key moments, weeks to go-live, one team) count up beside the title. |
 | **Recap** | "Thank you for your honesty!" Each poll's result with a **We'll do** pledge. |
+| **Kudos wall** | Right after the shout-outs, colleagues thank each other from their phones: pick a kind (Thank you, Hero of the year, Team player, Calm in the storm, Energy boost), write who it is for and a line. One card at a time sits in the spotlight (a new one goes there straight away); the others form a wall. Click a card to remove it, U brings it back. |
+| **Tug of war** | Just before the finale: every phone is on Team Debit or Team Credit (picked at random, about half and half). Press H: 3-2-1, then "PULL!" and 20 seconds of tapping. The rope and its gold knot follow the pulls live; the winner gets gold, confetti and fireworks. H again for a rematch. |
 | **Live Q&A** | People ask anonymously on their phones and upvote each other's questions. The big screen shows them ranked live. |
 | **Finale** | Rally lines, a giant "YES WE CAN!", fireworks. Phones turn into a **CHEER!** button. |
 | **February check-in** | Extra screens after the finale (Next never runs into them). Open them from the presenter guide: the energy question again, with **December's score beside today's**, plus a go-live question. Same QR code. Don't press Reset first if you want the comparison. |
@@ -55,9 +57,10 @@ To keep the key dates off the live presentation for a while, `npm run dates:hide
 
 The main parts of `questions.json`:
 
-- **`show`**: the running order. Every step has a `type` (`title`, `lobby`, `agenda`, `section`, `bullets`, `stats`, `shoutouts`, `quote`, `nominees`, `question`, `roadmap`, `recap`, `qa`, `finale`), a short `nav` label and **`notes`** (shown in the presenter view). Steps with `extra: true` are the February check-in.
+- **`show`**: the running order. Every step has a `type` (`title`, `lobby`, `agenda`, `section`, `bullets`, `stats`, `shoutouts`, `quote`, `nominees`, `question`, `roadmap`, `recap`, `qa`, `kudos`, `tug`, `finale`), a short `nav` label and **`notes`** (shown in the presenter view). Steps with `extra: true` are the February check-in.
 - **`questions`**: the polls. Each has a `title`, `context`, `wordPrompt`, `options` (`label`, `icon`, an optional `score` from 1 to 5 and a `note`), `takeaways` (the headline, picked by outcome) and a `pledge`. `group: "checkin"` marks check-in polls; `compareWith` shows an earlier poll's score beside the new one.
 - **The award** is the question with `type: "award"`: three `options` with `label`, `team` and `idea`, plus the `prize`.
+- **`tug`** and **`kudos`** steps: the tug of war takes `teams` (two names) and `seconds`; the kudos wall takes `title`, `subtitle` and, for the simulator, `demo` cards.
 - **`roadmap`**: the timeline. `start`/`end` (the date range), `holidays` (`label`, `start`, `end`), and `rows` of `items`: bars (`start`, `end`, both days included, `fade`, `key`) and milestones (`date`; `key: true` makes it the gold line). `weight` sets how much an item adds to the workload, `peakZone` (default 55) where the gold peak weeks start, and `stats` the figures beside the title.
 - **`countdown`**: the chip at the top right, counting the days to a `date`.
 - `timer` (seconds per poll), `lobby`, `recap`, `finale`, `ticker` (the light-hearted lines in the bottom ticker) and `reactions`.

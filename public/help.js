@@ -136,10 +136,10 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
               <table class="help-keys">
                 <tr><td><kbd>→</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></td><td>Next screen (phones follow)</td></tr>
                 <tr><td><kbd>←</kbd> <kbd>PgUp</kbd></td><td>Previous screen</td></tr>
-                <tr><td><kbd>H</kbd></td><td>Reveal the results, or hide them again. Award: the drumroll. Timeline: skip the animation.</td></tr>
+                <tr><td><kbd>H</kbd></td><td>Reveal the results, or hide them again. Award: the drumroll. Timeline: skip the animation. Tug of war: start, and again for a rematch.</td></tr>
                 <tr><td><kbd>F</kbd></td><td>Full screen on or off</td></tr>
                 <tr><td><kbd>S</kbd></td><td>Snow on or off</td></tr>
-                <tr><td><kbd>U</kbd></td><td>Bring back removed words and Q&amp;A questions</td></tr>
+                <tr><td><kbd>U</kbd></td><td>Bring back removed words, Q&amp;A questions and kudos</td></tr>
                 <tr><td><kbd>C</kbd> then <kbd>C</kbd></td><td>Clear the votes of the current question</td></tr>
                 <tr><td><kbd>?</kbd> / <kbd>Esc</kbd></td><td>Open or close this guide</td></tr>
               </table>
@@ -148,6 +148,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
                 <li>Move the mouse to show the bar at the bottom: <i>←</i> <i>→</i>, <i>Reveal now</i>, <i>Snow</i>, <i>Reset</i> (click twice), <i>Full screen</i> and <i>Guide</i>.</li>
                 <li>Click a word in the word cloud to remove it.</li>
                 <li>Q&amp;A: click a question once to mark it answered, again to hide it.</li>
+                <li>Kudos wall: click a card to remove it.</li>
               </ul>
             </section>
             <section>

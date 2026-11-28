@@ -135,6 +135,30 @@
     return [...list.values()].sort((p, q) => (p.done - q.done) || (q.votes - p.votes) || (p.ts - q.ts));
   }
 
+  // Tug of war: every phone is on team 0 or 1, decided by its anonymous token (about half and half).
+  // responses.tug[token] = { id: round id, team, taps }. state.tug = { id, phase: countdown|go|done, at, goAt, final }.
+  const teamOf = t => { let h = 7; for (const ch of String(t || '')) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h) % 2; };
+  function tugState(byToken, tug) {
+    const t = tug || { phase: 'ready' };
+    const players = [0, 0], taps = [0, 0];
+    for (const a of Object.values(byToken || {})) {
+      if (!a) continue;
+      const team = a.team === 1 ? 1 : 0;
+      players[team]++;
+      if (t.id && a.id === t.id) taps[team] += Math.max(0, Math.min(400, Number(a.taps) || 0));
+    }
+    return { ...t, players, taps: Array.isArray(t.final) ? t.final : taps };
+  }
+
+  // Kudos wall: responses.kudos[token] = { list: [{ id, to, text, kind, ts }] }; the presenter can hide cards.
+  function kudosList(byToken, hidden) {
+    const hide = new Set(hidden || []), out = [];
+    for (const a of Object.values(byToken || {})) for (const k of (a && a.list) || []) {
+      if (k && k.id && k.text && !hide.has(k.id)) out.push({ id: String(k.id).slice(0, 24), to: clean(k.to, 40), text: clean(k.text, 140), kind: clean(k.kind, 12), ts: Number(k.ts) || 0 });
+    }
+    return out.sort((p, q) => q.ts - p.ts);
+  }
+
   // Everything worth keeping after the event, for the downloadable summary.
   function summary(config, state) {
     const Q = config.questions;
@@ -143,6 +167,8 @@
       participants: new Set(Object.entries(state.responses || {}).filter(([k]) => k !== 'ask').flatMap(([, r]) => Object.keys(r || {}))).size,
       questions: Q.map((q, i) => ({ id: q.id, title: q.title, type: q.type || 'poll', group: groupOf(q), pledge: q.pledge, options: q.options, ...analyse(q, (state.responses || {})[i], state.hidden) })),
       qa: qaList((state.responses || {}).ask, state.qa),
+      kudos: kudosList((state.responses || {}).kudos, state.kudosHidden),
+      tug: state.tug && state.tug.final ? { teams: ((config.show || []).find(st => st.type === 'tug') || {}).teams || ['Debit', 'Credit'], final: state.tug.final } : null,
     };
   }
   const clampIndex = (config, i) => Math.max(0, Math.min(lastIndex(config), Number(i) || 0));
@@ -186,8 +212,11 @@
     if (step.kind === 'slide') {
       // a "nominees" slide shows the candidates of the award vote it names
       const aw = step.slide.type === 'nominees' ? Q.find(x => x.id === step.slide.question) || Q.find(x => x.type === 'award') : null;
-      const qa = step.slide.type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
-      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, participants };
+      const type = step.slide.type;
+      const qa = type === 'qa' ? qaList((state.responses || {}).ask, state.qa) : undefined;
+      const tug = type === 'tug' ? tugState((state.responses || {}).tug, state.tug) : undefined;
+      const kudos = type === 'kudos' ? kudosList((state.responses || {}).kudos, state.kudosHidden) : undefined;
+      return { ...base, stage: 'slide', slide: step.slide, nominees: aw ? aw.options : undefined, qa, tug, kudos, participants };
     }
     if (step.kind !== 'question') {
       const items = Q.map((q, i) => groupOf(q) !== 'main' ? null : ({ title: q.title, options: q.options, pledge: q.pledge, ...analyse(q, state.responses[i], state.hidden) })).filter(Boolean);
@@ -202,5 +231,5 @@
     };
   }
 
-  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
+  return { norm, clean, analyse, publicState, enter, steps, lastIndex, nextIndex, prevIndex, firstExtra, qiAt, navLabel, numbering, qaList, summary, teamOf, tugState, kudosList, makePlayer, cleanPlayer, playerName, ADJ, NOUN };
 });

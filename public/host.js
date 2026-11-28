@@ -117,8 +117,8 @@
       const label = s.stage === 'question' ? (s.question.type === 'award' ? 'Award vote' : s.group === 'checkin' ? `Check-in ${s.qn} of ${s.qtotal}` : `Q${s.qn} of ${s.qtotal}`) : s.nav || LABELS[s.stage] || '';
       $('pager').textContent = `${s.index + 1} / ${s.stepCount}`;
       $('ctlLabel').textContent = label;
-      $('ctlReveal').hidden = s.stage !== 'question';
-      $('ctlReveal').textContent = s.revealed ? 'Hide results' : 'Reveal now';
+      $('ctlReveal').hidden = s.stage !== 'question' && !s.tug;
+      $('ctlReveal').textContent = s.tug ? (s.tug.phase === 'done' ? 'Rematch' : 'Start the tug of war') : s.revealed ? 'Hide results' : 'Reveal now';
       if (meta.pop) { pulse.spike(1); flashLights(); }
 
       const v = s.stage === 'question' || s.stage === 'slide' ? s.stage + s.index : s.stage;
@@ -157,10 +157,193 @@
       $('deck').dataset.layout = s.stage === 'slide' ? s.slide.type : '';
       // festive screens (opening, sections, joining, the award, the finale) get the full effects; the rest stays calm
       const layout = s.stage === 'slide' ? (s.slide || {}).type : '';
-      const festive = s.stage === 'lobby' || s.stage === 'finale' || ['title', 'section'].includes(layout) || (s.stage === 'question' && s.question.type === 'award');
+      const festive = s.stage === 'lobby' || s.stage === 'finale' || ['title', 'section', 'tug'].includes(layout) || (s.stage === 'question' && s.question.type === 'award');
       $('deck').dataset.mood = festive ? 'festive' : 'calm';
       snow.setIntensity(festive ? ({ lobby: 1, finale: 1.8 }[s.stage] ?? .9) : s.stage === 'recap' ? .5 : (s.roadmap && s.roadmap.style) === 'peak' && s.stage === 'roadmap' ? .8 : .15);
       document.body.classList.remove('entering'); void $('content').offsetWidth; document.body.classList.add('entering');
+    }
+
+    // ---------- TUG OF WAR: Team Debit vs Team Credit ----------
+    // The presenter starts a round (H). The projector runs it: 3-2-1, then "PULL!" for `seconds`, then it freezes
+    // the score. Phones tap; the rope follows the share of pulls. H again starts a rematch.
+    const TUG_COLORS = ['#5fb8ff', '#a08cff'];
+    let tugRun = {}, tugPos = 0, tugAim = 0, tugRaf = 0, tugLast = [0, 0];
+    function buildTug(s) {
+      const sl = s.slide || {}, teams = sl.teams || ['Debit', 'Credit'], secs = sl.seconds || 20;
+      $('titleblock').innerHTML = `${bouncy(sl.title || 'Tug of war', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}`;
+      const crew = k => Array.from({ length: 5 }, (_, i) => `<i style="--i:${i}">${orb(TUG_COLORS[k])}</i>`).join('');
+      const team = k => `
+        <div class="tug-team t${k}" id="tugT${k}" style="--c:${TUG_COLORS[k]}">
+          <div class="tug-name">Team ${esc(teams[k])}</div>
+          <div class="tug-n"><b id="tugN${k}" data-v="0">0</b><span>pulls</span></div>
+          <div class="tug-p"><b id="tugP${k}">0</b> players</div>
+          <div class="tug-crown">${TROPHY}<span>Winner</span></div>
+        </div>`;
+      $('content').innerHTML = `
+        <div class="tug" id="tug" data-phase="ready">
+          <div class="tug-head">${team(0)}
+            <div class="tug-mid"><div class="tug-big" id="tugBig">${secs}</div><div class="tug-msg" id="tugMsg">Get your thumbs ready</div></div>
+          ${team(1)}</div>
+          <div class="tug-field">
+            <div class="tug-zone z0"></div><div class="tug-zone z1"></div><div class="tug-line"></div>
+            <div class="tug-rope" id="tugRope">
+              <div class="tug-crew c0" style="--c:${TUG_COLORS[0]}">${crew(0)}</div>
+              <div class="tug-cord"><i></i></div>
+              <div class="tug-knot"><i></i></div>
+              <div class="tug-crew c1" style="--c:${TUG_COLORS[1]}">${crew(1)}</div>
+            </div>
+          </div>
+          <div class="tug-foot"><div class="qr">${T.qrHtml()}</div><span>Your phone already picked your team. When the screen says <b>PULL!</b>, tap as fast as you can.</span></div>
+        </div>`;
+      $('source').textContent = T.canControl ? 'Press H to start · H again for a rematch' : 'Tug of war';
+      $('ticker').innerHTML = '';
+      tugRun = {}; tugPos = tugAim = 0; tugLast = [0, 0];
+      cancelAnimationFrame(tugRaf);
+      const loop = () => {
+        const rope = $('tugRope');
+        if (!rope) return;
+        tugPos += (tugAim - tugPos) * .07;
+        rope.style.setProperty('--p', tugPos.toFixed(4));
+        tugRaf = requestAnimationFrame(loop);
+      };
+      loop();
+    }
+    function tugAct(what) { if (T.canControl) T.act('tug', what); }
+    function paintTug(s) {
+      const el = $('tug');
+      if (!el) return;
+      const t = s.tug, sl = s.slide || {}, teams = sl.teams || ['Debit', 'Credit'], secs = sl.seconds || 20;
+      const [a, b] = t.taps;
+      el.dataset.phase = t.phase || 'ready';
+      FX.tween($('tugN0'), a); FX.tween($('tugN1'), b);
+      $('tugP0').textContent = t.players[0]; $('tugP1').textContent = t.players[1];
+      [a, b].forEach((v, k) => { if (v > tugLast[k]) { const tm = $('tugT' + k); tm.classList.remove('pull'); void tm.offsetWidth; tm.classList.add('pull'); el.classList.toggle('pull' + k, true); setTimeout(() => el.classList.remove('pull' + k), 380); } });
+      tugLast = [a, b];
+      const total = a + b;
+      if (t.phase !== 'done') tugAim = total ? Math.max(-1, Math.min(1, ((b - a) / Math.max(total, 24)) * 1.8)) : 0;
+      if (!t.id || t.phase === 'ready') {
+        el.classList.remove('won0', 'won1', 'draw');
+        $('tugBig').textContent = secs;
+        $('tugMsg').textContent = t.players[0] + t.players[1] ? `${t.players[0] + t.players[1]} players on the rope` : 'Get your thumbs ready';
+      } else if (t.phase === 'countdown' && tugRun.id !== t.id) {
+        tugRun = { id: t.id };
+        el.classList.remove('won0', 'won1', 'draw');
+        $('tugMsg').textContent = 'Get ready…';
+        [3, 2, 1].forEach((n, i) => later(() => { if (latest.tug && latest.tug.id === t.id && latest.tug.phase === 'countdown') { const big = $('tugBig'); big.textContent = n; big.classList.remove('beat'); void big.offsetWidth; big.classList.add('beat'); pulse.spike(.6); } }, i * 1000));
+        later(() => tugAct('go:' + t.id), 3000);
+      } else if (t.phase === 'go') {
+        if (tugRun.go !== t.id) {
+          tugRun = { id: t.id, go: t.id };
+          slam('PULL!'); flashLights();
+          const tick = () => {
+            const cur = latest && latest.tug;
+            if (!$('tugBig') || !cur || cur.id !== t.id || cur.phase !== 'go') return;
+            const left = Math.max(0, secs * 1000 - (Date.now() - (cur.goAt || Date.now())));
+            $('tugBig').textContent = Math.ceil(left / 1000);
+            $('tugBig').classList.toggle('hurry', left < 5500);
+            if (left > 0) later(tick, 200);
+            else tugAct(`done:${t.id}:${cur.taps[0]}:${cur.taps[1]}`);
+          };
+          tick();
+        }
+        $('tugMsg').textContent = a === b ? 'Neck and neck!' : `Team ${teams[a > b ? 0 : 1]} is pulling ahead!`;
+      } else if (t.phase === 'done' && tugRun.done !== t.id) {
+        tugRun = { id: t.id, go: t.id, done: t.id };
+        const w = a === b ? -1 : a > b ? 0 : 1;
+        tugAim = w < 0 ? 0 : w ? 1.15 : -1.15;
+        el.classList.add(w < 0 ? 'draw' : 'won' + w);
+        $('tugBig').textContent = '';
+        $('tugBig').classList.remove('hurry');
+        $('tugMsg').textContent = w < 0 ? `A draw: ${a} – ${b}` : `${Math.max(a, b)} to ${Math.min(a, b)}`;
+        slam(w < 0 ? "IT'S A DRAW!" : `TEAM ${String(teams[w]).toUpperCase()} WINS!`); flashLights();
+        $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
+        later(() => { confetti.burst('cannons'); flashLights(); fireworks.start(); }, 500);
+        later(() => fireworks.stop(), 6500);
+      }
+    }
+
+    // ---------- KUDOS WALL ----------
+    // Colleagues thank each other from their phones. One card at a time is in the spotlight (a new one goes there
+    // straight away); the rest form a living wall. The presenter can remove a card with a click (U brings it back).
+    const KUDOS_KINDS = {
+      thanks: { label: 'Thank you', icon: 'help:heart', c: '#5fb8ff' },
+      hero: { label: 'Hero of the year', icon: 'help:trophy', c: '#ffc400' },
+      team: { label: 'Team player', icon: 'help:team', c: '#a08cff' },
+      calm: { label: 'Calm in the storm', icon: 'help:snow', c: '#8fd3ff' },
+      boost: { label: 'Energy boost', icon: 'help:boost', c: '#2fc6e0' },
+    };
+    const kudosKind = k => KUDOS_KINDS[k] || KUDOS_KINDS.thanks;
+    const kudosTilt = id => { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) | 0; return ((Math.abs(h) % 7) - 3) * .4; };
+    const kudosCard = (k, cls = '') => {
+      const m = kudosKind(k.kind);
+      return `<div class="kd-card ${cls}" data-id="${esc(k.id)}" style="--c:${m.c};--t:${kudosTilt(k.id)}deg">
+        <div class="kd-top"><span class="kd-ico">${icon(m.icon)}</span><span class="kd-kind">${esc(m.label)}</span></div>
+        <div class="kd-to">For <b>${esc(k.to)}</b></div>
+        <p class="kd-text">${esc(k.text)}</p>
+      </div>`;
+    };
+    let kwKey = null, kwFeat = 0, kwSeen = new Set(), kwFeatId = '', kwSince = 0;
+    function buildKudos(s) {
+      const sl = s.slide || {};
+      $('titleblock').innerHTML = `
+        <div class="pk-head">
+          <div>${bouncy(sl.title || 'Kudos wall', 'mid')}${sl.subtitle ? `<p class="sub">${ph(sl.subtitle)}</p>` : ''}</div>
+          <div class="kw-join st" style="--i:1"><div class="qr">${T.qrHtml()}</div><div><b id="kwN" data-v="0">0</b><span>kudos sent</span><small>Scan to send one</small></div></div>
+        </div>`;
+      $('content').innerHTML = `<div class="kw" id="kw"><div class="kw-feature" id="kwFeature"></div><div class="kw-wall" id="kwWall"></div></div>`;
+      $('source').textContent = T.canControl ? 'Click a card to remove it · U brings removed cards back' : 'Kudos wall';
+      $('ticker').innerHTML = '';
+      kwKey = null; kwFeat = 0; kwSeen = new Set(); kwFeatId = ''; kwSince = Date.now();
+      // every card gets about seven seconds in the spotlight; a new kudos starts its own seven seconds
+      const rotate = () => { if (!$('kw')) return; if (Date.now() - kwSince > 7000) { kwFeat++; showFeature(latest, true); kwSince = Date.now(); } later(rotate, 500); };
+      later(rotate, 500);
+      $('kw').addEventListener('click', e => {
+        const c = e.target.closest('.kd-card[data-id]');
+        if (c && T.canControl) T.act('kudos', 'hide:' + c.dataset.id);
+      });
+    }
+    function showFeature(s, rotating) {
+      const list = (s && s.kudos) || [], box = $('kwFeature');
+      if (!box || !list.length) return;
+      const f = list[kwFeat % list.length];
+      if (f.id === kwFeatId) return;
+      kwFeatId = f.id;
+      kwSince = Date.now();
+      box.innerHTML = kudosCard(f, 'feat');
+      document.querySelectorAll('#kwWall .kd-card').forEach(c => c.classList.toggle('is-feat', c.dataset.id === f.id));
+      if (!rotating) pulse.spike(.6);
+    }
+    function paintKudos(s) {
+      const list = s.kudos || [], wall = $('kwWall');
+      if (!wall) return;
+      FX.tween($('kwN'), list.length);
+      const key = list.map(k => k.id).join(',');
+      if (key === kwKey) return;
+      kwKey = key;
+      if (!list.length) {
+        $('kwFeature').innerHTML = `<div class="kd-card feat kd-invite"><div class="kd-top"><span class="kd-ico">${icon('help:heart')}</span><span class="kd-kind">Kudos</span></div>
+          <p class="kd-text">Who deserves a thank-you?</p><div class="kd-to">Scan the code and send a kudos to a colleague or a whole team. It appears right here.</div></div>`;
+        wall.innerHTML = [0, 1, 2, 3, 4, 5].map(i => `<div class="kd-card kd-ghost" style="--t:${(i % 3 - 1) * .5}deg"><i></i><i></i><i></i></div>`).join('');
+        kwFeatId = '';
+        return;
+      }
+      wall.querySelectorAll('.kd-ghost').forEach(g => g.remove());
+      const fresh = list.filter(k => !kwSeen.has(k.id));
+      const had = kwSeen.size > 0;
+      fresh.forEach(k => kwSeen.add(k.id));
+      // the wall: the latest cards, keeping the ones already there
+      const old = new Map([...wall.querySelectorAll('.kd-card[data-id]')].map(c => [c.dataset.id, c]));
+      const shown = list.slice(0, 14);
+      shown.forEach(k => {
+        let c = old.get(k.id);
+        if (!c) { wall.insertAdjacentHTML('beforeend', kudosCard(k, had ? 'new' : '')); c = wall.lastElementChild; }
+        wall.appendChild(c);
+        old.delete(k.id);
+      });
+      old.forEach(c => c.remove());
+      // a new kudos goes straight into the spotlight
+      if (had && fresh.length) { kwFeat = list.indexOf(fresh[0]); kwFeatId = ''; }
+      showFeature(s, !(had && fresh.length));
     }
 
     // ---------- live Q&A board ----------
@@ -208,6 +391,8 @@
 
     function paint(s, meta) {
       if (s.stage === 'slide' && s.qa) paintQa(s);
+      if (s.stage === 'slide' && s.tug) paintTug(s);
+      if (s.stage === 'slide' && s.kudos) paintKudos(s);
       if (s.stage === 'lobby') paintLobby(s);
       else if (s.stage === 'question') paintQuestion(s, meta);
       else if (s.stage === 'recap') paintRecap(s);
@@ -721,6 +906,10 @@
             ${p.reason ? `<p>${ph(p.reason)}</p>` : ''}
           </div>`;
         }).join('')}</div>`;
+      } else if (sl.type === 'tug') {
+        buildTug(s);
+      } else if (sl.type === 'kudos') {
+        buildKudos(s);
       } else if (sl.type === 'nominees') {
         T2.innerHTML = head();
         const list = s.nominees || [];
@@ -1443,6 +1632,7 @@
       if (a === 'snow') { const on = snow.toggle(); $('ctlSnow').textContent = on ? 'Snow on' : 'Snow off'; return; }
       if (a === 'sim') { const on = T.simulate(!T.simulating()); $('ctlSim').textContent = on ? '■ Stop simulation' : '▶ Simulate the room'; return; }
       if (!T.canControl) { $('status').textContent = T.controlHint || 'Only the presenter can control this screen'; return; }
+      if (a === 'reveal' && latest && latest.tug) { if (!['countdown', 'go'].includes(latest.tug.phase)) T.act('tug', 'start'); return; }
       if (a === 'reveal') { if (!latest || latest.stage !== 'question') return; a = latest.revealed ? 'conceal' : 'reveal'; }
       if (a === 'reset') {
         if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); $('ctlReset').textContent = 'Click again to reset'; setTimeout(() => ($('ctlReset').textContent = 'Reset'), 3000); return; }
@@ -1471,7 +1661,7 @@
       else if (['arrowleft', 'pageup'].includes(k)) control('prev');
       else if (k === 'h') { if (latest && latest.stage === 'roadmap') { if (skipRoad) skipRoad(); } else control('reveal'); }
       else if (k === 's') control('snow');
-      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); }
+      else if (k === 'u') { control('unhide'); if (latest && latest.qa) T.act('qa', 'reset:'); if (latest && latest.kudos) T.act('kudos', 'reset:'); }
       else if (k === 'c') control('clear');
     });
     addEventListener('resize', () => {

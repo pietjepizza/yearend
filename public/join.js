@@ -74,6 +74,31 @@
         <div class="qa-list" id="qaList"></div>
       </section>
 
+      <section id="tug" class="tg" hidden>
+        <span class="tg-team" id="tgTeam"></span>
+        <h2 class="tg-phase" id="tgPhase">Get ready…</h2>
+        <p class="tg-sub" id="tgSub"></p>
+        <button class="tg-btn" id="tgBtn" disabled aria-label="Pull: tap as fast as you can">TAP!</button>
+        <p class="tg-count"><b id="tgN">0</b>pulls from you</p>
+      </section>
+
+      <section id="kudos" hidden>
+        <div class="anon st" style="--i:0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Sent anonymously</div>
+        <div><span class="q-k st" style="--i:0">Kudos wall</span></div>
+        <h1 class="q-t st" style="--i:1">Send a kudos</h1>
+        <p class="q-ctx st" style="--i:1">Thank a colleague or a whole team. Your card appears on the big screen.</p>
+        <div class="kd-form st" style="--i:2">
+          <div class="kd-kinds" id="kdKinds" role="radiogroup" aria-label="Kind of kudos"></div>
+          <label for="kdTo">For</label>
+          <input id="kdTo" maxlength="40" placeholder="A name or a team" autocomplete="off">
+          <label for="kdText">Your message</label>
+          <textarea id="kdText" maxlength="140" rows="3" placeholder="What do you want to thank them for?"></textarea>
+          <button class="kd-sendbtn" id="kdSend" disabled>Send kudos</button>
+          <p class="err" id="kdErr" hidden></p>
+        </div>
+        <div class="kd-mine" id="kdMine"></div>
+      </section>
+
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
         <p>Make some noise for the team!</p>
@@ -105,7 +130,7 @@
     let s = null, current = null, choice = null, editing = false, reactionsBuilt = false, shown = null, cheers = 0;
 
     function show(which) {
-      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask']) $(k).hidden = k !== which;
+      for (const k of ['lobby', 'pick', 'done', 'wrap', 'cheer', 'ask', 'tug', 'kudos']) $(k).hidden = k !== which;
       $('ctaWrap').hidden = which !== 'pick';
       if (which !== shown) {
         shown = which;
@@ -173,6 +198,8 @@
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
       if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'tug' && T.tugTap) { $('step').textContent = 'Tug of war'; renderTug(); return show('tug'); }
+      if (s.stage === 'slide' && s.slide && s.slide.type === 'kudos' && T.sendKudos) { $('step').textContent = 'Kudos'; renderKudos(); return show('kudos'); }
       if (s.stage !== 'question') {
         const sl = s.stage === 'slide' ? s.slide || {} : null;
         $('step').textContent = sl ? `${s.index + 1} / ${s.stepCount}` : 'Done!';
@@ -230,6 +257,81 @@
         show('done');
       } else show('pick');
     }
+    // ---------- tug of war ----------
+    const TUG_COLORS = ['#5fb8ff', '#a08cff'];
+    let tugJoined = null, myTaps = 0, tapRound = null;
+    function renderTug() {
+      const t = s.tug || { phase: 'ready' }, teams = (s.slide && s.slide.teams) || ['Debit', 'Credit'];
+      const team = s.myTeam === 1 ? 1 : 0, id = t.id || '';
+      $('tug').style.setProperty('--c', TUG_COLORS[team]);
+      $('tug').dataset.phase = t.phase || 'ready';
+      $('tgTeam').textContent = `Team ${teams[team]}`;
+      if (tugJoined !== id) { tugJoined = id; T.tugJoin(id); }
+      if (tapRound !== id) { tapRound = id; myTaps = s.mineTug && s.mineTug.id === id ? s.mineTug.taps || 0 : 0; }
+      $('tgN').textContent = myTaps;
+      const go = t.phase === 'go';
+      $('tgBtn').disabled = !go;
+      if (t.phase === 'countdown') { $('tgPhase').textContent = 'Get ready…'; $('tgSub').textContent = 'Thumbs on the button!'; }
+      else if (go) { $('tgPhase').textContent = 'PULL!'; $('tgSub').textContent = 'Tap as fast as you can'; }
+      else if (t.phase === 'done' && Array.isArray(t.final)) {
+        const [a, b] = t.final, w = a === b ? -1 : a > b ? 0 : 1;
+        $('tgPhase').textContent = w < 0 ? "It's a draw!" : w === team ? 'Your team won!' : `Team ${teams[w]} won`;
+        $('tgSub').textContent = `${a} – ${b}. Thanks for pulling!`;
+        if (w === team && $('tug').dataset.won !== id) { $('tug').dataset.won = id; confetti.burst('cannons'); }
+      } else { $('tgPhase').textContent = 'You are on the rope'; $('tgSub').textContent = 'Wait for the start on the big screen'; }
+    }
+    $('tgBtn').addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (!s || !s.tug || s.tug.phase !== 'go') return;
+      myTaps = T.tugTap(s.tug.id);
+      $('tgN').textContent = myTaps;
+      const b = $('tgBtn'); b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
+      if (navigator.vibrate) navigator.vibrate(6);
+    });
+
+    // ---------- kudos ----------
+    const KUDOS_KINDS = [['thanks', 'Thank you', 'help:heart', '#5fb8ff'], ['hero', 'Hero of the year', 'help:trophy', '#ffc400'], ['team', 'Team player', 'help:team', '#a08cff'], ['calm', 'Calm in the storm', 'help:snow', '#8fd3ff'], ['boost', 'Energy boost', 'help:boost', '#2fc6e0']];
+    let kdKind = 'thanks', kdKey = '';
+    $('kdKinds').innerHTML = KUDOS_KINDS.map(([id, label, ic, c]) => `<button class="kd-k ${id === kdKind ? 'sel' : ''}" data-k="${id}" role="radio" aria-checked="${id === kdKind}" style="--c:${c}">${icon(ic)}<span>${label}</span></button>`).join('');
+    $('kdKinds').onclick = e => {
+      const b = e.target.closest('.kd-k'); if (!b) return;
+      kdKind = b.dataset.k;
+      $('kdKinds').querySelectorAll('.kd-k').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); });
+    };
+    const kdReady = () => { $('kdSend').disabled = $('kdTo').value.trim().length < 1 || $('kdText').value.trim().length < 3; $('kdErr').hidden = true; };
+    $('kdTo').oninput = kdReady; $('kdText').oninput = kdReady;
+    $('kdSend').onclick = async () => {
+      $('kdSend').disabled = true;
+      const res = await T.sendKudos($('kdTo').value, $('kdText').value, kdKind);
+      if (res === 'ok') {
+        const r = $('kdSend').getBoundingClientRect();
+        confetti.burst('point', { x: r.left + r.width / 2, y: r.top });
+        $('kdTo').value = ''; $('kdText').value = '';
+      } else {
+        $('kdErr').textContent = res === 'limit' ? 'You have sent five kudos. Thank you for the love!' : res === 'short' ? 'Add who it is for and a short message.' : 'Your kudos could not be sent. Check your connection and try again.';
+        $('kdErr').hidden = false;
+      }
+      kdReady();
+      await load();
+    };
+    function renderKudos() {
+      const list = (s.mineKudos || []).slice().reverse();
+      const key = list.map(k => k.id).join(',');
+      if (key === kdKey) return;
+      kdKey = key;
+      $('kdMine').innerHTML = list.length ? '<div class="qa-h"><span>Sent by you</span><span></span></div>' : '';
+      list.forEach(k => {
+        const m = KUDOS_KINDS.find(x => x[0] === k.kind) || KUDOS_KINDS[0];
+        const card = document.createElement('div');
+        card.className = 'kd-card'; card.style.setProperty('--c', m[3]);
+        card.innerHTML = `<div class="kd-top"><span class="kd-ico">${icon(m[2])}</span><span class="kd-kind"></span></div><div class="kd-to">For <b></b></div><p class="kd-text"></p>`;
+        card.querySelector('.kd-kind').textContent = m[1];
+        card.querySelector('.kd-to b').textContent = k.to;
+        card.querySelector('.kd-text').textContent = k.text;
+        $('kdMine').appendChild(card);
+      });
+    }
+
     // ---------- anonymous Q&A ----------
     let qaKey = '';
     function renderAsk() {

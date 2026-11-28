@@ -90,6 +90,8 @@
         team: '<circle cx="18" cy="10" r="4.5"/><path d="M8 29 c0-6.5 4.5-10 10-10 s10 3.5 10 10"/><circle class="h" cx="32" cy="11" r="4"/><path class="h" d="M28 20.5 c1.2-.6 2.6-.9 4-.9 c5 0 8.5 3.2 8.5 9.4"/>',
         trophy: '<path d="M16 4 h16 v7 a8 8 0 0 1 -16 0 z"/><path d="M16 7 h-4.5 a4.5 4.5 0 0 0 5 6.5 M32 7 h4.5 a4.5 4.5 0 0 1 -5 6.5 M24 19 v5 M18 28.5 h12 M20 24.5 h8"/><path class="h" d="M24 7.5 l1.2 2.4 2.6.4 -1.9 1.8 .5 2.6 -2.4-1.3 -2.4 1.3 .5-2.6 -1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/>',
         snow: `<path class="h" d="${snowflake(24, 16, 13)}" stroke-width="2.2"/>`,
+        heart: '<path d="M24 30 C 14 23, 8 18, 8 11.5 A 6.5 6.5 0 0 1 24 8 A 6.5 6.5 0 0 1 40 11.5 C 40 18, 34 23, 24 30 Z"/><path class="h" d="M15 11.5 a3 3 0 0 1 3-3"/>',
+        boost: '<path d="M27 3 L12 19 h10 l-4 11 L36 13 h-10 z"/><path class="h" d="M8 8 l3 2 M40 22 l-3-2" />',
       };
       return svg('i-help help-' + arg, bodies[arg] || bodies.target);
     }

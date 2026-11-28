@@ -28,12 +28,13 @@ const PUBLIC_URL = (process.env.PUBLIC_URL || `http://${lanAddress()}:${PORT}`).
 
 // ---- state -------------------------------------------------------------
 // responses[questionIndex] = { anonymousDeviceToken: { option, word, ts } }. No names are collected.
-const fresh = () => ({ current: 0, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [], qa: { done: [], hidden: [] } });
+const fresh = () => ({ current: 0, revealedQ: {}, timerEnd: 0, responses: {}, hidden: [], qa: { done: [], hidden: [] }, tug: null, kudosHidden: [] });
 let state = fresh();
 try { state = { ...state, ...JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) }; } catch {}
 for (const r of Object.values(state.responses)) for (const a of Object.values(r || {})) delete a.name;
 state.revealedQ ||= {};
 state.qa ||= { done: [], hidden: [] };
+state.kudosHidden ||= [];
 state.current = Math.max(0, Math.min(LAST, Number(state.current) || 0));
 let saveTimer;
 function save() {
@@ -107,6 +108,9 @@ const server = http.createServer(async (req, res) => {
     const me = url.searchParams.get('id');
     s.mine = me && s.stage === 'question' ? (state.responses[s.qi] || {})[me] || null : null;
     s.mineAsk = me ? (state.responses.ask || {})[me] || null : null;
+    s.mineTug = me ? (state.responses.tug || {})[me] || null : null;
+    s.mineKudos = me ? (((state.responses.kudos || {})[me] || {}).list || []) : [];
+    s.myTeam = me ? Core.teamOf(me) : 0;
     return json(res, 200, s);
   }
 
@@ -160,6 +164,29 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: true });
   }
 
+  // Tug of war (taps from a phone, about every 0.7 s) and the kudos wall.
+  if (req.method === 'POST' && (p === '/api/tug' || p === '/api/kudos')) {
+    let b;
+    try { b = await readBody(req); } catch { return json(res, 400, { error: 'bad json' }); }
+    const id = Core.clean(b.id, 64);
+    if (!id) return json(res, 400, { error: 'missing id' });
+    if (p === '/api/tug') {
+      const round = Core.clean(b.round, 24);
+      (state.responses.tug ||= {})[id] = { id: round, team: Core.teamOf(id), taps: Math.max(0, Math.min(400, Number(b.taps) || 0)), ts: Date.now() };
+      send(toHosts, publicState());
+      return json(res, 200, { ok: true });
+    }
+    const text = Core.clean(b.text, 140), to = Core.clean(b.to, 40);
+    if (text.length < 3 || !to) return json(res, 400, { error: 'too short' });
+    const mine = ((state.responses.kudos ||= {})[id] ||= { list: [], ts: 0 });
+    if (mine.list.length >= 5) return json(res, 429, { error: 'limit' });
+    mine.list.push({ id: 'k' + crypto.randomBytes(4).toString('hex'), to, text, kind: Core.clean(b.kind, 12), ts: Date.now() });
+    mine.ts = Date.now();
+    save();
+    send(toHosts, publicState());
+    return json(res, 200, { ok: true });
+  }
+
   // The presenter tools: the full content (for the content check) and the results summary.
   if (req.method === 'GET' && (p === '/api/config' || p === '/api/summary')) {
     if (url.searchParams.get('key') !== HOST_KEY) return json(res, 403, { error: 'wrong host key' });
@@ -195,6 +222,18 @@ const server = http.createServer(async (req, res) => {
       qa.done = qa.done.filter(x => x !== id); qa.hidden = qa.hidden.filter(x => x !== id);
       if (what === 'done') qa.done.push(id); else if (what === 'hide') qa.hidden.push(id);
       if (what === 'reset') state.qa = { done: [], hidden: [] };
+    }
+    else if (action === 'tug') {
+      const [what, id, ta, tb] = String(url.searchParams.get('word') || '').split(':');
+      const t = state.tug;
+      if (what === 'start') state.tug = { id: 'r' + Date.now().toString(36), phase: 'countdown', at: Date.now() };
+      else if (what === 'go' && t && t.id === id && t.phase === 'countdown') state.tug = { ...t, phase: 'go', goAt: Date.now() };
+      else if (what === 'done' && t && t.id === id && t.phase === 'go') state.tug = { ...t, phase: 'done', final: [Number(ta) || 0, Number(tb) || 0] };
+      else if (what === 'reset') state.tug = null;
+    }
+    else if (action === 'kudos') {
+      const [what, id] = String(url.searchParams.get('word') || '').split(':');
+      state.kudosHidden = what === 'reset' ? [] : [...new Set([...state.kudosHidden, id])];
     }
     else if (action === 'reset') state = fresh();
     else return json(res, 404, { error: 'unknown action' });
