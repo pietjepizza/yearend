@@ -1,0 +1,32 @@
+{
+  "name": "mood-pulse",
+  "version": "1.0.0",
+  "description": "Live emoji mood check-in for the year-end all-hands",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build:artifact": "node scripts/build-artifact.js",
+    "build:sim": "node scripts/build-artifact.js && node scripts/build-simulator.js",
+    "build:pages": "node scripts/build-pages.js",
+    "content:push": "node scripts/content.js push",
+    "content:pull": "node scripts/content.js pull",
+    "dates:hide": "node scripts/content.js hide-dates",
+    "dates:show": "node scripts/content.js show-dates"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pietjepizza/yearend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pietjepizza/yearend/issues"
+  },
+  "homepage": "https://github.com/pietjepizza/yearend#readme",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}

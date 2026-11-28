@@ -1,0 +1,1 @@
+supabase-js is MIT licensed: https://github.com/supabase/supabase-js/blob/master/LICENSE

@@ -1,0 +1,1137 @@
+{
+  "team": "Finance Operations",
+  "event": "Year-End All-Hands 2026",
+  "holidayDate": "2026-12-25",
+  "countdown": {
+    "date": "2027-01-04",
+    "label": "[the next milestone]",
+    "after": "[Text once the date has passed]"
+  },
+  "timer": 25,
+  "reactions": [
+    "👏",
+    "🎉",
+    "🔥",
+    "💪",
+    "😂",
+    "🚀"
+  ],
+  "ticker": [
+    "Reconciling the audience… 98% matched",
+    "Applying holiday accruals…",
+    "Rounding difference detected: within tolerance",
+    "Coffee consumption: ahead of forecast",
+    "Loading final_FINAL_v3.xlsx…",
+    "Meetings that could have been an email: in line with guidance",
+    "Variance analysis: vibes are up",
+    "Audit trail confirms: you were here",
+    "Outlook 2027: strong buy"
+  ],
+  "show": [
+    {
+      "type": "title",
+      "nav": "Title",
+      "kicker": "Finance Operations",
+      "title": "Year-End All-Hands 2026",
+      "subtitle": "Closing a big year, together",
+      "meta": "[Date] · [Location]",
+      "notes": "Welcome everyone. While people settle in, move on to the next screen with the QR code."
+    },
+    {
+      "type": "lobby",
+      "nav": "Join",
+      "notes": "Ask everyone to scan the QR code. It is anonymous: no names, no login. Wait until most dots have popped in."
+    },
+    {
+      "type": "agenda",
+      "nav": "Agenda",
+      "title": "Today's agenda",
+      "items": [
+        {
+          "time": "[10:00]",
+          "title": "Welcome and warm-up",
+          "who": "[Host]",
+          "live": true
+        },
+        {
+          "time": "[10:10]",
+          "title": "2026 in review",
+          "who": "[Speaker]"
+        },
+        {
+          "time": "[10:25]",
+          "title": "Shout-outs",
+          "who": "[Speaker]"
+        },
+        {
+          "time": "[10:35]",
+          "title": "Improvement Award",
+          "who": "Three nominees, your vote",
+          "live": true
+        },
+        {
+          "time": "[10:55]",
+          "title": "The road ahead: peak season",
+          "who": "[Speaker]",
+          "live": true
+        },
+        {
+          "time": "[11:10]",
+          "title": "Q&A",
+          "who": "Everyone"
+        },
+        {
+          "time": "[11:20]",
+          "title": "Yes we can!",
+          "who": "All of us"
+        }
+      ],
+      "notes": "Walk through the agenda and point out the live moments: the polls, the Improvement Award and the Q&A."
+    },
+    {
+      "type": "question",
+      "question": "movie",
+      "nav": "Q1 Movie",
+      "notes": "A light icebreaker. The 25-second countdown starts by itself and the results reveal themselves. Press H to reveal early."
+    },
+    {
+      "type": "section",
+      "nav": "01 Review",
+      "number": "01",
+      "title": "2026 in review",
+      "subtitle": "a big year, and how we got there",
+      "notes": "Look back on 2026."
+    },
+    {
+      "type": "bullets",
+      "nav": "Highlights",
+      "title": "Highlights of 2026",
+      "subtitle": "[Replace with your own highlights]",
+      "points": [
+        {
+          "icon": "chart:rocket",
+          "title": "[Highlight 1]",
+          "text": "[What made it possible]"
+        },
+        {
+          "icon": "help:target",
+          "title": "[Highlight 2]",
+          "text": "[One line about it]"
+        },
+        {
+          "icon": "help:team",
+          "title": "[Highlight 3]",
+          "text": "[One line about it]"
+        },
+        {
+          "icon": "help:trophy",
+          "title": "[Highlight 4]",
+          "text": "[One line about it]"
+        }
+      ],
+      "notes": "[Your talking points for the 2026 highlights]"
+    },
+    {
+      "type": "stats",
+      "nav": "Numbers",
+      "title": "2026 by the numbers",
+      "subtitle": "[Replace XX with the real figures]",
+      "stats": [
+        {
+          "value": "XX",
+          "label": "Invoices processed",
+          "note": "[vs 2025]"
+        },
+        {
+          "value": "XX",
+          "label": "Month-end closes on time",
+          "note": "[out of 12]"
+        },
+        {
+          "value": "XX",
+          "label": "Journal entries booked",
+          "note": "[vs 2025]"
+        },
+        {
+          "value": "XX",
+          "label": "Cups of coffee",
+          "note": "Ahead of forecast"
+        }
+      ],
+      "notes": "[Your talking points for the figures]"
+    },
+    {
+      "type": "question",
+      "question": "energy",
+      "nav": "Q2 Energy",
+      "notes": "The honest energy check. Whatever the outcome, thank people for their honesty: that is what makes this work."
+    },
+    {
+      "type": "section",
+      "nav": "02 Shout-outs",
+      "number": "02",
+      "title": "Shout-outs",
+      "subtitle": "Thank you for making it happen",
+      "notes": "Time to say thank you."
+    },
+    {
+      "type": "shoutouts",
+      "nav": "Thank you",
+      "title": "Thank you!",
+      "subtitle": "[Replace with your own shout-outs]",
+      "people": [
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        },
+        {
+          "name": "[Name]",
+          "team": "[Team]",
+          "reason": "[What they did]"
+        }
+      ],
+      "notes": "Read out each shout-out and give the room a moment to applaud."
+    },
+    {
+      "type": "section",
+      "nav": "03 Award",
+      "number": "03",
+      "title": "Improvement Award",
+      "subtitle": "Three improvements. One winner. Your vote.",
+      "notes": "Introduce the Improvement Award: three improvements, one winner, and the audience decides."
+    },
+    {
+      "type": "nominees",
+      "nav": "Nominees",
+      "question": "award",
+      "title": "Meet the nominees",
+      "subtitle": "Each shares their improvement. Then you vote.",
+      "notes": "Invite the three nominees up one by one to share their improvement ([x] minutes each)."
+    },
+    {
+      "type": "question",
+      "question": "award",
+      "nav": "Award vote",
+      "notes": "Voting is open: ask everyone to vote now. When the vote count settles, press H for the drumroll and the winner. Hand over the prize."
+    },
+    {
+      "type": "section",
+      "nav": "04 Road ahead",
+      "number": "04",
+      "title": "The road ahead",
+      "subtitle": "[What is coming up]",
+      "notes": "The busiest stretch of the year is coming."
+    },
+    {
+      "type": "roadmap",
+      "nav": "Timeline",
+      "notes": "[Your talking points for the timeline]"
+    },
+    {
+      "type": "bullets",
+      "nav": "Peak plan",
+      "title": "How we'll get through the peak",
+      "subtitle": "[Replace with your plan]",
+      "points": [
+        {
+          "icon": "help:target",
+          "title": "Clear priorities",
+          "text": "[What comes first, what can wait]"
+        },
+        {
+          "icon": "help:focus",
+          "title": "Protected focus time",
+          "text": "[e.g. meeting-free mornings during the close]"
+        },
+        {
+          "icon": "help:team",
+          "title": "Backing each other up",
+          "text": "[Buddy system or coverage plan]"
+        },
+        {
+          "icon": "help:snow",
+          "title": "Recharge moments",
+          "text": "[Christmas and New Year days off: who is off when]"
+        }
+      ],
+      "notes": "How we get through it: clear priorities, protected focus time, backing each other up, and real recharge moments."
+    },
+    {
+      "type": "question",
+      "question": "weather",
+      "nav": "Q3 Weather",
+      "notes": "A light-hearted outlook for January."
+    },
+    {
+      "type": "recap",
+      "nav": "Recap",
+      "notes": "Thank people for their honesty and read the \"We will do\" pledges out loud."
+    },
+    {
+      "type": "qa",
+      "nav": "Q&A",
+      "title": "Questions?",
+      "subtitle": "Ask anonymously on your phone, and vote for the questions you want answered.",
+      "notes": "Questions arrive anonymously on the phones and people upvote the ones they want answered. Click a question once to mark it answered, twice to hide it.",
+      "demo": [
+        "How do we cover the close if someone is ill?",
+        "When do we get the new system training?",
+        "Will there be cake at go-live?",
+        "Can we freeze non-urgent requests in January?",
+        "Who do we call during the go-live weekend?",
+        "How will we celebrate the peak?"
+      ]
+    },
+    {
+      "type": "finale",
+      "nav": "Finale",
+      "notes": "End on a high: YES WE CAN! The phones turn into a cheer button."
+    },
+    {
+      "type": "section",
+      "extra": true,
+      "nav": "Check-in",
+      "number": "Feb",
+      "title": "February check-in",
+      "subtitle": "A few weeks after go-live: how are we doing?",
+      "notes": "Welcome back. Same QR code as in December. Do not press Reset first if you want the comparison with December."
+    },
+    {
+      "type": "question",
+      "question": "energy-feb",
+      "extra": true,
+      "nav": "Check-in energy",
+      "notes": "The same energy question as in December. After the reveal, the meter shows the December score next to today."
+    },
+    {
+      "type": "question",
+      "question": "golive",
+      "extra": true,
+      "nav": "Check-in go-live",
+      "notes": "How did the go-live go? Thank people for their honesty, whatever the result."
+    },
+    {
+      "type": "title",
+      "extra": true,
+      "nav": "Check-in thanks",
+      "kicker": "Finance Operations",
+      "title": "Thank you!",
+      "subtitle": "Peak conquered, together.",
+      "notes": "Close the check-in with a thank you."
+    }
+  ],
+  "lobby": {
+    "title": "Peak Season Pulse",
+    "intro": "Three quick questions, fully anonymous. Scan, vote, and watch your answers race across the screen!"
+  },
+  "recap": {
+    "title": "Thank you for your honesty!",
+    "subtitle": "Here's what you told us, and what we'll do with it."
+  },
+  "roadmap": {
+    "title": "The road ahead",
+    "subtitle": "[A demanding stretch with a lot to deliver. We get through it together.]",
+    "style": "gantt",
+    "start": "2026-12-01",
+    "end": "2027-02-21",
+    "source": "[Planning as of today]",
+    "workloadLabel": "Team workload",
+    "peakLabel": "Peak",
+    "holidays": [
+      {
+        "label": "Christmas",
+        "start": "2026-12-25",
+        "end": "2026-12-27",
+        "factor": 0.35
+      },
+      {
+        "label": "New Year · back Mon 4 Jan",
+        "start": "2026-12-31",
+        "end": "2027-01-03",
+        "factor": 0.35
+      }
+    ],
+    "rows": [
+      {
+        "label": "[Workstream A]",
+        "items": [
+          {
+            "type": "bar",
+            "label": "[Preparation]",
+            "start": "2026-12-07",
+            "end": "2026-12-18",
+            "weight": 1
+          },
+          {
+            "type": "milestone",
+            "key": true,
+            "label": "[Go-live]",
+            "date": "2027-02-01",
+            "weight": 1
+          },
+          {
+            "type": "bar",
+            "label": "[Hypercare]",
+            "start": "2027-02-01",
+            "end": "2027-02-15",
+            "weight": 1,
+            "fade": true
+          }
+        ]
+      },
+      {
+        "label": "[Workstream B]",
+        "items": [
+          {
+            "type": "bar",
+            "label": "[Testing]",
+            "start": "2027-01-04",
+            "end": "2027-01-22",
+            "weight": 0.8
+          }
+        ]
+      },
+      {
+        "label": "[Close & reporting]",
+        "items": [
+          {
+            "type": "bar",
+            "label": "[Close]",
+            "start": "2027-01-05",
+            "end": "2027-01-06",
+            "weight": 1.6
+          },
+          {
+            "type": "milestone",
+            "label": "[Deadline]",
+            "date": "2027-01-14",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "label": "[Controls]",
+        "items": [
+          {
+            "type": "milestone",
+            "label": "[Deadline]",
+            "date": "2027-01-19",
+            "weight": 0.9
+          }
+        ]
+      }
+    ],
+    "overview": "Peak season, mapped",
+    "steps": [
+      {
+        "type": "start",
+        "when": "Today",
+        "label": "We're here",
+        "note": "[Note]",
+        "load": 60,
+        "month": "Dec"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 75,
+        "month": "Dec"
+      },
+      {
+        "type": "rest",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 20,
+        "month": "Dec"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 90,
+        "month": "Jan"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 85,
+        "month": "Jan"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 85,
+        "month": "Jan"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 90,
+        "month": "Jan",
+        "group": "[Project]"
+      },
+      {
+        "type": "boss",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 100,
+        "month": "Feb",
+        "group": "[Project]"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 95,
+        "month": "Feb",
+        "group": "[Project]"
+      },
+      {
+        "type": "level",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 75,
+        "month": "Feb",
+        "group": "[Project]"
+      },
+      {
+        "type": "finish",
+        "when": "[Date]",
+        "label": "[Milestone]",
+        "note": "[Note]",
+        "load": 40,
+        "month": "Mar"
+      }
+    ],
+    "peakZoneLabel": "Peak weeks",
+    "peakZoneNote": "look out for each other"
+  },
+  "finale": {
+    "lines": [
+      "[Rally line 1]",
+      "[Rally line 2]",
+      "[Rally line 3]"
+    ],
+    "title": "YES WE CAN!",
+    "thanks": "Happy holidays, Finance Operations!"
+  },
+  "questions": [
+    {
+      "id": "movie",
+      "title": "If our big project were a movie, which one would it be?",
+      "wordPrompt": "Your movie tagline in one word (optional)",
+      "takeaways": [
+        {
+          "text": "Our big project, the movie: “{top}”. Popcorn ready!"
+        }
+      ],
+      "pledge": "Celebrate every project milestone together, popcorn included",
+      "options": [
+        {
+          "id": "mission",
+          "label": "Mission: Impossible",
+          "icon": "movie:mission",
+          "note": "…made possible!"
+        },
+        {
+          "id": "oceans",
+          "label": "Ocean's Eleven",
+          "icon": "movie:heist",
+          "note": "Great team, perfect plan"
+        },
+        {
+          "id": "rings",
+          "label": "The Lord of the Rings",
+          "icon": "movie:quest",
+          "note": "Long road, happy ending"
+        },
+        {
+          "id": "fast",
+          "label": "Fast & Furious",
+          "icon": "movie:race",
+          "note": "Family. And deadlines."
+        },
+        {
+          "id": "toy",
+          "label": "Toy Story",
+          "icon": "movie:toy",
+          "note": "To go-live and beyond!"
+        }
+      ],
+      "demo": {
+        "weights": [
+          12,
+          9,
+          8,
+          5,
+          7
+        ],
+        "words": [
+          "epic",
+          "teamwork",
+          "sequel",
+          "blockbuster",
+          "thriller",
+          "popcorn",
+          "plot-twist",
+          "heroes",
+          "adventure",
+          "epic"
+        ]
+      }
+    },
+    {
+      "id": "energy",
+      "title": "How charged are you for peak season?",
+      "context": "[Context line]",
+      "wordPrompt": "What keeps you going? (one word, optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% are charged for the peak. Bring it on!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Charging up nicely. We'll pace the peak together"
+        },
+        {
+          "text": "Recharge first, then we go, and we go together"
+        }
+      ],
+      "pledge": "Protect the days off at Christmas and New Year: laptops closed, batteries recharged",
+      "options": [
+        {
+          "id": "full",
+          "label": "Fully charged, bring it on!",
+          "icon": "battery:100",
+          "score": 5,
+          "note": "Let's gooo!"
+        },
+        {
+          "id": "ready",
+          "label": "Charged and ready",
+          "icon": "battery:70",
+          "score": 4,
+          "note": "Ready to roll!"
+        },
+        {
+          "id": "charging",
+          "label": "Charging up",
+          "icon": "battery:35",
+          "score": 3,
+          "note": "Almost there!"
+        },
+        {
+          "id": "holiday",
+          "label": "Need a recharge",
+          "icon": "battery:10",
+          "score": 2,
+          "note": "Christmas days, here I come"
+        }
+      ],
+      "demo": {
+        "weights": [
+          8,
+          14,
+          9,
+          5
+        ],
+        "words": [
+          "coffee",
+          "team",
+          "holiday",
+          "coffee",
+          "family",
+          "music",
+          "team",
+          "sports",
+          "chocolate",
+          "sleep",
+          "coffee",
+          "colleagues"
+        ]
+      },
+      "meterLabel": "Team energy"
+    },
+    {
+      "id": "weather",
+      "title": "What's the weather forecast for January?",
+      "context": "Your outlook for the start of 2027",
+      "wordPrompt": "What will you bring? (one word, optional)",
+      "meterLabel": "Team forecast",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% expect sunshine. Sunglasses on!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Mixed forecast, and we've got umbrellas for everyone"
+        },
+        {
+          "text": "Storm first, rainbow after. We'll weather it together"
+        }
+      ],
+      "pledge": "Short weekly check-ins, so nobody gets caught in the rain",
+      "options": [
+        {
+          "id": "sunny",
+          "label": "Sunny, bring it on",
+          "icon": "weather:sun",
+          "score": 5,
+          "note": "Sunglasses on!"
+        },
+        {
+          "id": "mostly",
+          "label": "Mostly sunny, some deadlines",
+          "icon": "weather:partly",
+          "score": 4,
+          "note": "Light jacket weather"
+        },
+        {
+          "id": "showers",
+          "label": "Showers, but we brought umbrellas",
+          "icon": "weather:rain",
+          "score": 3,
+          "note": "Umbrellas ready!"
+        },
+        {
+          "id": "rainbow",
+          "label": "Storm first, rainbow after",
+          "icon": "weather:rainbow",
+          "score": 2,
+          "note": "Rainbow incoming!"
+        }
+      ],
+      "demo": {
+        "weights": [
+          7,
+          15,
+          9,
+          6
+        ],
+        "words": [
+          "umbrella",
+          "coffee",
+          "optimism",
+          "snacks",
+          "sunglasses",
+          "energy",
+          "patience",
+          "teamwork",
+          "humour",
+          "coffee"
+        ]
+      }
+    },
+    {
+      "id": "award",
+      "type": "award",
+      "title": "Which improvement wins the award?",
+      "context": "Three improvements, one winner. Vote for the one that impressed you most.",
+      "timer": 0,
+      "noWord": true,
+      "prize": "[Prize]",
+      "winnerText": "And the Improvement Award goes to… {winner}!",
+      "options": [
+        {
+          "id": "n1",
+          "label": "[Nominee 1]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        },
+        {
+          "id": "n2",
+          "label": "[Nominee 2]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        },
+        {
+          "id": "n3",
+          "label": "[Nominee 3]",
+          "team": "[Team]",
+          "idea": "[Their improvement idea or result, in one or two lines]"
+        }
+      ],
+      "demo": {
+        "weights": [
+          13,
+          10,
+          8
+        ],
+        "words": []
+      }
+    },
+    {
+      "id": "energy-feb",
+      "group": "checkin",
+      "title": "How charged are you now, a few weeks after go-live?",
+      "context": "Same question as in December. Let us see how we are doing.",
+      "meterLabel": "Team energy",
+      "compareWith": "energy",
+      "compareLabel": "December",
+      "wordPrompt": "What would help you most right now? (one word, optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% feel charged. The peak is behind us!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Getting there: {topBox}% feel charged. Let us keep looking out for each other."
+        },
+        {
+          "text": "Thank you for your honesty. Recharging is now the priority."
+        }
+      ],
+      "options": [
+        {
+          "id": "full",
+          "label": "Fully charged, bring it on!",
+          "icon": "battery:100",
+          "score": 5,
+          "note": "Let's gooo!"
+        },
+        {
+          "id": "ready",
+          "label": "Charged and ready",
+          "icon": "battery:70",
+          "score": 4,
+          "note": "Ready to roll!"
+        },
+        {
+          "id": "charging",
+          "label": "Charging up",
+          "icon": "battery:35",
+          "score": 3,
+          "note": "Almost there!"
+        },
+        {
+          "id": "holiday",
+          "label": "Need a recharge",
+          "icon": "battery:10",
+          "score": 2,
+          "note": "Christmas days, here I come"
+        }
+      ],
+      "demo": {
+        "weights": [
+          10,
+          14,
+          7,
+          3
+        ],
+        "words": [
+          "rest",
+          "training",
+          "coffee",
+          "team",
+          "time",
+          "focus"
+        ]
+      }
+    },
+    {
+      "id": "golive",
+      "group": "checkin",
+      "title": "How did the go-live go for you?",
+      "meterLabel": "Go-live experience",
+      "wordPrompt": "The go-live in one word (optional)",
+      "takeaways": [
+        {
+          "minAvg": 4,
+          "text": "Mostly smooth sailing: {topPct}% say “{top}”."
+        },
+        {
+          "minAvg": 3,
+          "text": "Bumpy but we got through it, together."
+        },
+        {
+          "text": "Tough weeks. Thank you for sticking with it; let us fix what still hurts."
+        }
+      ],
+      "options": [
+        {
+          "id": "smooth",
+          "label": "Smoother than expected",
+          "icon": "weather:sun",
+          "score": 5,
+          "note": "Nice!"
+        },
+        {
+          "id": "bumpy",
+          "label": "Bumpy, but we got there",
+          "icon": "weather:partly",
+          "score": 4,
+          "note": "Teamwork!"
+        },
+        {
+          "id": "finding",
+          "label": "Still finding my way",
+          "icon": "weather:rain",
+          "score": 3,
+          "note": "Hang in there"
+        },
+        {
+          "id": "support",
+          "label": "Tough, I could use support",
+          "icon": "help:team",
+          "score": 2,
+          "note": "We have got you"
+        }
+      ],
+      "demo": {
+        "weights": [
+          9,
+          15,
+          8,
+          3
+        ],
+        "words": [
+          "teamwork",
+          "bumpy",
+          "proud",
+          "relief",
+          "learning",
+          "smooth"
+        ]
+      }
+    }
+  ],
+  "spareQuestions": [
+    {
+      "title": "How are you feeling right now?",
+      "wordPrompt": "One word for your mood (optional)",
+      "takeaways": [
+        {
+          "minTopBox": 60,
+          "text": "{topBox}% feel positive or energised. What a team!"
+        },
+        {
+          "minTopBox": 35,
+          "text": "Honest answers, strong team. Thank you!"
+        },
+        {
+          "text": "Thanks for being honest. Now let's look after each other"
+        }
+      ],
+      "pledge": "Short weekly check-ins through the peak, so nobody runs on empty",
+      "options": [
+        {
+          "id": "energised",
+          "label": "Energised",
+          "icon": "signal:5",
+          "score": 5,
+          "note": "Unstoppable!"
+        },
+        {
+          "id": "positive",
+          "label": "Positive",
+          "icon": "signal:4",
+          "score": 4,
+          "note": "Love that energy!"
+        },
+        {
+          "id": "steady",
+          "label": "Steady",
+          "icon": "signal:3",
+          "score": 3,
+          "note": "Rock solid!"
+        },
+        {
+          "id": "stretched",
+          "label": "Stretched",
+          "icon": "signal:2",
+          "score": 2,
+          "note": "We've got your back"
+        },
+        {
+          "id": "recharge",
+          "label": "Need a recharge",
+          "icon": "signal:1",
+          "score": 1,
+          "note": "Rest is part of the plan"
+        }
+      ],
+      "demo": {
+        "weights": [
+          5,
+          11,
+          7,
+          6,
+          2
+        ],
+        "words": [
+          "proud",
+          "busy",
+          "grateful",
+          "tired",
+          "focused",
+          "proud",
+          "excited",
+          "busy",
+          "relieved",
+          "hectic",
+          "happy",
+          "proud",
+          "festive",
+          "stretched",
+          "motivated"
+        ]
+      }
+    },
+    {
+      "title": "If 2026 were a share price, what would the chart look like?",
+      "wordPrompt": "Describe 2026 in one word (optional)",
+      "takeaways": [
+        {
+          "text": "2026 in one chart: “{top}”. What a year!"
+        }
+      ],
+      "pledge": "Celebrate the a big year together, because we earned it",
+      "options": [
+        {
+          "id": "rocket",
+          "label": "Exponential growth",
+          "icon": "chart:rocket",
+          "note": "To the moon!"
+        },
+        {
+          "id": "bull",
+          "label": "Steady bull run",
+          "icon": "chart:bull",
+          "note": "Textbook growth!"
+        },
+        {
+          "id": "volatile",
+          "label": "Volatile, but up",
+          "icon": "chart:volatile",
+          "note": "Up is up!"
+        },
+        {
+          "id": "recovery",
+          "label": "Dip and recovery",
+          "icon": "chart:recovery",
+          "note": "Comeback kids!"
+        },
+        {
+          "id": "sideways",
+          "label": "Building the base",
+          "icon": "chart:sideways",
+          "note": "Ready to break out!"
+        }
+      ],
+      "demo": {
+        "weights": [
+          8,
+          7,
+          12,
+          4,
+          2
+        ],
+        "words": [
+          "success",
+          "intense",
+          "growth",
+          "rollercoaster",
+          "busy",
+          "success",
+          "wild",
+          "solid",
+          "intense",
+          "rewarding",
+          "success",
+          "fast"
+        ]
+      }
+    },
+    {
+      "title": "What will make us unstoppable through the peak?",
+      "context": "Your top picks go straight into our plan",
+      "wordPrompt": "Your own idea? (one word, optional)",
+      "takeaways": [
+        {
+          "text": "Power-up #1: “{top}”. Let's make it happen!"
+        }
+      ],
+      "pledge": "Your #1 power-up goes into our peak plan, starting next week",
+      "options": [
+        {
+          "id": "priorities",
+          "label": "Clear priorities",
+          "icon": "help:target",
+          "note": "Focus mode: ON"
+        },
+        {
+          "id": "focus",
+          "label": "Protected focus time",
+          "icon": "help:focus",
+          "note": "Do not disturb!"
+        },
+        {
+          "id": "backup",
+          "label": "Backing each other up",
+          "icon": "help:team",
+          "note": "Team power!"
+        },
+        {
+          "id": "wins",
+          "label": "Celebrating every win",
+          "icon": "help:trophy",
+          "note": "Cake incoming!"
+        },
+        {
+          "id": "break",
+          "label": "A real holiday break",
+          "icon": "help:snow",
+          "note": "Laptops closed ✓"
+        }
+      ],
+      "demo": {
+        "weights": [
+          9,
+          11,
+          6,
+          4,
+          8
+        ],
+        "words": [
+          "clarity",
+          "templates",
+          "automation",
+          "patience",
+          "pizza",
+          "documentation",
+          "training",
+          "clarity",
+          "headcount",
+          "cake"
+        ]
+      }
+    }
+  ]
+}

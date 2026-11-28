@@ -1,0 +1,5 @@
+node_modules/
+data.json
+dist/
+# the presentation content is private: it lives on your computer and in Supabase, never in git
+questions.json
