@@ -33,6 +33,7 @@ function phoneConfig(c) {
   const pick = (o, keys) => Object.fromEntries(keys.filter(k => o[k] !== undefined).map(k => [k, o[k]]));
   return {
     team: c.team, event: c.event, timer: c.timer, reactions: c.reactions,
+    ...(c.finale && c.finale.holidays !== undefined ? { finale: { holidays: c.finale.holidays } } : {}),
     questions: c.questions.map(q => ({
       ...pick(q, ['id', 'type', 'group', 'title', 'context', 'wordPrompt', 'noWord', 'timer', 'compareWith']),
       options: q.options.map(o => pick(o, ['id', 'label', 'icon', 'score', 'team'])),

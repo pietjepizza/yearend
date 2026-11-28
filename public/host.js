@@ -21,6 +21,7 @@
     <canvas class="snow" id="snow" aria-hidden="true"></canvas>
     <canvas class="fireworks" id="fireworks" aria-hidden="true"></canvas>
     <div class="lights" id="lights" aria-hidden="true"></div>
+    <div class="baubles" id="baubles" aria-hidden="true"></div>
     <div class="topbar">
       <span class="tag" id="team"></span>
       <span class="event" id="event"></span>
@@ -150,6 +151,7 @@
       timers.forEach(clearTimeout); timers = [];
       cloudEls.clear(); lastN = null; lastTicker = ''; cardsKey = ''; titleKey = ''; revealedPrev = null; fresh = true; rankKey = '';
       stopTimer(); fireworks.stop();
+      $('deck').classList.remove('xmas'); $('baubles').innerHTML = '';
       $('deck').dataset.stage = s.stage;
       $('ticker').innerHTML = '';
       const builders = { lobby: buildLobby, question: buildQuestion, slide: buildSlide, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
@@ -1650,27 +1652,71 @@
 
     const drawRoadmap = R => ({ road: drawRoad, peak: drawPeak }[(R && R.style)] || drawGantt)(R || {});
 
-    // ---------- FINALE: yes we can! ----------
+    // ---------- FINALE: yes we can! Then happy holidays ----------
+    // Act 1: the rally lines one by one, then YES WE CAN! with fireworks and confetti.
+    // Act 2 (a few seconds later): the lines make way, baubles drop from the string lights, the snow thickens and a
+    // golden "Happy holidays" lands letter by letter, with the thank-you line beneath. finale.holidays: '' skips act 2.
+    const BAUBLES = [   // x (% of the screen), string length and size (in u), colours, sway time
+      { x: 4, len: 8, size: 4.2, c: ['#ffe58a', '#c98f00'], sw: 3.1 },
+      { x: 10.5, len: 16, size: 5.6, c: ['#9fdcff', '#2c6fe0'], sw: 3.8, band: 1 },
+      { x: 17, len: 5, size: 3.4, c: ['#ffffff', '#9fb2e8'], sw: 2.7 },
+      { x: 83, len: 6.5, size: 3.6, c: ['#c9bcff', '#6a52e0'], sw: 2.9 },
+      { x: 89.5, len: 14.5, size: 5.4, c: ['#ffe58a', '#c98f00'], sw: 3.6, band: 1 },
+      { x: 96, len: 9, size: 4, c: ['#9fdcff', '#2c6fe0'], sw: 3.3 },
+    ];
+    const SPARKS = [[-5, 12, 1.1], [7, -34, .8], [24, 96, .7], [45, -40, 1], [63, 98, .8], [86, -30, .9], [103, 22, 1.2], [96, 88, .7], [-2, 82, .75], [33, -22, .6]];
+    const STAR = '<path d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z"/>';
+    function bauble(b, k) {
+      const id = 'bbg' + k;
+      return `<div class="bb" style="left:${b.x}%;--len:${b.len};--size:${b.size};--d:${(k % 3) * 160 + (k > 2 ? 90 : 0)}ms;--sw:${b.sw}s">
+        <div class="bb-swing"><i class="bb-str"></i>
+          <svg class="bb-ball" viewBox="0 0 100 122"><defs><radialGradient id="${id}" cx="36%" cy="58%" r="72%"><stop offset="0" stop-color="${b.c[0]}"/><stop offset="1" stop-color="${b.c[1]}"/></radialGradient></defs>
+            <circle cx="50" cy="7" r="5.5" fill="none" stroke="#d8dcf2" stroke-width="3"/>
+            <rect x="38" y="11" width="24" height="13" rx="3" fill="#d8dcf2"/><rect x="38" y="19" width="24" height="3" fill="#9aa1c8"/>
+            <circle cx="50" cy="72" r="48" fill="url(#${id})"/>
+            ${b.band ? '<path d="M3.5 66 Q50 86 96.5 66 M5 82 Q50 102 95 82" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="4.5"/>' : ''}
+            <ellipse cx="33" cy="52" rx="10" ry="17" transform="rotate(28 33 52)" fill="#fff" opacity=".5"/>
+          </svg></div></div>`;
+    }
     function buildFinale(s) {
       const F = s.finale || {};
+      const hol = F.holidays === undefined ? 'Happy holidays' : F.holidays;
+      let li = 0;
+      const letters = String(hol || '').split(' ').map(w => `<span class="fh-w">${[...w].map(ch => `<span class="fh-l" style="--i:${li++}">${esc(ch)}</span>`).join('')}</span>`).join('<span class="fh-sp"> </span>');
       $('titleblock').innerHTML = '';
       $('content').innerHTML = `
-        <div class="finale">
+        <div class="finale" id="finale">
           <div class="lines">${(F.lines || []).map((l, i) => `<div class="fline" style="--k:${i};--c:${LANES[(i * 2 + 1) % LANES.length]}">${esc(l)}</div>`).join('')}</div>
           <div class="yes" id="yes">${bouncy(F.title || 'YES WE CAN!', 'huge')}</div>
-          <div class="fthanks">${esc(F.thanks || '')}</div>
+          ${hol ? `<div class="fhol" id="fhol">
+            <div class="fh-word">${letters}${SPARKS.map(([x, y, sc], k) => `<svg class="fh-spark" viewBox="0 0 24 24" style="left:${x}%;top:${y}%;--s:${sc};--k:${k}">${STAR}</svg>`).join('')}</div>
+            ${F.thanks ? `<p class="fh-sub">${esc(F.thanks)}</p>` : ''}
+          </div>` : F.thanks ? `<div class="fthanks">${esc(F.thanks)}</div>` : ''}
           <div class="parade" id="parade"></div>
         </div>`;
       $('source').textContent = 'Tap cheer on your phone!';
-      $('ticker').innerHTML = (F.lines || []).map(l => `<span>${esc(l)}</span>`).join('');
-      const nLines = (F.lines || []).length;
+      $('ticker').innerHTML = [...(F.lines || []), ...(hol ? [hol] : [])].map(l => `<span>${esc(l)}</span>`).join('');
+      const nLines = (F.lines || []).length, yesAt = 700 + nLines * 900;
       (F.lines || []).forEach((_, i) => later(() => { flashLights(); pulse.spike(1); }, 600 + i * 900));
       later(() => {
         $('yes').classList.add('go');
         fireworks.start(); confetti.burst('cannons'); flashLights();
         $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
-      }, 700 + nLines * 900);
-      [4, 8, 12].forEach(k => later(() => { confetti.burst(k % 8 ? 'top' : 'cannons'); flashLights(); }, (700 + nLines * 900) + k * 1000));
+      }, yesAt);
+      later(() => { confetti.burst('top'); flashLights(); }, yesAt + 2200);
+      if (!hol) { [4, 8, 12].forEach(k => later(() => { confetti.burst(k % 8 ? 'top' : 'cannons'); flashLights(); }, yesAt + k * 1000)); return; }
+      const holAt = yesAt + 3800;
+      later(() => {
+        fireworks.stop();
+        snow.setIntensity(3.2);
+        $('baubles').innerHTML = BAUBLES.map(bauble).join('');
+        $('deck').classList.add('xmas'); $('finale').classList.add('xmas');
+        flashLights();
+      }, holAt);
+      const landed = holAt + 400 + li * 70 + 500;
+      later(() => { confetti.burst('cannons'); flashLights(); pulse.spike(1); }, landed);
+      // keep it alive while people cheer: a gentle burst and a flash of the lights now and then
+      [9, 17, 25].forEach(k => later(() => { confetti.burst('top'); flashLights(); }, landed + k * 1000));
     }
     function paintFinale(s) {
       const box = $('parade');

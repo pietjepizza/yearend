@@ -88,7 +88,7 @@
       if (!canvas.isConnected) return;
       ctx.clearRect(0, 0, W, H);
       if (on) {
-        const target = Math.min(320, Math.round(W * H / 11000 * level));
+        const target = Math.min(level > 2 ? 520 : 320, Math.round(W * H / 11000 * level));
         while (flakes.length < target) flakes.push(make(flakes.length > target * .5));
         if (flakes.length > target) flakes.length = target;
         for (const f of flakes) {

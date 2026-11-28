@@ -477,7 +477,37 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .yes .bouncy .word:last-child span { color: var(--gold); text-shadow: 0 0 calc(var(--u) * 2) rgba(255, 196, 0, .8), 0 0 calc(var(--u) * 5) rgba(255, 196, 0, .4); }
 .yes.go .bouncy span:not(.sp):not(.word) { animation: glowpulse 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 60ms + 1s); }
 @keyframes glowpulse { 50% { filter: brightness(1.25); transform: translateY(-.04em); } }
-.fthanks { font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.8); color: var(--fg-2); opacity: 0; animation: fadein .8s both; animation-delay: 4.6s; }
+.fthanks { font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.8); color: var(--fg-2); opacity: 0; animation: fhsub .8s var(--ease) forwards; animation-delay: 4.6s; }
+
+/* finale, act 2: happy holidays. The rally lines make way, YES WE CAN! moves up, baubles drop from the string
+   lights and a golden "Happy holidays" lands letter by letter with a shine running through it. */
+.deck > .baubles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.bb { position: absolute; top: calc(var(--u) * .5); width: calc(var(--u) * var(--size)); margin-left: calc(var(--u) * var(--size) / -2); transform: translateY(-130%); animation: bbdrop 1.4s cubic-bezier(.25, 1.4, .45, 1) forwards; animation-delay: var(--d); }
+@keyframes bbdrop { to { transform: none; } }
+.bb-swing { transform-origin: 50% 0; animation: bbsway var(--sw) ease-in-out infinite; animation-delay: calc(var(--d) + 1.2s); }
+@keyframes bbsway { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(4.5deg); } 75% { transform: rotate(-4.5deg); } }
+.bb-str { display: block; width: 2px; height: calc(var(--u) * var(--len)); margin: 0 auto; background: linear-gradient(rgba(255, 255, 255, .12), rgba(255, 255, 255, .6)); }
+.bb-ball { display: block; width: 100%; height: auto; margin-top: -1px; filter: drop-shadow(0 0 calc(var(--u) * 1) rgba(143, 211, 255, .35)); }
+.deck .topbar { transition: opacity .9s, transform .9s var(--ease); }
+.deck.xmas .topbar { opacity: 0; transform: translateY(calc(var(--u) * -1.5)); }
+.finale .lines { max-height: calc(var(--u) * 14); transition: opacity .7s, filter .7s, max-height 1s var(--ease) .15s, margin 1s var(--ease) .15s; }
+.finale.xmas .lines { opacity: 0; filter: blur(8px); max-height: 0; margin-bottom: calc(var(--u) * -1.2); }
+.finale .yes .bouncy.huge { transition: font-size 1s var(--ease); }
+.finale.xmas .yes .bouncy.huge { font-size: calc(var(--u) * 6.4); }
+.fhol { max-height: 0; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 1.5); transition: max-height 1s var(--ease), opacity .4s; }
+.finale.xmas .fhol { max-height: calc(var(--u) * 22); opacity: 1; }
+.fh-word { position: relative; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 6.6); line-height: 1.1; letter-spacing: -.01em; white-space: nowrap; filter: drop-shadow(0 0 calc(var(--u) * 1.4) rgba(255, 196, 0, .45)); }
+.fh-w { display: inline-block; }
+.fh-l { display: inline-block; opacity: 0; color: transparent; background: linear-gradient(105deg, #ffe9a6 0%, #ffc400 30%, #fff8e1 45%, #ffc400 60%, #e6a400 100%); background-size: 320% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; }
+.finale.xmas .fh-l { animation: fhdrop 1s cubic-bezier(.3, 1.55, .5, 1) forwards, fhshine 3.6s linear infinite; animation-delay: calc(var(--i) * 70ms + .4s), calc(var(--i) * 70ms + 1.9s); }
+@keyframes fhdrop { 0% { opacity: 0; transform: translateY(-1.4em) rotate(-14deg) scale(.5); } 45% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes fhshine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.fh-spark { position: absolute; width: calc(var(--u) * 1.7 * var(--s)); height: auto; fill: #fff3c4; opacity: 0; transform: translate(-50%, -50%) scale(0); filter: drop-shadow(0 0 calc(var(--u) * .5) rgba(255, 220, 120, .9)); }
+.finale.xmas .fh-spark { animation: twinkstar 2.4s ease-in-out infinite; animation-delay: calc(var(--k) * 330ms + 1.5s); }
+@keyframes twinkstar { 0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0); } 40% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(45deg); } 70% { opacity: .6; transform: translate(-50%, -50%) scale(.35) rotate(90deg); } }
+.fh-sub { margin: 0; font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.9); color: var(--fg); opacity: 0; }
+.finale.xmas .fh-sub { animation: fhsub .9s var(--ease) forwards; animation-delay: 2.3s; }
+@keyframes fhsub { from { opacity: 0; transform: translateY(calc(var(--u) * 1)); filter: blur(4px); } to { opacity: .92; transform: none; filter: none; } }
 .parade { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 1.2); display: flex; justify-content: center; align-items: center; gap: calc(var(--u) * .9); pointer-events: none; height: calc(var(--u) * 3); }
 .parade i { width: calc(var(--u) * .9); height: calc(var(--u) * .9); border-radius: 50%; background: var(--c); box-shadow: 0 0 calc(var(--u) * .8) var(--c); opacity: .5; animation: lightwave 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 70ms); }
 @keyframes lightwave { 0%, 60%, 100% { transform: none; opacity: .45; } 25% { transform: translateY(calc(var(--u) * -1.1)) scale(1.5); opacity: 1; background: #fff; } }
@@ -595,6 +625,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .waiting-note i { width: 7px; height: 7px; border-radius: 50%; background: var(--sky); animation: breathe 1.2s ease-in-out infinite; }
 
 .yes-p { font-size: 40px !important; color: var(--fg); text-shadow: 0 0 18px rgba(95, 184, 255, .9); }
+#cheer .cheer-hol { margin: 2px 0 6px; font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--gold); text-shadow: 0 0 14px rgba(255, 196, 0, .5); }
+#cheer .cheer-hol::before, #cheer .cheer-hol::after { content: '✦'; margin: 0 .45em; font-size: .7em; vertical-align: .15em; }
 .cheer-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 180px; height: 180px; margin: 24px auto 10px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .35); background: radial-gradient(circle at 35% 30%, var(--sky), var(--blue) 55%, var(--brand)); color: #fff; font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .04em; box-shadow: 0 0 30px rgba(95, 184, 255, .6); animation: cheerpulse 1.6s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
 .cheer-btn span { font-size: 52px; line-height: 1; }
 .cheer-btn:active { transform: scale(.95); }

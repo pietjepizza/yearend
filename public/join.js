@@ -101,6 +101,7 @@
 
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
+        <p class="cheer-hol" id="cheerHol">Happy holidays</p>
         <p>Make some noise for the team!</p>
         <button class="cheer-btn" id="cheerBtn"><span>🙌</span>CHEER!</button>
         <p class="cheer-n"><b id="cheerN">0</b> cheers from you</p>
@@ -196,7 +197,11 @@
       const steps = s.total;
       timer(s.stage === 'question' && !s.revealed ? s.timeLeft : 0, s.timerTotal);
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
-      if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
+      if (s.stage === 'finale') {
+        const hol = s.finale && s.finale.holidays !== undefined ? s.finale.holidays : 'Happy holidays';
+        $('cheerHol').textContent = hol || ''; $('cheerHol').hidden = !hol;
+        $('step').textContent = 'Finale'; return show('cheer');
+      }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'tug' && T.tugTap) { $('step').textContent = 'Tug of war'; renderTug(); return show('tug'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'kudos' && T.sendKudos) { $('step').textContent = 'Kudos'; renderKudos(); return show('kudos'); }

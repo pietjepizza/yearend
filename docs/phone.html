@@ -625,7 +625,37 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .yes .bouncy .word:last-child span { color: var(--gold); text-shadow: 0 0 calc(var(--u) * 2) rgba(255, 196, 0, .8), 0 0 calc(var(--u) * 5) rgba(255, 196, 0, .4); }
 .yes.go .bouncy span:not(.sp):not(.word) { animation: glowpulse 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 60ms + 1s); }
 @keyframes glowpulse { 50% { filter: brightness(1.25); transform: translateY(-.04em); } }
-.fthanks { font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.8); color: var(--fg-2); opacity: 0; animation: fadein .8s both; animation-delay: 4.6s; }
+.fthanks { font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.8); color: var(--fg-2); opacity: 0; animation: fhsub .8s var(--ease) forwards; animation-delay: 4.6s; }
+
+/* finale, act 2: happy holidays. The rally lines make way, YES WE CAN! moves up, baubles drop from the string
+   lights and a golden "Happy holidays" lands letter by letter with a shine running through it. */
+.deck > .baubles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.bb { position: absolute; top: calc(var(--u) * .5); width: calc(var(--u) * var(--size)); margin-left: calc(var(--u) * var(--size) / -2); transform: translateY(-130%); animation: bbdrop 1.4s cubic-bezier(.25, 1.4, .45, 1) forwards; animation-delay: var(--d); }
+@keyframes bbdrop { to { transform: none; } }
+.bb-swing { transform-origin: 50% 0; animation: bbsway var(--sw) ease-in-out infinite; animation-delay: calc(var(--d) + 1.2s); }
+@keyframes bbsway { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(4.5deg); } 75% { transform: rotate(-4.5deg); } }
+.bb-str { display: block; width: 2px; height: calc(var(--u) * var(--len)); margin: 0 auto; background: linear-gradient(rgba(255, 255, 255, .12), rgba(255, 255, 255, .6)); }
+.bb-ball { display: block; width: 100%; height: auto; margin-top: -1px; filter: drop-shadow(0 0 calc(var(--u) * 1) rgba(143, 211, 255, .35)); }
+.deck .topbar { transition: opacity .9s, transform .9s var(--ease); }
+.deck.xmas .topbar { opacity: 0; transform: translateY(calc(var(--u) * -1.5)); }
+.finale .lines { max-height: calc(var(--u) * 14); transition: opacity .7s, filter .7s, max-height 1s var(--ease) .15s, margin 1s var(--ease) .15s; }
+.finale.xmas .lines { opacity: 0; filter: blur(8px); max-height: 0; margin-bottom: calc(var(--u) * -1.2); }
+.finale .yes .bouncy.huge { transition: font-size 1s var(--ease); }
+.finale.xmas .yes .bouncy.huge { font-size: calc(var(--u) * 6.4); }
+.fhol { max-height: 0; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 1.5); transition: max-height 1s var(--ease), opacity .4s; }
+.finale.xmas .fhol { max-height: calc(var(--u) * 22); opacity: 1; }
+.fh-word { position: relative; font-family: var(--display); font-weight: 700; font-size: calc(var(--u) * 6.6); line-height: 1.1; letter-spacing: -.01em; white-space: nowrap; filter: drop-shadow(0 0 calc(var(--u) * 1.4) rgba(255, 196, 0, .45)); }
+.fh-w { display: inline-block; }
+.fh-l { display: inline-block; opacity: 0; color: transparent; background: linear-gradient(105deg, #ffe9a6 0%, #ffc400 30%, #fff8e1 45%, #ffc400 60%, #e6a400 100%); background-size: 320% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; }
+.finale.xmas .fh-l { animation: fhdrop 1s cubic-bezier(.3, 1.55, .5, 1) forwards, fhshine 3.6s linear infinite; animation-delay: calc(var(--i) * 70ms + .4s), calc(var(--i) * 70ms + 1.9s); }
+@keyframes fhdrop { 0% { opacity: 0; transform: translateY(-1.4em) rotate(-14deg) scale(.5); } 45% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes fhshine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.fh-spark { position: absolute; width: calc(var(--u) * 1.7 * var(--s)); height: auto; fill: #fff3c4; opacity: 0; transform: translate(-50%, -50%) scale(0); filter: drop-shadow(0 0 calc(var(--u) * .5) rgba(255, 220, 120, .9)); }
+.finale.xmas .fh-spark { animation: twinkstar 2.4s ease-in-out infinite; animation-delay: calc(var(--k) * 330ms + 1.5s); }
+@keyframes twinkstar { 0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0); } 40% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(45deg); } 70% { opacity: .6; transform: translate(-50%, -50%) scale(.35) rotate(90deg); } }
+.fh-sub { margin: 0; font-family: var(--display); font-weight: 500; font-size: calc(var(--u) * 1.9); color: var(--fg); opacity: 0; }
+.finale.xmas .fh-sub { animation: fhsub .9s var(--ease) forwards; animation-delay: 2.3s; }
+@keyframes fhsub { from { opacity: 0; transform: translateY(calc(var(--u) * 1)); filter: blur(4px); } to { opacity: .92; transform: none; filter: none; } }
 .parade { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 1.2); display: flex; justify-content: center; align-items: center; gap: calc(var(--u) * .9); pointer-events: none; height: calc(var(--u) * 3); }
 .parade i { width: calc(var(--u) * .9); height: calc(var(--u) * .9); border-radius: 50%; background: var(--c); box-shadow: 0 0 calc(var(--u) * .8) var(--c); opacity: .5; animation: lightwave 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 70ms); }
 @keyframes lightwave { 0%, 60%, 100% { transform: none; opacity: .45; } 25% { transform: translateY(calc(var(--u) * -1.1)) scale(1.5); opacity: 1; background: #fff; } }
@@ -743,6 +773,8 @@ body.presenting { height: 100vh; overflow: hidden; background: #03021a; }
 .waiting-note i { width: 7px; height: 7px; border-radius: 50%; background: var(--sky); animation: breathe 1.2s ease-in-out infinite; }
 
 .yes-p { font-size: 40px !important; color: var(--fg); text-shadow: 0 0 18px rgba(95, 184, 255, .9); }
+#cheer .cheer-hol { margin: 2px 0 6px; font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--gold); text-shadow: 0 0 14px rgba(255, 196, 0, .5); }
+#cheer .cheer-hol::before, #cheer .cheer-hol::after { content: '✦'; margin: 0 .45em; font-size: .7em; vertical-align: .15em; }
 .cheer-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 180px; height: 180px; margin: 24px auto 10px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .35); background: radial-gradient(circle at 35% 30%, var(--sky), var(--blue) 55%, var(--brand)); color: #fff; font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .04em; box-shadow: 0 0 30px rgba(95, 184, 255, .6); animation: cheerpulse 1.6s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
 .cheer-btn span { font-size: 52px; line-height: 1; }
 .cheer-btn:active { transform: scale(.95); }
@@ -1687,7 +1719,7 @@ body.notes-mode { background: #07062f; overflow: auto; }
       if (!canvas.isConnected) return;
       ctx.clearRect(0, 0, W, H);
       if (on) {
-        const target = Math.min(320, Math.round(W * H / 11000 * level));
+        const target = Math.min(level > 2 ? 520 : 320, Math.round(W * H / 11000 * level));
         while (flakes.length < target) flakes.push(make(flakes.length > target * .5));
         if (flakes.length > target) flakes.length = target;
         for (const f of flakes) {
@@ -2289,6 +2321,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
     <canvas class="snow" id="snow" aria-hidden="true"></canvas>
     <canvas class="fireworks" id="fireworks" aria-hidden="true"></canvas>
     <div class="lights" id="lights" aria-hidden="true"></div>
+    <div class="baubles" id="baubles" aria-hidden="true"></div>
     <div class="topbar">
       <span class="tag" id="team"></span>
       <span class="event" id="event"></span>
@@ -2418,6 +2451,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       timers.forEach(clearTimeout); timers = [];
       cloudEls.clear(); lastN = null; lastTicker = ''; cardsKey = ''; titleKey = ''; revealedPrev = null; fresh = true; rankKey = '';
       stopTimer(); fireworks.stop();
+      $('deck').classList.remove('xmas'); $('baubles').innerHTML = '';
       $('deck').dataset.stage = s.stage;
       $('ticker').innerHTML = '';
       const builders = { lobby: buildLobby, question: buildQuestion, slide: buildSlide, recap: buildRecap, roadmap: buildRoadmap, finale: buildFinale };
@@ -3918,27 +3952,71 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
 
     const drawRoadmap = R => ({ road: drawRoad, peak: drawPeak }[(R && R.style)] || drawGantt)(R || {});
 
-    // ---------- FINALE: yes we can! ----------
+    // ---------- FINALE: yes we can! Then happy holidays ----------
+    // Act 1: the rally lines one by one, then YES WE CAN! with fireworks and confetti.
+    // Act 2 (a few seconds later): the lines make way, baubles drop from the string lights, the snow thickens and a
+    // golden "Happy holidays" lands letter by letter, with the thank-you line beneath. finale.holidays: '' skips act 2.
+    const BAUBLES = [   // x (% of the screen), string length and size (in u), colours, sway time
+      { x: 4, len: 8, size: 4.2, c: ['#ffe58a', '#c98f00'], sw: 3.1 },
+      { x: 10.5, len: 16, size: 5.6, c: ['#9fdcff', '#2c6fe0'], sw: 3.8, band: 1 },
+      { x: 17, len: 5, size: 3.4, c: ['#ffffff', '#9fb2e8'], sw: 2.7 },
+      { x: 83, len: 6.5, size: 3.6, c: ['#c9bcff', '#6a52e0'], sw: 2.9 },
+      { x: 89.5, len: 14.5, size: 5.4, c: ['#ffe58a', '#c98f00'], sw: 3.6, band: 1 },
+      { x: 96, len: 9, size: 4, c: ['#9fdcff', '#2c6fe0'], sw: 3.3 },
+    ];
+    const SPARKS = [[-5, 12, 1.1], [7, -34, .8], [24, 96, .7], [45, -40, 1], [63, 98, .8], [86, -30, .9], [103, 22, 1.2], [96, 88, .7], [-2, 82, .75], [33, -22, .6]];
+    const STAR = '<path d="M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0Z"/>';
+    function bauble(b, k) {
+      const id = 'bbg' + k;
+      return `<div class="bb" style="left:${b.x}%;--len:${b.len};--size:${b.size};--d:${(k % 3) * 160 + (k > 2 ? 90 : 0)}ms;--sw:${b.sw}s">
+        <div class="bb-swing"><i class="bb-str"></i>
+          <svg class="bb-ball" viewBox="0 0 100 122"><defs><radialGradient id="${id}" cx="36%" cy="58%" r="72%"><stop offset="0" stop-color="${b.c[0]}"/><stop offset="1" stop-color="${b.c[1]}"/></radialGradient></defs>
+            <circle cx="50" cy="7" r="5.5" fill="none" stroke="#d8dcf2" stroke-width="3"/>
+            <rect x="38" y="11" width="24" height="13" rx="3" fill="#d8dcf2"/><rect x="38" y="19" width="24" height="3" fill="#9aa1c8"/>
+            <circle cx="50" cy="72" r="48" fill="url(#${id})"/>
+            ${b.band ? '<path d="M3.5 66 Q50 86 96.5 66 M5 82 Q50 102 95 82" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="4.5"/>' : ''}
+            <ellipse cx="33" cy="52" rx="10" ry="17" transform="rotate(28 33 52)" fill="#fff" opacity=".5"/>
+          </svg></div></div>`;
+    }
     function buildFinale(s) {
       const F = s.finale || {};
+      const hol = F.holidays === undefined ? 'Happy holidays' : F.holidays;
+      let li = 0;
+      const letters = String(hol || '').split(' ').map(w => `<span class="fh-w">${[...w].map(ch => `<span class="fh-l" style="--i:${li++}">${esc(ch)}</span>`).join('')}</span>`).join('<span class="fh-sp"> </span>');
       $('titleblock').innerHTML = '';
       $('content').innerHTML = `
-        <div class="finale">
+        <div class="finale" id="finale">
           <div class="lines">${(F.lines || []).map((l, i) => `<div class="fline" style="--k:${i};--c:${LANES[(i * 2 + 1) % LANES.length]}">${esc(l)}</div>`).join('')}</div>
           <div class="yes" id="yes">${bouncy(F.title || 'YES WE CAN!', 'huge')}</div>
-          <div class="fthanks">${esc(F.thanks || '')}</div>
+          ${hol ? `<div class="fhol" id="fhol">
+            <div class="fh-word">${letters}${SPARKS.map(([x, y, sc], k) => `<svg class="fh-spark" viewBox="0 0 24 24" style="left:${x}%;top:${y}%;--s:${sc};--k:${k}">${STAR}</svg>`).join('')}</div>
+            ${F.thanks ? `<p class="fh-sub">${esc(F.thanks)}</p>` : ''}
+          </div>` : F.thanks ? `<div class="fthanks">${esc(F.thanks)}</div>` : ''}
           <div class="parade" id="parade"></div>
         </div>`;
       $('source').textContent = 'Tap cheer on your phone!';
-      $('ticker').innerHTML = (F.lines || []).map(l => `<span>${esc(l)}</span>`).join('');
-      const nLines = (F.lines || []).length;
+      $('ticker').innerHTML = [...(F.lines || []), ...(hol ? [hol] : [])].map(l => `<span>${esc(l)}</span>`).join('');
+      const nLines = (F.lines || []).length, yesAt = 700 + nLines * 900;
       (F.lines || []).forEach((_, i) => later(() => { flashLights(); pulse.spike(1); }, 600 + i * 900));
       later(() => {
         $('yes').classList.add('go');
         fireworks.start(); confetti.burst('cannons'); flashLights();
         $('deck').classList.remove('shake'); void $('deck').offsetWidth; $('deck').classList.add('shake');
-      }, 700 + nLines * 900);
-      [4, 8, 12].forEach(k => later(() => { confetti.burst(k % 8 ? 'top' : 'cannons'); flashLights(); }, (700 + nLines * 900) + k * 1000));
+      }, yesAt);
+      later(() => { confetti.burst('top'); flashLights(); }, yesAt + 2200);
+      if (!hol) { [4, 8, 12].forEach(k => later(() => { confetti.burst(k % 8 ? 'top' : 'cannons'); flashLights(); }, yesAt + k * 1000)); return; }
+      const holAt = yesAt + 3800;
+      later(() => {
+        fireworks.stop();
+        snow.setIntensity(3.2);
+        $('baubles').innerHTML = BAUBLES.map(bauble).join('');
+        $('deck').classList.add('xmas'); $('finale').classList.add('xmas');
+        flashLights();
+      }, holAt);
+      const landed = holAt + 400 + li * 70 + 500;
+      later(() => { confetti.burst('cannons'); flashLights(); pulse.spike(1); }, landed);
+      // keep it alive while people cheer: a gentle burst and a flash of the lights now and then
+      [9, 17, 25].forEach(k => later(() => { confetti.burst('top'); flashLights(); }, landed + k * 1000));
     }
     function paintFinale(s) {
       const box = $('parade');
@@ -4114,6 +4192,7 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
 
       <section id="cheer" class="done" hidden>
         <h2 class="yes-p">YES WE CAN!</h2>
+        <p class="cheer-hol" id="cheerHol">Happy holidays</p>
         <p>Make some noise for the team!</p>
         <button class="cheer-btn" id="cheerBtn"><span>🙌</span>CHEER!</button>
         <p class="cheer-n"><b id="cheerN">0</b> cheers from you</p>
@@ -4209,7 +4288,11 @@ ${qa ? `<section><div class="k">Q&amp;A · ${sum.qa.length} question${sum.qa.len
       const steps = s.total;
       timer(s.stage === 'question' && !s.revealed ? s.timeLeft : 0, s.timerTotal);
       if (s.stage === 'lobby') { $('step').textContent = 'Lobby'; return show('lobby'); }
-      if (s.stage === 'finale') { $('step').textContent = 'Finale'; return show('cheer'); }
+      if (s.stage === 'finale') {
+        const hol = s.finale && s.finale.holidays !== undefined ? s.finale.holidays : 'Happy holidays';
+        $('cheerHol').textContent = hol || ''; $('cheerHol').hidden = !hol;
+        $('step').textContent = 'Finale'; return show('cheer');
+      }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'qa') { $('step').textContent = 'Q&A'; renderAsk(); return show('ask'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'tug' && T.tugTap) { $('step').textContent = 'Tug of war'; renderTug(); return show('tug'); }
       if (s.stage === 'slide' && s.slide && s.slide.type === 'kudos' && T.sendKudos) { $('step').textContent = 'Kudos'; renderKudos(); return show('kudos'); }

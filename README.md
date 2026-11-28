@@ -39,7 +39,7 @@ Move the mouse to show the control bar: ← →, Reveal now, Snow, Reset (click 
 | **Kudos wall** | Right after the shout-outs, colleagues thank each other from their phones: pick a kind (Thank you, Hero of the year, Team player, Calm in the storm, Energy boost), write who it is for and a line. One card at a time sits in the spotlight (a new one goes there straight away); the others form a wall. Click a card to remove it, U brings it back. |
 | **Tug of war** | Just before the finale: every phone is on Team Debit or Team Credit (picked at random, about half and half). Press H: 3-2-1, then "PULL!" and 20 seconds of tapping. The rope and its gold knot follow the pulls live; the winner gets gold, confetti and fireworks. H again for a rematch. |
 | **Live Q&A** | People ask anonymously on their phones and upvote each other's questions. The big screen shows them ranked live. |
-| **Finale** | Rally lines, a giant "YES WE CAN!", fireworks. Phones turn into a **CHEER!** button. |
+| **Finale** | Rally lines, a giant "YES WE CAN!", fireworks and confetti. A few seconds later the holiday moment: the lines make way, baubles drop from the string lights, the snow thickens and a golden "Happy holidays" lands letter by letter with the thank-you line beneath. Phones turn into a **CHEER!** button with the holiday greeting. |
 | **February check-in** | Extra screens after the finale (Next never runs into them). Open them from the presenter guide: the energy question again, with **December's score beside today's**, plus a go-live question. Same QR code. Don't press Reset first if you want the comparison. |
 
 After the event, **Download results** in the presenter guide saves a one-page summary (all polls, the award winner, the pledges and the Q&A questions) that you can share or print as PDF.
@@ -65,7 +65,8 @@ The main parts of `questions.json`:
 - **`tug`** and **`kudos`** steps: the tug of war takes `teams` (two names) and `seconds`; the kudos wall takes `title`, `subtitle` and, for the simulator, `demo` cards.
 - **`roadmap`**: the timeline. `start`/`end` (the date range), `holidays` (`label`, `start`, `end`), and `rows` of `items`: bars (`start`, `end`, both days included, `fade`, `key`) and milestones (`date`; `key: true` makes it the gold line). `weight` sets how much an item adds to the workload, `peakZone` (default 55) where the gold peak weeks start, and `stats` the figures beside the title.
 - **`countdown`**: the chip at the top right, counting the days to a `date`.
-- `timer` (seconds per poll), `lobby`, `recap`, `finale`, `ticker` (the light-hearted lines in the bottom ticker) and `reactions`.
+- **`finale`**: `lines` (the rally lines), `title` ("YES WE CAN!"), `holidays` (the holiday greeting; `""` leaves out the holiday moment) and `thanks` (the line beneath it).
+- `timer` (seconds per poll), `lobby`, `recap`, `ticker` (the light-hearted lines in the bottom ticker) and `reactions`.
 
 ## Testing
 

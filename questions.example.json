@@ -296,7 +296,7 @@
     {
       "type": "finale",
       "nav": "Finale",
-      "notes": "End on a high: YES WE CAN! The phones turn into a cheer button."
+      "notes": "End on a high: YES WE CAN! A few seconds later the screen turns to Happy holidays: baubles, snow and the thank-you. The phones turn into a cheer button."
     },
     {
       "type": "section",
@@ -537,7 +537,8 @@
       "[Rally line 3]"
     ],
     "title": "YES WE CAN!",
-    "thanks": "Happy holidays, Finance Operations!"
+    "holidays": "Happy holidays",
+    "thanks": "[Thank you line, for example: Thank you, team · Here's to a happy, healthy new year]"
   },
   "questions": [
     {
